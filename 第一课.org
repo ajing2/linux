@@ -1,0 +1,127 @@
+#+TITLE: 第一课
+* 1.1 linux的发行版本
+  centos redhat ubuntu
+
+  问题：要不是考证的问题；
+* 1.2 创建虚拟机：
+  - a. vmware和virtualbox
+  - b. 镜像的问题：centos6和centos7
+  - c. vmware网卡模式：
+    
+    1. 仅主机：虚拟机用网线和pc连接
+    2. 桥接：虚拟机和本机并列关系，网段一样，（相当于两个pc）
+    3. nat模式：pc路由转发，虚拟机把pc当成路由器
+
+  - d. 32位和64位 （x86） 8g内存为区分
+
+    (centos7以上都是64位)32位只支持4g内存
+* 1.3 安装系统
+  #+BEGIN_EXAMPLE
+  显示器设置分辨率为800*600
+  分区：/ 20g
+  /swap 内存的2倍 最大8g（后期可以增加） http://www.apelearn.com/study_v2/chapter9.html#swap dd
+  /boot 200m
+  /export 剩余的所有
+  #+END_EXAMPLE
+  扩展: 模拟开机故障 [[http://www.apelearn.com/bbs/thread-5472-1-1.html]]
+
+* 1.4.配置ip
+  - dhclient (多次运行killall dhclient)
+  - ifconfig ip a
+  - /etc/sysconfig/network-scripts/ifcfg-eth0 (vim)
+    - vi /etc/sysconfig/network-scripts/ifcfg-eth0 编辑网卡配置文件
+      #+BEGIN_EXAMPLE
+      BOOTPROTO dhcp改为 static 表示静态ip
+      IPADDR= 我们自定义的ip（是自动获取到的ip，并不是随便写一个就可以用）
+      NETMASK=子网掩码
+      GATEWAY=网关（可以通过 route -n 查看到）
+      ONBOOT=yes 表示开机启动网卡，否则网卡是down的
+      DNS1=后面跟DNS服务器的ip，可以继续添加第二个DNS2=
+      #+END_EXAMPLE
+  - vim /etc/resolv.conf
+
+* 1.5.远程连接工具：
+  =xshell=
+  =putty=
+  =securecrt=
+
+* 1.6 秘钥验证
+* 1.7 运行级别
+  7个运行级别：0 关机 1单用户 2不带NFS服务的3级别 3命令行模式 4保留 5图形 6重启
+
+  [[file:image/7_level.png]]
+* 1.8单用户模式
+* 1.9 救援模式
+  - 若是真机，需要有安装光盘或者U盘，重启进入bios调成光驱启动，选择 ‘Rescue installed system’ 
+  - 语言我们默认，键盘类型也默认
+  - Rescue Method 也保持默认
+  - 是否在使用rescue模式的时候启用网络，这个根据实际情况，在这里阿铭选择NO(使用tab键) 
+  - 三种模式可以选择:
+    - shell 模式会直接进入命令行, 可以进行的操作有编辑文件、修改用户密码等;
+    - fakd 是诊断模式
+    - reboot 会直接重启;
+    选择第一个shell模式
+
+    执行一个命令：chroot /mnt/sysimage
+* 1.10 cd命令
+  #+BEGIN_EXAMPLE
+  cd
+  cd ~
+  cd -
+  cd ..
+  #+END_EXAMPLE
+  
+* 1.11 ls命令
+  #+BEGIN_EXAMPLE
+  ls -lhtr
+  ls -d
+  ls -a
+  #+END_EXAMPLE
+
+* 1.12 echo命令
+  #+BEGIN_EXAMPLE
+  echo 'hello world!'
+  #+END_EXAMPLE
+  
+* 1.13 linux系统环境变量
+  #+BEGIN_EXAMPLE
+  echo $PATH
+  $PATH=$PATH:./ (vim /etc/profile)
+  #+END_EXAMPLE
+  =~/.bash_profile=: 每个用户都可使用该文件输入专用于自己使用的shell信息,当用户登录时,该文件仅仅执行一次!默认情况下,他设置一些环境变量,执行用户的.bashrc文件
+  
+  =~/.bashrc=: 该文件包含专用于你的bash shell的bash信息,当登录时以及每次打开新的shell时,该该文件被读取.
+
+  =source /etc/profile= =./etc/profile= 两条命令效果相同
+
+  #+BEGIN_EXAMPLE
+  alias xiang='ls -lhtr'
+  unalias xiang
+  #+END_EXAMPLE
+
+
+* 1.14 快捷键
+  #+BEGIN_EXAMPLE
+  ctrl+l
+  ctrl+d
+  ctrl+c
+  ctrl+z     jobs    fg
+  tab
+  ctrl + u 删除光标前所有字符
+  ctrl + k 删除光标后所有字符
+  #+END_EXAMPLE
+
+* 1.15 目录
+  #+BEGIN_EXAMPLE
+  mkdir
+  rmdir    rm -rf
+  #+END_EXAMPLE
+
+* 1.16 cp命令
+  #+BEGIN_EXAMPLE
+  cp -r
+  #+END_EXAMPLE
+
+* 1.17 mv命令
+  - 移动地方 mv 1.txt /home/admin/
+  - 重命名 mv 1.txt 2.tx
