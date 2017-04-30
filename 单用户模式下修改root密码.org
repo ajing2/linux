@@ -1,0 +1,30 @@
+#+TITLE: 单用户模式下修改root密码
+
+* centos6
+  - 重启Linux, 3秒钟内, 按一下回车键;
+  - 若有加grub密码, 需要先按p, 输入密码方可进行后面的操作;
+  - 按e, 选择第二行, 再按e;
+  - 在最后面加入single或者数字1或者字母s;
+  - 先按回车再按b;
+
+  这样就成功进入单用户模式，我们可以修改root密码
+
+* centos7
+
+  1. cenos7采用的是grub2界面会有连个入口，一个是正常系统入口，一个是救援模式
+
+  2. 修改grub2引导
+
+     #+BEGIN_EXAMPLE
+     正常系统下按下e
+     知道linux16开头，把ro改成rw 只读改成可写
+     rhgb quiet 换成init=/bin/bash 指定shell环境
+     按下ctrl+x重启系统
+     #+END_EXAMPLE
+
+  3. 修改密码
+     #+BEGIN_EXAMPLE
+     passwd
+     touch /.autorelabel 据说是selinex在重启后跟新label（删除重新创建）
+     exec /sbin/init 重启
+     #+END_EXAMPLE
