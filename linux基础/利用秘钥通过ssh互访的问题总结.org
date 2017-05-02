@@ -1,0 +1,71 @@
+#+TITLE: 利用秘钥通过ssh互访的问题总结
+
+* 需求设定
+  问题设想有如下两台电脑, ip分别为
+  #+BEGIN_EXAMPLE
+  ip1:192.168.1.10
+  ip2:192.168.1.11
+  #+END_EXAMPLE
+  现在, 我们需要通过秘钥来进行互访
+
+* 具体操作
+
+  - 在ip1上执行
+    
+    [[file:image/ip1.png]]
+
+    这里首先定义的是私钥的存放路径。接着是定义公钥的存放路径
+
+    [[file:image/ip1-1.png]]
+
+  - 在ip2上执行
+    #+BEGIN_EXAMPLE
+    mkdir /root/.ssh
+    chmod 600 /root/.ssh
+    cd /root/.ssh
+    vim authorized_keys
+    #+END_EXAMPLE
+    将ip1中的公钥内容粘贴到 =authorized_keys= 中
+
+    - 查看selinux的状态, =sestatus=
+
+      [[file:image/sestatus.png]]
+
+      这里已经关闭，若没有关闭，暂时关闭用这个命令: =setenforce 0=
+
+      永久性关闭: =vim /etc/selinux/config=
+      #+BEGIN_EXAMPLE
+      SELINUX=disabled
+      #+END_EXAMPLE
+
+    - 清空防火墙规则
+      #+BEGIN_EXAMPLE
+      ipstables -F
+      service iptables save
+      #+END_EXAMPLE
+      或者执行 =service iptables stop= 即可
+
+    - 尝试在ip1上连接ip2
+
+      #+BEGIN_EXAMPLE
+      ssh 192.168.1.11
+      #+END_EXAMPLE
+      若出现 ssh: command not found, 则 =yum install -y openssh-clients=
+
+      安装完成后, 再次运行 =ssh 192.168.1.11= 就可以成功登录ip2;
+
+      按照相同的方法在ip2上执行相同的步骤, 两台主机便可实行免密互相访问;
+
+* 常见问题
+
+  1. 第一次登录的时候需要互信，需要yes
+
+  2. 文件名写错了
+
+  3. pub没有生成
+
+  4. disabled selinux
+
+  5. authorized_keys 权限有要求，一定是600，特别是非root用户的时候
+
+  6. SecureCRT生成密钥及使用密钥登录服务器, 可参考 [[http://jicki.blog.51cto.com/1323993/1361264][链接]]
