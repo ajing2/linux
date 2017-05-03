@@ -148,7 +148,7 @@
   7个运行级别：0 关机 1单用户 2不带NFS服务的3级别 3命令行模式 4保留 5图形 6重启
 
   [[file:image/7_level.png]]
-* 1.8单用户模式下修改root密码
+* 1.8 单用户模式下修改root密码
 ** centos6
    - 重启Linux, 3秒钟内, 按一下回车键;
    - 若有加grub密码, 需要先按p, 输入密码方可进行后面的操作;
@@ -177,41 +177,7 @@
       touch /.autorelabel 据说是selinex在重启后跟新label（删除重新创建）
       exec /sbin/init 重启
       #+END_EXAMPLE
-* 1.9 救援模式
-  - 若是真机，需要有安装光盘或者U盘，重启进入bios调成光驱启动，选择 ‘Rescue installed system’ 
-  - 语言我们默认，键盘类型也默认
-  - Rescue Method 也保持默认
-  - 是否在使用rescue模式的时候启用网络，这个根据实际情况，在这里阿铭选择NO(使用tab键) 
-  - 三种模式可以选择:
-    - shell 模式会直接进入命令行, 可以进行的操作有编辑文件、修改用户密码等;
-    - fakd 是诊断模式
-    - reboot 会直接重启
-
-  选择第一个shell模式
-
-  执行一个命令：chroot /mnt/sysimage
-
-* 1.10 cd命令
-  #+BEGIN_EXAMPLE
-  cd
-  cd ~
-  cd -
-  cd ..
-  #+END_EXAMPLE
-  
-* 1.11 ls命令
-  #+BEGIN_EXAMPLE
-  ls -lhtr
-  ls -d
-  ls -a
-  #+END_EXAMPLE
-
-* 1.12 echo命令
-  #+BEGIN_EXAMPLE
-  echo 'hello world!'
-  #+END_EXAMPLE
-  
-* 1.13 linux系统环境变量
+* 1.9 linux系统环境变量
   #+BEGIN_EXAMPLE
   echo $PATH
   $PATH=$PATH:./ (vim /etc/profile)
@@ -226,7 +192,6 @@
   alias xiang='ls -lhtr'
   unalias xiang
   #+END_EXAMPLE
-
   
   - .bash_profile 与 .bashrc 的区别
 
@@ -246,30 +211,63 @@
       说明: 由此得出, =.bash_profile= 文件默认调用.bashrc文件
     - 当你不登陆系统而使用ssh直接在远端执行命令，.bashrc 会被调用
     - 当你已经登陆系统后，每打开一个新的Terminal时，.bashrc 都会被再次调用
+* 1.10 救援模式
+  - 若是真机，需要有安装光盘或者U盘，重启进入bios调成光驱启动，选择 ‘Rescue installed system’ 
+  - 语言我们默认，键盘类型也默认
+  - Rescue Method 也保持默认
+  - 是否在使用rescue模式的时候启用网络，这个根据实际情况，在这里阿铭选择NO(使用tab键) 
+  - 三种模式可以选择:
+    - shell 模式会直接进入命令行, 可以进行的操作有编辑文件、修改用户密码等;
+    - fakd 是诊断模式
+    - reboot 会直接重启
 
-* 1.14 快捷键
-  #+BEGIN_EXAMPLE
-  ctrl+l
-  ctrl+d
-  ctrl+c
-  ctrl+z     jobs    fg
-  tab
-  ctrl + u 删除光标前所有字符
-  ctrl + k 删除光标后所有字符
-  #+END_EXAMPLE
+  选择第一个shell模式
 
-* 1.15 目录
-  #+BEGIN_EXAMPLE
-  mkdir
-  rmdir    rm -rf
-  #+END_EXAMPLE
+  执行一个命令：chroot /mnt/sysimage
 
-* 1.16 cp命令
-  #+BEGIN_EXAMPLE
-  cp -r
-  #+END_EXAMPLE
+* 1.11 常用命令
+** cd命令
+   #+BEGIN_EXAMPLE
+   cd
+   cd ~
+   cd -
+   cd ..
+   #+END_EXAMPLE
+   
+** ls命令
+   #+BEGIN_EXAMPLE
+   ls -lhtr
+   ls -d
+   ls -a
+   #+END_EXAMPLE
 
-* 1.17 mv命令
-  - 移动地方 mv 1.txt /home/admin/
-  - 重命名 mv 1.txt 2.tx
-				    
+** echo命令
+   #+BEGIN_EXAMPLE
+   echo 'hello world!'
+   #+END_EXAMPLE
+
+** 目录命令
+   #+BEGIN_EXAMPLE
+   mkdir
+   rmdir    rm -rf
+   #+END_EXAMPLE
+
+** cp命令
+   #+BEGIN_EXAMPLE
+   cp -r
+   #+END_EXAMPLE
+
+** mv命令
+   - 移动地方 mv 1.txt /home/admin/
+   - 重命名 mv 1.txt 2.tx
+
+* 1.12 快捷键
+   #+BEGIN_EXAMPLE
+   ctrl+l
+   ctrl+d
+   ctrl+c
+   ctrl+z     jobs    fg
+   tab
+   ctrl + u 删除光标前所有字符
+   ctrl + k 删除光标后所有字符
+   #+END_EXAMPLE
