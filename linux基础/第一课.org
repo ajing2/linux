@@ -3,18 +3,47 @@
   centos redhat ubuntu
 
   问题：要不是考证的问题；
-* 1.2 创建虚拟机：
+* 1.2 创建虚拟机
   - a. vmware和virtualbox
   - b. 镜像的问题：centos6和centos7
   - c. vmware网卡模式：
     
-    1. 仅主机：虚拟机用网线和pc连接
-    2. 桥接：虚拟机和本机并列关系，网段一样，（相当于两个pc）
-    3. nat模式：pc路由转发，虚拟机把pc当成路由器
+    - 仅主机：虚拟机用网线和pc连接
 
+      [[file:image/host-only.png]]
+
+    - 桥接：虚拟机和本机并列关系，网段一样，（相当于两个pc）
+       
+      [[file:image/bridge.png]]
+
+       通过不同的mac地址上网
+
+    - nat模式：pc路由转发，虚拟机把pc当成路由器
+
+      [[file:image/nat.png]]
+      
+    - 备注
+       
+      nat解决问题: ip地址不够用;
+
+      内网模式（内网模式），vmware8网卡自动生成了一个ip 192.168.62.1，绑定在了主机上，和虚拟机是一个网络，所以可以连接虚拟机; 
+
+      虚拟机上网，是通过虚拟机的nat设备（.2的网关），转换成主机的ip地址（mac地址），在外面抓包的话，抓的都是主机的ip
+
+      vmware8网卡禁用，本机不能和虚拟机通信，但是虚拟机是可以上网的;
   - d. 32位和64位 （x86） 8g内存为区分
 
     (centos7以上都是64位)32位只支持4g内存
+  - e. vmware启动CentOS虚拟机报错无法打开磁盘
+
+    打不开磁盘“D:\centos\CentOS 64 位-000001.vmdk”或它所依赖的某个快照磁盘。 开启模块 DiskEarly 的操作失败。 未能启动虚拟机。
+    
+    打不开磁盘"H:\centos-6.0-710\CentOS 64 位.vmdk"或它所依赖的某个快照磁盘 " 原因: 未能锁定文件"
+
+    这主要是非正常关虚拟机造成的，具体原因如下：
+
+    虚拟机为了防止有多虚拟机共用一个虚拟磁盘（就是后 缀为.vmdk那个文件）造成数据的丢失和性能的削弱，每次启动虚拟机时会给每个虚拟磁盘加一个磁盘锁（也就是后缀为.lck的那个文件夹）对虚拟磁盘文件 进行锁定保护在关掉虚拟机时又会自动删除那个磁盘锁文件。当虚拟机非正常关闭，就会出现一个文件夹带有缀.lck，不会自动删除，才会引起这样报错。这样下次启动虚拟机时就会弹出上面的那个 错误。按照上面的解释，在虚拟机报的那个路径下删除了那个.lck文件夹全部删掉，再点启动该虚拟机即可。
+
 * 1.3 安装系统
   #+BEGIN_EXAMPLE
   显示器设置分辨率为800*600
@@ -40,17 +69,114 @@
       #+END_EXAMPLE
   - vim /etc/resolv.conf
 
-* 1.5.远程连接工具：
+* 1.5.远程连接工具
   =xshell=
   =putty=
   =securecrt=
 
 * 1.6 秘钥验证
+
+  问题设想有如下两台电脑, ip分别为
+  #+BEGIN_EXAMPLE
+  ip1:192.168.1.10
+  ip2:192.168.1.11
+  #+END_EXAMPLE
+  现在, 我们需要通过秘钥来进行互访
+
+** 具体操作
+
+   - 在ip1上执行
+     
+     [[file:image/ip1.png]]
+
+     这里首先定义的是私钥的存放路径。接着是定义公钥的存放路径
+
+     [[file:image/ip1-1.png]]
+
+   - 在ip2上执行
+     #+BEGIN_EXAMPLE
+     mkdir /root/.ssh
+     chmod 600 /root/.ssh
+     cd /root/.ssh
+     vim authorized_keys
+     #+END_EXAMPLE
+     将ip1中的公钥内容粘贴到 =authorized_keys= 中
+
+     - 查看selinux的状态, =sestatus=
+
+       [[file:image/sestatus.png]]
+
+       这里已经关闭，若没有关闭，暂时关闭用这个命令: =setenforce 0=
+
+       永久性关闭: =vim /etc/selinux/config=
+       #+BEGIN_EXAMPLE
+       SELINUX=disabled
+       #+END_EXAMPLE
+
+     - 清空防火墙规则
+       #+BEGIN_EXAMPLE
+       ipstables -F
+       service iptables save
+       #+END_EXAMPLE
+       或者执行 =service iptables stop= 即可
+
+     - 尝试在ip1上连接ip2
+
+       #+BEGIN_EXAMPLE
+       ssh 192.168.1.11
+       #+END_EXAMPLE
+       若出现 ssh: command not found, 则 =yum install -y openssh-clients=
+
+       安装完成后, 再次运行 =ssh 192.168.1.11= 就可以成功登录ip2;
+
+       按照相同的方法在ip2上执行相同的步骤, 两台主机便可实行免密互相访问;
+
+** 常见问题
+
+   1. 第一次登录的时候需要互信，需要yes
+
+   2. 文件名写错了
+
+   3. pub没有生成
+
+   4. disabled selinux
+
+   5. authorized_keys 权限有要求，一定是600，特别是非root用户的时候
+
+   6. SecureCRT生成密钥及使用密钥登录服务器, 可参考 [[http://jicki.blog.51cto.com/1323993/1361264][链接]]
 * 1.7 运行级别
   7个运行级别：0 关机 1单用户 2不带NFS服务的3级别 3命令行模式 4保留 5图形 6重启
 
   [[file:image/7_level.png]]
-* 1.8单用户模式
+* 1.8单用户模式下修改root密码
+** centos6
+   - 重启Linux, 3秒钟内, 按一下回车键;
+   - 若有加grub密码, 需要先按p, 输入密码方可进行后面的操作;
+   - 按e, 选择第二行, 再按e;
+   - 在最后面加入single或者数字1或者字母s;
+   - 先按回车再按b;
+
+   这样就成功进入单用户模式，我们可以修改root密码
+
+** centos7
+
+   1. cenos7采用的是grub2界面会有连个入口，一个是正常系统入口，一个是救援模式
+
+   2. 修改grub2引导
+
+      #+BEGIN_EXAMPLE
+      正常系统下按下e
+      知道linux16开头，把ro改成rw 只读改成可写
+      rhgb quiet 换成init=/bin/bash 指定shell环境
+      按下ctrl+x重启系统
+      #+END_EXAMPLE
+
+   3. 修改密码
+      #+BEGIN_EXAMPLE
+      passwd
+      touch /.autorelabel 据说是selinex在重启后跟新label（删除重新创建）
+      exec /sbin/init 重启
+      #+END_EXAMPLE
 * 1.9 救援模式
   - 若是真机，需要有安装光盘或者U盘，重启进入bios调成光驱启动，选择 ‘Rescue installed system’ 
   - 语言我们默认，键盘类型也默认
@@ -59,10 +185,12 @@
   - 三种模式可以选择:
     - shell 模式会直接进入命令行, 可以进行的操作有编辑文件、修改用户密码等;
     - fakd 是诊断模式
-    - reboot 会直接重启;
-    选择第一个shell模式
+    - reboot 会直接重启
 
-    执行一个命令：chroot /mnt/sysimage
+  选择第一个shell模式
+
+  执行一个命令：chroot /mnt/sysimage
+
 * 1.10 cd命令
   #+BEGIN_EXAMPLE
   cd
@@ -99,6 +227,25 @@
   unalias xiang
   #+END_EXAMPLE
 
+  
+  - .bash_profile 与 .bashrc 的区别
+
+   =.bash_profile= is executed for login shells, while =.bashrc= is executed for interactive non-login shells
+
+  - login shell 与 non-login shell 的区别
+
+    - 当你直接在机器login界面登陆、使用ssh登陆或者su切换用户登陆
+      时, =.bash_profile= 会被调用来初始化shell环境
+
+      =.bash_profile= 中有如下内容
+      #+BEGIN_EXAMPLE
+      if [ -f ~/.bashrc ]; then
+      . ~/.bashrc
+      fi 
+      #+END_EXAMPLE
+      说明: 由此得出, =.bash_profile= 文件默认调用.bashrc文件
+    - 当你不登陆系统而使用ssh直接在远端执行命令，.bashrc 会被调用
+    - 当你已经登陆系统后，每打开一个新的Terminal时，.bashrc 都会被再次调用
 
 * 1.14 快捷键
   #+BEGIN_EXAMPLE
@@ -125,3 +272,4 @@
 * 1.17 mv命令
   - 移动地方 mv 1.txt /home/admin/
   - 重命名 mv 1.txt 2.tx
+				    
