@@ -1,0 +1,303 @@
+#+TITLE: 第二课
+
+* 复习回忆
+  - nat模式的讲解
+  - 秘钥的讲解
+  - raid
+
+* 文件详解
+** 文件查看
+
+   - =cat= 和 =tac=
+     #+BEGIN_EXAMPLE
+     cat -n /etc/passwd       显示文件内容和每一行的行号
+     nl /etc/passwd           与 cat -n 起相同的效果
+     tac /etc/passwd          与cat显示的结果相反, 即尾行成为首行
+     #+END_EXAMPLE
+   - =more= 和 =less=
+     #+BEGIN_EXAMPLE
+     more /var/log/message    和cat类似, 但是可以通过 f 和 b 来向后滚屏和向前滚屏
+     less /var/log/message    和more类似, 但更为灵活, 可以一次滚一屏(f,b), 也可以一次滚一行(jk), 还可以使用方向键滚行(上下,左右)
+     #+END_EXAMPLE
+   - =head= 和 =tail=
+     #+BEGIN_EXAMPLE
+     head /var/log/message    默认情况下, 一次查看文件前10行
+     head -n 20 filename      查看前20行的三种写法
+     head -n20 filename
+     head -20 filename
+     tail /var/log/message    默认情况下, 查看文件最后10行(像head的三种写法也是支持的)
+     tail -f access.log       动态显示文件最后几行的内容, 当文件末尾有新数据写入时, 就会被直接输出到标准输出
+     tailf == tail -f -n 10
+     #+END_EXAMPLE
+
+   常用的就以上这几个, 其余的当作是兴趣, 了解一下即可; 当然, 我们只能用这些命令去查看文本文件, 而无法查看二进制文件;
+
+   - 提问
+     1. 如何显示文档的倒数第二行 =tail -n2 |head -n1=
+     2. less more 如何搜索关键字 =/keywords=
+     3. 如何快速地位到文件的开头和末尾 =如果是less查看, 输入gg到文件开关, 输入G到文件末尾, 这和VIM很像=
+     4. tail -f , tail -F , tailf 的区别 [[http://www.mamicode.com/info-detail-1464146.html][详见]]
+	- tail -f 根据文件描述符进行追踪, 当文件改名或被删除, 追踪停止
+	- tail -F 根据文件描述符进行追踪, 并保持重试, 即该文件被删除或改名后, 如果再次创建相同的文件名, 会继续被跟踪
+	- tailf 等同于 tail -f -n 10 , 与 tail -f 不同的是, 如果文件不增长, 它不会去访问磁盘文件, 所以tailf特别适合那些便携机上跟踪日志文件, 因为它减少了磁盘访问, 可以省电
+
+** 文件和目录属性
+
+   - =ls -l=
+
+     [[file:image/ls_l.png]]
+
+   - 提问
+     - 文件类型都有哪些
+       | 代表字符 | 文件类型 |
+       |----------+----------|
+       | -        | 普通文件 |
+       | d        | 目录     |
+       | s        | 套接字, 如mysql.sock |
+       | c        | 字符设备, 如猫等串口设备 |
+       | b        | 块设备, 如硬盘 |
+       
+   - ls -l 的第二列数字，如果是目录，这个数字怎么计算
+
+     若为目录, 则第2字段表示该目录所含子目录的个数 =.= (目录本身) =..= (上级目录)
+
+     补充：视频里面我说的属主和属组，大家听起来有点难区分，所以以后我们统一把属主改为所有者
+
+** chmod命令
+   - rwx代表的意义 数字的组成
+     - r == read == 4
+     - w == write == 2
+     - x == execute == 1
+     - 常见用法 =chmod -R 755 test=
+
+   - u g o a的含义
+     - u == user 即文件或目录的拥有者
+
+     - g == grop 即组内所有用户
+
+     - o == others 即其他用户
+
+     - a == all 即所有用户
+       
+   - umask的含义：0022
+     
+     权限有四部分: setUid/setGid/粘着位(sticky)、属主权限、组权限、其他用户的权限
+
+     在不涉及特殊权限的情况下, 文件默认权限可计算为为 =666-umask值= , 目录默认权限为 =777-umask值=
+
+     - 提问
+       - umask最前面的数字是什么意思?  /suid==4 sgid=2 sticky=1/
+
+       - umask=001 计算默认目录和文件权限 /目录权限=777-001 文件权限=666-111/
+
+** chown命令
+   - chown -R user:group file 
+   - chown -R admin
+** chattr命令和lsattr
+   - chatrr +a 1.txt /只追加权限/
+   - chattr +i 2.txt /添加不可修改权限/
+   - lsattr -aR test 把隐藏，子目录的数据一同列出
+** 三个特殊权限
+   - set_uid :: 改权限针对二进制可执行文件, 文件在执行时具有文件所有者的权限
+   - set_gid :: 目录被设置这个权限后，任何用户在此目录下创建的文件都具有和该目录所属组相同的组
+   - sticky_bit :: 防删除位
+
+   用数字表示： sst(7) suid=4 sgid=2 stick=1
+
+   [[file:image/stick1.png]]
+
+   [[file:image/stick2.png]]
+
+   [[file:image/stick3.png]]
+
+   [[file:image/stick4.png]]
+
+   - 提问: 给/home/admin/1.txt 这个文件设置suid权限，如何实现
+
+   - 补充知识：s和S的区别，S没有x权限 T和t的区别
+
+** find命令
+   - whereis which locate
+   - find典型用法
+     #+BEGIN_EXAMPLE
+     find /path -type[f d]-mtime [+-n] -name "*log*" -size +100M |xargs rm -rf
+     #+END_EXAMPLE
+
+     #+BEGIN_EXAMPLE
+     find /path -type[f d]-mtime [+-n] -name "*name*" -size -100M -exec rm -rf {} \;
+     #+END_EXAMPLE
+
+     #+BEGIN_EXAMPLE
+     find . -type d -o \( -type f -mtime +7 \) #-o是或者的意思
+     #+END_EXAMPLE
+   
+   - maxdepth 1 比较靠前的位置，不然有警告
+   - atime 访问时间
+   - ctime 创建时间
+   - mtime 更改时间
+
+   - 提问: touch会更改什么时间? /会修改 atime 和 mtime/
+
+   - 查看time的三个时间：stat 1.txt
+
+** 软连接和硬链接
+   - 创建方法 =ln [-s] source destination=
+   - 硬链接和软链接的区别
+     #+BEGIN_EXAMPLE
+     硬链接: 克隆接口 即增加一个指向该文件的inode (不能跨系统， 不能跨分区，不能链接目录)
+     软连接: 快捷方式
+     #+END_EXAMPLE
+   - 提问
+     - 为什么软连接可以解决某个分区空间不足问题？ 因为可以跨分区链接目录
+     - 硬件链接占用磁盘空间的问题？ 不占
+
+** 帐户相关
+*** /etc/passwd
+    
+    七段含义：1,用户名 2，密码 3，uid 4，gid 5用户说明 6，家目录 7shell
+
+    [[file:image/passwd.png]]
+
+    提问:
+    - 普通用户的uid从哪里开始? /500/
+    - =/bin/false= 和 =/bin/nologin/= 的区别
+
+      /bin/false是最严格的禁止login选项，一切服务都不能用。而/sbin/nologin只是不允许login系统，但可以使用其他ftp等服务。如果想要用false在禁止login的同时允许ftp，则必须在/etc/shells里增加一行/bin/false
+
+*** /etc/shadow
+   [[file:image/shadow.png]]
+
+   #+BEGIN_EXAMPLE
+   1. 用户名
+   2. 密码
+   3. 上次更改密码的日期(1970-1-1开始算起)
+   4. 过多少天才可以改密码(0不受限制)
+   5. 多少天需要改一次密码
+   6. 密码警告期限
+   7. 密码失效期限
+   8. 账号到期时间
+   9. 保留域
+   #+END_EXAMPLE
+   
+提问：第五段设置为0，什么时候系统会提示让用户设置密码？
+
+备注:
+
+  密码加密：$6$开头，是sha-512， $5$开头，是sha-256， $1$表示MD5
+
+  空密码：！！ *锁定用户，系统用户
+
+  usermod -L 锁定就在密码前面加了一个! usermod -U解锁
+
+  passwd -l 锁定就在秘密前面加了两个!! 锁定就是不能登录了
+
+*** useradd
+    #+BEGIN_EXAMPLE
+    -M：不创建家目录
+    -g ：指定所属组
+    -s ：指定shell
+    userdel -r 删除家目录
+    groupadd -g 指定所属组数字（500以上普通用户）
+    groupdel
+    #+END_EXAMPLE
+
+*** usermod//不用
+*** passwd --stdin echo "123456" |passwd --stdin admin
+*** mkpasswd生成随机密码
+    #+BEGIN_EXAMPLE
+    yum install -y expect keypass
+    #+END_EXAMPLE
+
+*** su -
+    配置sudo权限
+    #+BEGIN_EXAMPLE
+    配置文件：/etc/suders
+    root ALL=(ALL) ALL
+    用户（或者组） 所有计算机host（所有用户） 所有命令
+    #+END_EXAMPLE
+    
+    如何在sudo时不输入密码
+
+    [[file:image/sudo.png]]
+
+    sudoers中的Defaults选项requiretty要求只有拥有tty的用户才能使用sudo
+
+    tty指终端设备 pts是指模拟终端 命令之间用 , 分隔
+
+    %wheel ALL=(ALL) NOPASSWD: ALL
+
+** 磁盘相关
+*** df du
+    #+BEGIN_EXAMPLE
+    df -i                 列出文件系统的Inode节点数
+    df -h                  以适合的人类辨识的单位进行显示, 如1k, 1M, 1G
+    du -h --max-depth=1  显示指定目录层次的磁盘使用情况
+    du -sb               显示真实大小, 和 ls -lh (显示四舍五入，并且不显示隐藏文件大小)
+    #+END_EXAMPLE
+    提问: 磁盘空间还有，但是写不进去了，怎么回事
+    #+BEGIN_EXAMPLE
+    1.inode用完了
+    2.+i 权限
+    3.系统的小文件太多
+    #+END_EXAMPLE
+    
+*** fdisk -l
+
+    [[file:image/fdisk.png]]
+    
+    - 提问:
+      - 分区名字为 sdb2 sdb5 sdb6 sdb3 判断有几个主分区，几个扩展分区，几个逻辑分区
+
+*** 格式化 makefs
+    #+BEGIN_EXAMPLE
+    make2fs -t ext4 -L TEST /dev/sdb5
+    -L：指定标签
+    #+END_EXAMPLE
+
+*** 磁盘的挂载和卸载 mount/unmount
+    #+BEGIN_EXAMPLE
+    mount -a #把/etc/fastab中出现的所有磁盘分区挂载 /etc/fstab
+    mount -o ro,sync /dev/sdb5 /newdir #指定挂载分区有哪些特性
+    umount -l /newdir
+    #+END_EXAMPLE
+    卸载某个分区，提示busy，如何做？ /1.使用-l选项，2.切换到其他目录下/
+
+
+*** 分区表fstab
+
+    [[file:image/fstab.png]]
+
+    #+BEGIN_EXAMPLE
+    第一列：分区的标识，可以写分区的LABEL 分区的UUID 也可以写分区名字
+    第二列：分区的挂载点
+    第三列：分区的格式
+    第四列：muount的一些挂载参数
+    第五列：数字表示是否被dump备份。1表示备份，0表示不备份
+    第六列：数字表示开机是否自检自盘，1和2表示检测，0表示不检测 先1后2 centos和redhat中/分区必须设为1，而且fstab中只允许出现一个1
+    #+END_EXAMPLE
+    第四列常用选项
+
+    - async/sync:async表示磁盘和内存不同步。系统每隔一段时间会把内存数据写入磁盘中，而sync则会时时同步内存和磁盘中的数据
+
+    - auto/noauto:表示开机自动挂载/不自动挂载
+
+    - default：表示按照大多数永久文件系统的默认值设置挂载定义，它包含了rw、suid、dev、exec、auto、nouser和async realtime
+    
+    - ro：只读权限挂载
+    
+    - rw：可读可写权限挂载
+
+    - exec/noexec：表示允许/不允许可执行文件执行，千万不能把noexec挂载在/分区。否则只能重装系统了
+
+    - user/nouser：表示允许/不允许root外的其他用户挂载分区
+
+    - suid/nosuid：表示允许/不允许分区有suid属性，一般为nosuid
+
+    - relatime - 实时更新 inode access 记录。只有在记录中的访问时间早于当前访问才会被更新。（与 noatime 相似，但不会打断如 mutt 或其它程序探测文件在上次访问后是否被修改的进程。），可以提升性能(参见 [[https://wiki.archlinux.org/index.php/Fstab_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#atime_.E5.8F.82.E6.95.B0][atime 参数]])
+
+*** 获得分区的UUID
+    - =blkid=
+    - =ls -l /dev/disk/by-uuid/=
+    - 为什么挂载使用UUID
+    
+      可以避免磁盘号混乱; 如果磁盘a b两个卡槽差错，就需要这个;
