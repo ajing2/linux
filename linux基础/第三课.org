@@ -1,0 +1,287 @@
+#+TITLE: 第三课
+
+* vim介绍
+  - 安装 =yum install -y vim*=
+
+    [[file:image/yum.png]]
+
+  - 配置
+
+    vim的配置文件/etc/vimrc 在这个文件中设置，对所有用户都都有效
+
+    在每个用户的家目录下：~/.vimrc设置自己的。没有可以新建
+
+    #+BEGIN_EXAMPLE
+    set nu
+    set paste
+    set autoindent
+    set noai
+    #设置语法高亮
+    syntax on 
+    #+END_EXAMPLE
+    如果此时语法还是没有高亮显示，那么在/etc/profile文件中添加以下语句
+    #+BEGIN_EXAMPLE
+    export TERM=xterm-color
+    highlight Comment ctermfg=green guifg=green
+    #+END_EXAMPLE
+    vim在识别文件的时候，会根据文件的关键字，或者文件类型来识别不同的文件类型，来显示不同的颜色
+  - vim的常用的三种模式及其下常用命令
+    - 一般模式
+      | 按键   | 作用                   |
+      |--------+------------------------|
+      | x      | 删除当前光标所在字符   |
+      | dd     | 删除当前光标所在行     |
+      | yy     | 复制当前行             |
+      | p      | 粘贴yy复制的行         |
+      | r      | 修改单个字符           |
+      | R      | 逐个修改字符,直到按ESC |
+      | u      | 撤消                   |
+      | Ctrl+r | 反撤消                 |
+      | ^      | 跳到行首               |
+      | $      | 跳到行尾               |
+      | gg     | 光标跳到第一行         |
+      | G      | 光标跳到末行                 |
+      
+    - 编辑模式
+
+      这里有什么快捷键我就不清楚了, 但是有几个常用的进入编辑模式的键
+      - =a= 追加到光标后面
+
+      - =A= 追加到行尾
+
+      - =i= 插入到光标前
+
+      - =I= 插入到行首
+
+      - =o= 进入下一行编辑
+
+      - =O= 进入上一行编辑
+
+    - 命令模式
+
+      这里的命令就多了去了, 说几个常用的
+
+      - 保存退出 =wq= =x=
+
+      - 强制退出 =q!= 一般用于你做了修改, 但又不想保存的情况下;
+
+      - 给文档加密 =X=
+
+      - 用set临时做一些配置上的修改, 如临时加上行号 =set nu= , 临时取消高亮等, 当然也可以在这里进行正则匹配
+
+    - 提问
+      1. vim命令需要安装哪个包 enhanced
+      2. 光标快速末尾和开头
+      3. 删除5行 复制
+      4. 直接跳到50行
+      5. 搜索 / n N
+      6. 如何替换5-10行的所有111 222 200,300s/111/222/g %s/xiang/ling/g
+      7. .swap文件
+
+    - 注释所有的行实际上是可视模式的一种应用 =ctrl+v j/k+ shift +i+Esc=
+
+* 打包,压缩与解压
+
+** bzip2讲解
+   - 压缩算法比gzip更加复杂，压缩比例更深，默认级别是9
+   - bzip2也支持-c选项
+     #+BEGIN_EXAMPLE
+     bzip2 1.sh
+     bzip2 -d 1.sh.bz
+     #+END_EXAMPLE
+
+   - 提问
+     - bzip2如何查看压缩文件 bzcat
+     - bzip2和gzip是否可以压缩目录
+** gzip讲解
+   #+BEGIN_EXAMPLE
+   gzip 1.sh #1.sh直接变成1.sh.gz
+   gzip -d 1.sh.gz gunzip 1.sh.gz
+   gzip -c 1.sh >/tmp/1.sh.gz
+   gzip -d -c 1.sh.gz >/usr/local/src/1.sh
+   gunzip -c 1.sh.gz >/usr/local/src/1.sh
+   #+END_EXAMPLE
+
+   - 提问
+     a. gzip默认压缩级别是多少（1-9）
+     b. 如何查看.gz压缩文件的内容 =zcat=
+     c. gzip -c 1.txt >11.txt.gz
+
+** zip和unzip
+   zip在linux和windows都用的比较多，可以共享压缩文件,可以压缩目录
+   #+BEGIN_EXAMPLE
+   zip 1.zip 1.txt 2.txt
+   unzip -l 1.zip #查看文件的列表
+   #+END_EXAMPLE
+   
+** xz用法和gzip，bzip2的用法一样，man xz
+** rz sz 上传和下载的应用
+   没有命令安装 =yum list |grep rz= =yum install -y lrzsz=
+
+   这里主要是用在SecureCRT上的传输菜单上
+** tar打包和压缩
+   
+   #+BEGIN_EXAMPLE
+   tar czvf 1.tar.gz *        tar xzvf 1.tar.gz
+   tar cjvf 1.tar.bz2 *       tar xjvf 1.tar.bz2
+   tar cJvf 1.tar.xz *        tar xJvf 1.tar.xz
+   #+END_EXAMPLE
+   x: 解压或者解包
+   #+BEGIN_EXAMPLE
+   tar -tf 1.tar.gz                     只列出压缩包的文件而不解压
+   tar xzvf 1.tar.gz -C /home/admin/    解压至指定目录
+   #+END_EXAMPLE
+
+   提问
+   a. 如何在打包的时候过滤指定的文件 tar czvf 1.tar.gz *.txt tar czvf 1.tar.gz 111/ --exclude=111/1.txt
+   b. 如何在解压的时候指定解压文件 tar -rf 1.tar.gz tar xzvf 1.tar.gz 111/1.txt 111/1.sh
+* 包的安装与管理
+** rpm安装和卸载
+   #+BEGIN_EXAMPLE
+   rpm -ivh
+   --force：强制安装
+   --nodeps：当要安装rpm包依赖其他包时，即使其他包没有安装，也要安装这个包
+   -U：升级
+   -e：卸载包
+   -f：查看都安装了那些文件
+   rpm -qa |grep vim
+   #+END_EXAMPLE
+
+   提问:
+   rpm如何查询一个命令是哪个rpm包安装 rpm -qf `which man`
+   rmp包去哪里查询 http://rpmfind.net/
+
+** yum工具详解
+   #+BEGIN_EXAMPLE
+   yum provides "*vim" yum provides `which man`    查看特定文件属于哪个包
+   yum list 
+   yum grouplist
+   yum install -y vim*
+   yum remove -y filename
+   yum是用python写的工具，所以升级了python，yum就不能使用了，要注意。
+   yum install -y yum-plugin-downloadonly.noarch #老版需要安装这个
+   yum install expect -y --downloadonly --downloaddir=/usr/local/src/
+   #+END_EXAMPLE
+
+   提问:
+   a. yum的配置文件在哪里
+   b. 如何更改yum的源
+   c. yum list最后侧的字符串从哪里配置？@anaconda代表什么
+   d. yum没有加目录，默认下载软件到什么地方，忘记了怎么找到！
+   e. yum怎么指定包的版本下载？？？？？？？？？？？
+
+   - 利用yum下载一个rpm包
+     yum install -y yum-plugin-downloadonly.noarch #首先需要安装一个插件来支持只下载不安装
+
+     yum install 包名 -y --downloadonly #这样就已经下载，默认在 /var/cache/yum/base/packages/
+
+     yum install 包名 -y --downloadonly --downloaddir=/usr/local/src #指定一个下载目录，如果是已经安装过的rpm包这样不成功，需要使用reinstall： yum reinstall 包名 -y --downloadonly --downloaddir=/usr/local/src
+
+** 搭建本地yum仓库
+   [[file:image/yum_dvd.png]]
+
+   #+BEGIN_EXAMPLE
+   mkdir /dvd
+   mount /dev/cdrom /dvd 
+   cp -r /etc/yum.repos.d /etc/yum.repos.d.bak //先备份一下
+   rm -f /etc/yum.repos.d/*
+   #+END_EXAMPLE
+   vim /etc/yum.repos.d/dvd.repo #加入如下内容:
+   #+BEGIN_EXAMPLE
+   [dvd]
+   name=install dvd
+   baseurl=file:///dvd
+   enabled=1（是否启用该yum源，0为禁用）
+   gpgcheck=0（是否检查gpgkey，0为不检查）
+   #+END_EXAMPLE
+
+   提问:
+     a. yum下载已经安装过的包，要使用哪个参数？
+
+     b. 本地的yum元支持rpm下载吗？？
+
+** 源码编译安装：
+   #+BEGIN_EXAMPLE
+   ./configure --prefix=/export/servers/nginx make make insall
+   echo $?
+   #+END_EXAMPLE
+
+   提问
+     a. 如何卸载编译安装的包
+
+     b. yum安装和rpm安装的的区别
+* shell特性及相关命令
+** shell特性
+   - 对于ping命令的crtl+z fg
+   - 对于sleep命令的ctrl+z jobs
+   - PATH /etc/profile .bashrc .bash_profile
+   - 变量 a=10 变量名只能由英文，数字，下划线开头，而且不能以数字开头 a=`ls` a=nihao""
+   - a=xiang b=2 c=b"$a"sd a='aa bb cc'（特殊字符是需要加''）
+   - export myname=xiang 全局 当前用户.bashrc
+   - env 系统
+   - set 系统，自定义，当前
+   - 自定义变量如何解除变量名：unset
+   - 提问
+     a. 如何快速执行上一条命令
+     b. 上一条命令的最后一条参数
+
+** shell特殊符号
+   #+BEGIN_EXAMPLE
+   *   ?   #   \   $   ;   ~   &   []   >   2>   |   >>   <<
+   #+END_EXAMPLE
+
+   提问:
+   - vmstat 1 > /tmp/1.log 2>&1 &
+   - cat >1.txt <<EOF
+     #+BEGIN_EXAMPLE
+     hello world
+     lingxiangxiangQQQQQQQQQQQQQQQQ
+     EOF  按Ctrl+d后出现  
+     #+END_EXAMPLE
+   - ls *.txt ls ?.txt
+
+** cut命令
+   #+BEGIN_EXAMPLE
+   cut -d'2' -f2 1.txt
+   cut -c2-5 1.txt
+   cut -c2,5 1.txt
+   #+END_EXAMPLE
+   注意: -d 分界符必须是单个字符 -d和-c不能同时使用;
+
+** sort命令
+   #+BEGIN_EXAMPLE
+   sort -t -k -n -r -u
+   sort 1.txt -o 1.txt 排序以后直接重定向
+   sort 1.txt |tee 1.txt
+   #+END_EXAMPLE
+   注意：sort -n 如果对非数字字符排序，英文字母看成0 acs码反序; sort一般是和 =uniq -c= 连用统计频率的
+
+** wc -l
+** split
+   #+BEGIN_EXAMPLE
+   split -l 10 file mm
+   split -b 50 1.txt aa
+   #+END_EXAMPLE
+
+** tee
+   #+BEGIN_EXAMPLE
+   echo aaaaa |tee 1.txt tee前面是要有|符号的
+   #+END_EXAMPLE
+   
+** tr
+   
+   经过实践，我得到一个结论，tr左边和右边如果长度不匹配时:
+   
+   1. 左边比右边少，首先会一一替换，比如左边为abc, 右边为 1234，这样，a替换为1，b替换为2，c替换为3，右侧的4是多余的
+   2. 左边比右边多，首先会一一替换，比如左边为abc，右边为12，这样，a替换为1，b替换为2，c替换为2，也就是说多出来的字符全部替换为右侧最后面那个字符。
+
+   根据这个结论，再来看你的案例，就不难理解了。 a替换为A，s保持变，d替换为F，f替换为F，a替换为A
+
+   我们再来推断一个
+   #+BEGIN_EXAMPLE
+   echo "abcdef" |tr 'abcd' 'AB' 结果应该是 ABBBef
+   abcd ABBB
+   #+END_EXAMPLE
+
+** sleep 10
+
