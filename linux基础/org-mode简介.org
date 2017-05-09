@@ -42,7 +42,7 @@
     就是说, 所有你看上去已经换行的地方, 你都要额外加上一行以表明这里需要换行, 基本上我见过的markdown语法大部分都是这么规定的
 
     [[file:image/next_line.png]]
-    [[file:image/next_line_result.png]]
+    [[file:image/next_line_html.png]]
   - 字体
 
       #+BEGIN_EXAMPLE
@@ -87,7 +87,7 @@
             him very well from his role as Mikey Walsh in The Goonies.
        ORG-LIST-END-MARKER
        #+END_EXAMPLE
-       [[file:image/org_font_show.png]]
+       [[file:image/org_list_show.png]]
     4. 列表快捷键
 
        - 折叠
@@ -228,7 +228,9 @@
       如下方式可以设置到target的链接：
       [[target]] 或 [[target][猛击锚点]]
       #+END_EXAMPLE
-     效果为: [[test][test]] 或 [[test][猛击锚点]]      
+     效果为: [[test][test]] 或 [[test][猛击锚点]]
+
+      实践证明: 在github中, org的这种写法不被支持, 可能其他markdown语法支持
   - 注脚
 
     在 org mode 中，你可以为你的文章添加注脚（footnote）。注脚的格式有两种，一是方括号+数字，二是方括号+fn+名字。比如下面有两个例子：在 org mode 的正文中写下这两句话
