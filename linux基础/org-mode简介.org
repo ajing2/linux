@@ -1,0 +1,254 @@
+#+TITLE: Org-mode入门
+<<test>>
+* 简介
+
+  org-mode是神的编辑器中的一个插件, 所以要学习这种markdown语法, 首先要下载[[http://mirrors.ustc.edu.cn/gnu/emacs/windows/emacs-25.2-x86_64.zip][emacs编辑器]] , 关于emacs编辑器还有一个比较有趣的故事[[http://os.51cto.com/art/201101/242518.htm][Emacs和Vim：神的编辑器和编辑器之神]]
+
+  下载完成后, 打开emacs编辑器, 输入 =C-h t= 进入emacs的帮助, 花半小时了解其基本操作, 会基本操作就行了
+
+* org-mode语法介绍
+
+  新建org文档 =C-x C-f= 输入 test.org
+
+  - 标题
+
+    文章中的标题可以通过 #+TITTLE: 来设置标题。如：
+
+    #+BEGIN_EXAMPLE
+    #+TITLE: 神器中的神器org-mode之入门篇
+    #+END_EXAMPLE
+
+    正文中的标题可以通过*，后面要有空格，然后再输入想要的标题就可以了。一个*表示一级，两个*表示二级标题。（最多10个*）
+
+    如下图
+
+    [[file:image/org_title.png]]
+
+    [[file:image/org_title_html.png]]
+
+    可以看到, 生成的html自带了导航栏, 但是org在github中是不显示这个导航栏的, 这个要注意, 这就是我为什么喜欢将大文章分解成很多小文章写. 这样我们可能通过一个插件来清楚地看到所有的文件, 像这样
+
+    [[file:image/plugin_github.png]]
+  - 段落
+
+    这里与我们想象的很不一样，再win下只要你Enter，就换行成为新的一段了。但是这里要开始新的段落需要回车两次，当你回车一次，当你发布时，只相当于中间有个空格而已。还有一种方法就是在需要空格的地方输入 =\\= 
+
+    #+BEGIN_EXAMPLE
+    段落一
+
+    段落二\\
+    段落三
+    #+END_EXAMPLE
+    就是说, 所有你看上去已经换行的地方, 你都要额外加上一行以表明这里需要换行, 基本上我见过的markdown语法大部分都是这么规定的
+
+    [[file:image/next_line.png]]
+    [[file:image/next_line_result.png]]
+  - 字体
+
+      #+BEGIN_EXAMPLE
+      *粗体*
+      /斜体/
+      +删除线+
+      _下划线_
+      下标： H_2 O(这里必须留一个空格要不然2和O都成为小标，目前还不知道怎么去掉空格)
+      上标： E=mc^2
+      等宽字：  =git=
+      #+END_EXAMPLE
+
+      [[file:image/org_font.png]]
+
+      [[file:image/org_font_html.png]]
+  - 列表
+    1. 这里有有序和无序两种，还有一种描述列表
+       - 无序列表以'-'、'+'或者'*'开头
+       - 有序列表以'1.'或者'1)'开头
+       - 描述列表用'::'
+    2. 注意事项
+       - 列表符号后面都要有空格
+       - 同级别的列表缩进要相同
+       - 如果想要加入同级别的列表，可以 M-RET
+       - 空两行之后列表结束，如果空一行执行M-RET，实际上还是输入同级项
+    3. 示例
+       #+BEGIN_EXAMPLE
+       **** Lord of the Rings
+          My favorite scenes are (in this order)
+          1. The attack of the Rohirrim
+          2. Eowyn's fight with the witch king
+             + this was already my favorite scene in the book
+             + I really like Miranda Otto.
+          3. Peter Jackson being shot by Legolas
+             - on DVD only
+             He makes a really funny face when it happens.
+       ORG-LIST-END-MARKER
+          But in the end, no individual scenes matter but the film as a whole.
+          Important actors in this film are:
+          - Elijah Wood :: He plays Frodo
+          - Sean Austin :: He plays Sam, Frodo's friend.  I still remember
+            him very well from his role as Mikey Walsh in The Goonies.
+       ORG-LIST-END-MARKER
+       #+END_EXAMPLE
+       [[file:image/org_font_show.png]]
+    4. 列表快捷键
+
+       - 折叠
+
+         | 快捷键 | 说明                                                     |
+         |--------+----------------------------------------------------------|
+         | S-TAB  | 循环切换整个文档的大纲状态（折叠、打开下一级、打开全部） |
+         | TAB    | 循环切换光标所在的大纲状态                               |
+
+       - 大纲或者列表之间移动
+
+         | 快捷键    | 说明                                   |
+         |-----------+----------------------------------------|
+         | C-c C-n/p | 移动到下上一个标题（不断标题是哪一级） |
+         | C-c C-f/b | 移动到同一级别的下/上标题              |
+         | C-c C-u   | 跳到上一级标题                         |
+         | C-c C-j   | 切换到大纲预览状态                     |
+
+       - 基于大纲/标题的编辑
+
+         | 快捷键         | 说明                                         |
+         |----------------+----------------------------------------------|
+         | M-RET          | 插入一个同级别的标题                         |
+         | M-S-RET        | 插入一个同级别的TODO标题                     |
+         | M-LEFT/RIGHT   | 将当前标题升/降级                            |
+         | M-S-LEFT/RIGHT | 将子树升/降级                                |
+         | M-S-UP/DOWN    | 将子树上/下移动                              |
+         | C-c *          | 将本行设为标题或者正文                       |
+         | C-c C-w        | 将子树或者区域移动到另一个标题处（跨缓冲区） |
+         | C-c C-x b      | 在新缓冲区显示当前分支                       |
+         | C-c /          | 只列出包含搜索结果的大纲，并高亮，支持多种搜索方式                                             |
+  - 嵌入元数据
+    - 内容元数据
+      #+BEGIN_EXAMPLE
+      s    #+begin_src ... #+end_src 
+      e    #+begin_example ... #+end_example  : 单行的例子以冒号开头
+      q    #+begin_quote ... #+end_quote      通常用于引用，与默认格式相比左右都会留出缩进
+      v    #+begin_verse ... #+end_verse      默认内容不换行，需要留出空行才能换行
+      c    #+begin_center ... #+end_center 
+      l    #+begin_latex ... #+end_latex 
+      L    #+latex: 
+      h    #+begin_html ... #+end_html 
+      H    #+html: 
+      a    #+begin_ascii ... #+end_ascii 
+      A    #+ascii: 
+      i    #+index: line 
+      I    #+include: line
+      #+END_EXAMPLE
+      说明: 像包裹着如上内容的框框就是用 =#+begin_example ... #+end_example= 生成的, 我常用的就是这个, 还有好多个, 我都不怎么用; 通常可以输入 =<s= 后, 按 =tab= 键, 来快速生成这么一长串的元数据;
+    - 文档元数据
+
+      | H:        | 标题层数                    |
+      | num:      | 章节(标题)是否自动编号      |
+      | toc       | 是否生成索引                |
+      | creator:  | 是否生成"creat by emacs..." |
+      | linfk_up  | UP: 链接                      |
+      | link_home | HEME: 链接                    |
+
+      这个功能我很少用
+  - 表格
+
+    在 org mode 中，你可以画表格。方法很简单，在某一行顶格的位置输入’|'，然后输入表格第一行第一列的内容，再输入’|'，然后输入表格的的一行第二列的内容，以此类推。当第一行输入完成后，按 TAB， org mode 会把当前行对齐，然后为你创造出表格的下一行，让你继续输入。用 TAB 和 S+TAB可以在表格中正向或反向的移动。
+
+    - 比如下面的例子
+    #+BEGIN_SRC 
+    #+CAPTION: 表格的标题
+    | 1 | one                          |
+    | 2 | two                          |
+    | 3 | This is a long chunk of text |
+    | 4 | four                         |
+    #+END_SRC
+    - 快捷键
+      - 整体区域
+        | 快捷键   | 说明                           |
+        |----------+--------------------------------|
+        | C-c 竖线 | 创建或者转化成表格             |
+        | C-c C-c  | 调整表格，不移动光标           |
+        | TAB      | 移动到下一区域，必要时新建一行 |
+        | S-TAB    | 移动到上一区域                 |
+        | RET      | 移动到下一行，必要时新建一行   | 
+
+      - 编辑行和列: 基本上用不着
+        | 快捷键         | 说明                             |
+        |----------------+----------------------------------|
+        | M-LEFT/RIGHT   | 移动列                           |
+        | M-UP/DOWN      | 移动行                           |
+        | M-S-LEFT/RIGHT | 删除/插入列                      |
+        | M-S-UP/DOWN    | 删除/插入行                      |
+        | C-c -          | 添加水平分割线                   |
+        | C-c RET        | 添加水平分割线并跳到下一行       |
+        | C-c ^          | 根据当前列排序，可以选择排序方式 |
+  - 连接
+
+    在一个链接上按C-c C-o即可访问，至于调用什么程序访问，取决于链接的内容，emacs和org mode的配置了
+
+    - 自动连接
+
+      对于符合链接规则的内容，org-mode会自动将其视为链接，包括括文件、网页、邮箱、新闻组、BBDB 数据库项、 IRC 会话和记录等。下面是一些例子
+
+      #+BEGIN_EXAMPLE
+      http://www.astro.uva.nl/~dominik            on the web
+      file:/home/dominik/images/jupiter.jpg       file, absolute path
+      /home/dominik/images/jupiter.jpg            same as above
+      file:papers/last.pdf                        file, relative path
+      file:projects.org                           another Org file
+      docview:papers/last.pdf::NNN                open file in doc-view mode at page NNN
+      id:B7423F4D-2E8A-471B-8810-C40F074717E9     Link to heading by ID
+      news:comp.emacs                             Usenet link
+      mailto:adent@galaxy.net                     Mail link
+      vm:folder                                   VM folder link
+      vm:folder#id                                VM message link
+      wl:folder#id                                WANDERLUST message link
+      mhe:folder#id                               MH-E message link
+      rmail:folder#id                             RMAIL message link
+      gnus:group#id                               Gnus article link
+      bbdb:R.*Stallman                            BBDB link (with regexp)
+      irc:/irc.com/#emacs/bob                     IRC link
+      info:org:External%20links                   Info node link (with encoded space)
+      #+END_EXAMPLE
+      对于文件链接，可以用::后面增加定位符的方式链接到文件的特定位置。定位符可以是行号或搜索选项. 如:
+      #+BEGIN_EXAMPLE
+      file:~/code/main.c::255                     进入到 255 行
+      file:~/xx.org::My Target                    找到目标‘<<My Target>>’
+      file:~/xx.org/::#my-custom-id               查找自定义 id 的项
+      #+END_EXAMPLE
+
+    - 手动连接
+      #+BEGIN_EXAMPLE
+      [[link][description]]
+      [[link]]
+      #+END_EXAMPLE
+      
+    - 内部连接
+
+      内部链接就类似于HTML的锚点（实际上export成HTML文件后就变成了锚点），可以实现在一个文档内部的跳转。如下命令定义了一个名为target的跳转目标
+      #+BEGIN_EXAMPLE
+      <<target>> (这里我把锚点设置到*连接*这一部分开始处，大家可以点击下面效果中两个连接试试效果)
+      如下方式可以设置到target的链接：
+      [[target]] 或 [[target][猛击锚点]]
+      #+END_EXAMPLE
+     效果为: [[test][test]] 或 [[test][猛击锚点]]      
+  - 注脚
+
+    在 org mode 中，你可以为你的文章添加注脚（footnote）。注脚的格式有两种，一是方括号+数字，二是方括号+fn+名字。比如下面有两个例子：在 org mode 的正文中写下这两句话
+    #+BEGIN_QUOTE
+    The Org homepage[1] now looks a lot better than it used to. The Org homepage[fn:orghome] now looks a lot better than it used to.
+    #+END_QUOTE
+    =插入脚注：C-c C-x f= 接下来你可以写一些其他东西，然后在文章的末尾写上下面两句话（注意：必须要顶格写）
+  - 分割线
+
+    五条短线或以上显示为分隔线 =-----=
+* 格式导出
+
+    org-mode可以导出很多种格式 ,其中最常用的就是文本、网页和pdf格式的
+
+    C-c C-e a 导出为文本文件。 C-c C-e h 导出为 HTML 文件, 这里不用强记, 按键会有逐步提示的
+
+* Footnotes
+
+[1] The link is: http://orgmode.org
+
+[fn:orghome] The link is: http://orgmode.org
+
+
