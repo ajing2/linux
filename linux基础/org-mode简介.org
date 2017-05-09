@@ -1,5 +1,5 @@
 #+TITLE: Org-mode入门
-<<test>>
+#<<test>>
 * 简介
 
   org-mode是神的编辑器中的一个插件, 所以要学习这种markdown语法, 首先要下载[[http://mirrors.ustc.edu.cn/gnu/emacs/windows/emacs-25.2-x86_64.zip][emacs编辑器]] , 关于emacs编辑器还有一个比较有趣的故事[[http://os.51cto.com/art/201101/242518.htm][Emacs和Vim：神的编辑器和编辑器之神]]
