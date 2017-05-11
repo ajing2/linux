@@ -1,0 +1,208 @@
+#+TITLE: 第四课
+
+* 正则
+
+  | 字符   | 含义                                           |
+  |--------+------------------------------------------------|
+  | .      | 匹配除 "\n" 之外的任何单个字符, 即任意一个字符 |
+  | *      | 匹配前面的子表达式零次或多次                   |
+  | ?      | 0或1个字符                                     |
+  | +      | 匹配前面的子表达式一次或多次                   |
+  | .*     | 任意个任意字符, 可以是0个                      |
+  | [a-z]  | 匹配指定范围内的任意字符                       |
+  | (abc)  | 匹配 abc 并获取这一匹配                        |
+  | =[^0-9]= | 匹配未包含的任意字符                           |
+  | {2}    | 匹配确定的次数                                 |
+
+  #+BEGIN_EXAMPLE
+  *bc|de*  匹配bc或者de[1]
+  #+END_EXAMPLE
+  说明: 此项单独列出是为了回避org的语法
+
+    [[http://www.cnblogs.com/yirlin/archive/2006/04/12/373222.html][正则表达式全部符号解释]]
+
+* grep和egrep
+  - grep
+    #+BEGIN_EXAMPLE
+    grep -r 'root' /etc/ 遍历指定目录下所有文件中包含指定字符串的行
+    grep -i 'abc' 1.txt  忽略大小写
+    grep --include "*.txt" -r 'root' /etc/  相当于遍历/etc/下所有*.txt文件, 然后grep root
+
+    -c 统计符合条件的行数
+    -n 将匹配行在文件中的行号打印出来
+    -v 反向匹配
+    -A 后面可以直接跟数字, 表明打印匹配行后的1行或2行......
+    -B 与 -A 相反
+    -C 是 -A 与 -B 的结合
+    --color 高亮被匹配部分
+    -E
+    grep -E == egrep
+    grep -E 'a(222)|(bash)b' 1.txt
+    #+END_EXAMPLE
+
+  - egrep
+    #+BEGIN_EXAMPLE
+    egrep 'o+' 1.txt     表示1个或1个以上前面字符
+    egrep 'o?' 1.txt     表示0个或者1个前面字符
+    egrep 'roo|body'     1.txt 匹配roo或者匹配body
+    egrep 'r(oo)|(at)o'  1.txt 用括号表示一个整体
+    egrep '(oo)+'        1.txt 表示1个或者多个 'oo'
+    管道符号: | 也需要转义
+    #+END_EXAMPLE
+
+* sed
+  - 打印输出 =sed -n '/xiang/'p 1.txt=
+  - 删除行 =sed '1,3'd 1.txt= 1到3行删除
+  - 替换 =sed -i 's/[0-9]//g' 1.txt= 将全文所有的数字替换为空(就是删除), 并将修改写入原文件
+
+    =sed -r 's/(root)(.*)(bash)/\3\2\1/' 1.txt= 这实际上也是替换, 但是却将三部分内容进行交换
+
+    =sed '1,5s/^.*$/&aaa/' 1.txt= 替换1到5行内的指定内容, 每行只替换第一次匹配的
+
+    =sed -i 's#\r##g' nginx.conf= 这个在Linux下应该是将换行符替换为空(删除)
+
+  - 插入和追加
+    #+BEGIN_EXAMPLE
+    sed '/ling/i hello world\nxiang' 1.txt 匹配到ling，在前面增加hello world和xiang两行
+    sed '/ling/a hello world\nxiang' 1.txt 匹配到ling，在后面增加hello world和xiang两行
+    sed '1,5 i hello world' 1.txt
+    sed '1,5 a hello world' 1.txt
+    #+END_EXAMPLE
+
+  windows到linux编码转换的问题：[[http://note.youdao.com/noteshare?id%3D0c800c41f03f50952b257463fc91b092][猛击这里]]
+
+  sed中使用外部变量，比如a=1, sed "s/abc/$a/" 1.txt 需要使用双引号
+  
+  - 提问
+
+      1. 打印5-10行
+      2. -r 什么意思(不需要进行正则转换)
+      3. 删除指定行
+      4. 注释掉30-40行 sed -i '30,40s/^/#/g' 1.txt
+      5. 多个匹配
+       #+BEGIN_EXAMPLE
+       A.sed -n '/root/{/sync/p}' 1.txt 且 
+       sed -n '/sync/{/root/{/xiang/p}}' 1.txt
+       B.sed -n '/\(root\|sync\)/p' 1.txt 或
+       #+END_EXAMPLE
+
+* awk
+  #+BEGIN_EXAMPLE
+  head /etc/passwd |awk -F':' '{print $1}'      以:为分隔符, 打印本行第一个字段($1代表本行第1个字段, $0代表本行)
+  awk -F':' '$1~/root/' 1.txt      针对第一个字段的条件匹配(如果修改成$0, 就相当于在用grep了)
+  awk -F':' '$3>$4 && $3==500' /etc/passwd     第三列大于第四列且第三列等于500的, 打印出来 (&& || ！=)
+  #+END_EXAMPLE
+  说明:   awk中的数字比较，不要加双引号，加了之后会以ASCII码排序 $3>"500" ;
+
+  - awk常量
+
+      常用变量 NF: 列总数 NR: 行数, 当然远不止这些具体请man;
+
+  - 条件格式
+
+    awk结构: awk -F ':' 'BEGIN{OFS=":"} {if(条件){语句1;语句2;语句3}} END{语句}'
+
+    所以awk2视频里面最后的小例子正确答案是 awk -F':' 'BEGIN{OFS="#"} {if($3>100){$7=$3+$4;print $0}}' 1.txt
+  
+    例子：awk -F':' 'BEGIN {print "start!";OFS= "#"} {if($3>100) {$8=$3+$4; print $0}} END {print "end!"}' 1.txt
+
+  - 备注
+
+    OFS和 -F的区别 print $0如果没有变，原来的=文本，文本改变使用OFS
+
+    awk中默认情况下不识别{}, 需啊加一个 --posix centos6需要加，centos7默认不需要加
+
+    awk -F':' --posix '$1~/o{1,2}/ {print $1,$2,$3}' 1.txt
+
+  - 例题
+
+    - awk计算一列数字的和 =awk -F ':' '{(tot=tot+$3); {print tot}}; END {print tot}' /etc/passwd=
+
+    - tcp链接状态的统计，或者ip统计
+      #+BEGIN_EXAMPLE
+      netstat -an |awk '/^tcp/ {++S[$NF]};END {for(a in S) print a, S[a]}'      
+      #+END_EXAMPLE
+
+    - 例如有这么一个日志，需要统计出ip的访问次数
+
+      [[file:image/access.jpg]]
+
+      awk '{count[$1]++} END{for (i in count)print i, count[i]}' 1.txt
+
+      结果如图所示
+
+      [[file:image/awk_access.jpg]]
+
+      自己要是还有什么要求排序就可以了
+
+    - 根据字段分组
+
+       有一文件m.txt, cat如下:
+      #+BEGIN_EXAMPLE
+      12334:13510014336
+      12345:12334555666
+      12334:12343453453
+      12099:13598989899
+      12334:12345454545
+      12099:12343454544
+      #+END_EXAMPLE
+      cat m.txt |sort -r |awk -F':' '{if(tmp!=$1) {tmp =$1; print "["tmp"]"} print $2}'
+
+      结果如下
+      #+BEGIN_EXAMPLE
+      [12345]
+      12334555666
+      [12334]
+      13510014336
+      12345454545
+      12343453453
+      [12099]
+      13598989899
+      12343454544
+      #+END_EXAMPLE
+
+    - all 一部分 需要另一部分
+      #+BEGIN_EXAMPLE
+      test.txt
+      111
+      222
+      333
+      444
+      555
+      666
+      777
+      888
+      999
+      
+      test1.txt
+      333
+      555
+      777
+      #+END_EXAMPLE
+      cat test1.txt >>test.txt; sort test.txt |uniq -c |sort |grep '1'
+* sed awk grep 同时匹配多个条件
+
+  - 匹配或
+
+    匹配100_1000或bigger_1000
+    #+BEGIN_EXAMPLE
+    sed -n '/100_1000\|bigger_1000/p' 20160220
+    sed -n '/100 1 000∥bigger 1 000 /p' 20160220
+
+    # 默认是$0匹配，所以写不写均可
+    awk '/100_1000/||/bigger_1000/{print $0}' 20160220 | head
+    awk '$0~/100_1000/||/bigger_1000/{print $0}' 20160220 | head
+
+    grep -E '(100_1000|bigger_1000)' 20160220 | head
+    #+END_EXAMPLE
+
+  - 匹配与
+
+    #+BEGIN_EXAMPLE
+    sed -n '/19000/{/100_1000/p}' 20160220 | head
+    
+    awk '/19000/&&/100_1000/{print $0}' 20160220 | head
+    awk '$0~/19000/&&/100_1000/{print $0}' 20160220 | head
+
+    grep -E '(19000.*100_1000|100_1000.*19000)' 20160220 | head
+    #+END_EXAMPLE
