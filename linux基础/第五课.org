@@ -194,7 +194,7 @@
 
 * iptables
 
-  [[file:iptables.org]]
+  [[file:linked/iptables.org]]
 
 * crontab
   #+BEGIN_EXAMPLE
