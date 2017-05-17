@@ -194,85 +194,205 @@
 
 * iptables
 
-  [[file:第一课.org]]
+  [[file:iptables.org]]
 
-5.12 crontab
-# .----------------分钟 (0 - 59)
-# |  .------------- 小时 (0 - 23)
-# |  |  .----------  日 (1 - 31)
-# |  |  |  .-------  月 (1 - 12)
-# |  |  |  |  .----   周 (0 - 6) (周日=0 or 7) 
-# |  |  |  |  | 
-# * *  * *  * user-name command to be executed
-cron 也是一个服务，所以需要先启动服务才能生效：service crond start; service crond status 
-提问：
-        每4小时执行/export/1.sh呢？
-        执行的日志在什么地方：/var/log/cron
-5.13自定义的服务
-    vim /etc/init.d/redis
-    chkconfig --add redis    
-    chkconfig redis on
-5.14 xargs  exec
-    xargs是针对文件的:ls *.txt |rm 
-    find /export -mtime +6 -size -100m  |xargs rm -rf
-    cat 1.txt |xargs
-    find /export -mtime +6 -size 100m -exec rm -rf {} \;
-5.15 curl
+* crontab
+  #+BEGIN_EXAMPLE
+  # .----------------分钟 (0 - 59)
+  # |  .------------- 小时 (0 - 23)
+  # |  |  .----------  日 (1 - 31)
+  # |  |  |  .-------  月 (1 - 12)
+  # |  |  |  |  .----   周 (0 - 6) (周日=0 or 7) 
+  # |  |  |  |  | 
+  # * *  * *  * user-name command to be executed
+  #+END_EXAMPLE
+  cron 也是一个服务，所以需要先启动服务才能生效：service crond start; service crond status 
+
+  提问:
+        - 每4小时执行/export/1.sh呢？
+        - 执行的日志在什么地方：/var/log/cron
+
+* 自定义的服务
+  #+BEGIN_EXAMPLE
+  vim /etc/init.d/redis
+  chkconfig --add redis    
+  chkconfig redis on
+  #+END_EXAMPLE
+
+* xargs  exec
+  #+BEGIN_EXAMPLE
+  xargs是针对文件的:ls *.txt |rm 
+  find /export -mtime +6 -size -100m  |xargs rm -rf
+  cat 1.txt |xargs
+  find /export -mtime +6 -size 100m -exec rm -rf {} \;
+  #+END_EXAMPLE
+
+* curl
     curl -I www.baidu.com
-    curl -x 192.168.147.128 www.baidu.com    ##-x制定代理的主机和端口
-    本机的话要么加/etc/hosts,要么加-x
-    直接运行可以查看源代码
-用法1：curl -I    省略源代码  
-常见的状态码   200 301 302  403 404 502 503 只有200是正常的 301 302 有可能是有做跳转
-301：所请求的页面已经转移至新的url。
-302：所请求的页面已经临时转移至新的url。
-403：对被请求页面的访问被禁止
-404：服务器无法找到被请求的页面。
-501：请求未完成。服务器不支持所请求的功能。
-502：请求未完成。服务器从上游服务器收到一个无效的响应。
-用法2：curl -x   相当于代理
-用法3：curl -U username:password 访问有需要用户名名和密码的站点
-用法4：curl -O   下载东西，小写o是可以更改文件名
-用法5：curl -IV 查看访问过程
-300-399：重定向
-400-499：客户端
-500-599：服务端，location什么的
-5.16 wget
-    wget www.baidu.com/1.rpm
-5.17 dig  nslookup
-    没有dig安装哪个包bind-utils
-    dig @114.114.114.114 www.baidu.com
-5.18 sreen   nohup    &
-    nohup top &
-    nohup：有时候终端退出时，进城也结束了，有个nohup保险
-    nohup.out
-5.19 rsync
-    思路：1.复制 rsync -avL admin@192.168.1.102:/export/1.txt ./
-                rsync -avL ./1.txt admin@192.168.1.102:/export/
-           2.服务端模式：rsync -avL admin@192.168.147.129::admin/129.txt ./ --password-file=/home/admin/rsyncd.passwd
-5.20 日志
-    硬件：
-    dmesg |grep -i 'error'
-    登录认证：
-    tail -100f /var/log/secure
-    last
-    /var/log/messages： 系统里面大部分日志都是在/var/log/messages里面，查问题时，这个日志是不能忽略的，比如内核相关的问题，当你的机器访问量特别大时，这个日志里面就会记录一些内核异常的错误。
-/var/log/wtmp： wtmp这个是查看登录历史的，last 命令看就是这个日志
-/var/log/btmp： btmp是查看登录历史中没有正确登录的那些ip，用lastb查看
-/var/log/maillog：maillog 当然是记录邮件相关日志的，当你发邮件不成功，不正常时就看这个日志
-/var/log/secure：secure 是安全相关的日志，比如我们以后讲到ftp不能正常登录时，就是看这个日志
-/var/log/dmesg：dmesg 这个日志是系统开机时，记录的一些硬件信息，很少看这个日志
 
-5.21 route
-route -n   以ip地址的形式显示，不显示主机名
-route add -host $vip  dev lo:0
-route del $vip
-增加路由
-查看路由信息，路由等
-route -n
-netstart -r
-ifconfig eth1 $vip up                 报错
-ifconfig lo:0 $vip up                  正常
-lo:0一个网卡绑定多个ip， eth1没有这个网卡
-5.22. uname -a      cat  /etc/issu 
-    cat /etc/redhat-release 
+    curl -x 192.168.147.128 www.baidu.com    ##-x制定代理的主机和端口
+    
+    本机的话要么加/etc/hosts, 要么加-x
+    
+    直接运行可以查看源代码
+    
+    #+BEGIN_EXAMPLE
+    常见的状态码   200 301 302  403 404 502 503 只有200是正常的 301 302 有可能是有做跳转
+    301：所请求的页面已经转移至新的url。
+    302：所请求的页面已经临时转移至新的url。
+    403：对被请求页面的访问被禁止
+    404：服务器无法找到被请求的页面。
+    501：请求未完成。服务器不支持所请求的功能。
+    502：请求未完成。服务器从上游服务器收到一个无效的响应。
+    300-399：重定向
+    400-499：客户端
+    500-599：服务端，location什么的
+    #+END_EXAMPLE
+    
+    - 用法1：curl -I    省略源代码, 返回类似下面的结果
+      #+BEGIN_EXAMPLE
+      HTTP/1.1 200 OK
+      Server: bfe/1.0.8.18
+      Date: Wed, 17 May 2017 07:50:06 GMT
+      Content-Type: text/html
+      Content-Length: 277
+      Last-Modified: Mon, 13 Jun 2016 02:50:28 GMT
+      Connection: Keep-Alive
+      ETag: "575e1f74-115"
+      Cache-Control: private, no-cache, no-store, proxy-revalidate, no-transform
+      Pragma: no-cache
+      Accept-Ranges: bytes
+      #+END_EXAMPLE
+
+    - 用法2：curl -x   相当于代理
+
+    - 用法3：curl -U username:password 访问有需要用户名名和密码的站点
+
+    - 用法4：curl -O   下载东西，小写o是可以更改文件名
+
+    - 用法5：curl -IV 查看访问过程
+
+* wget
+    wget www.baidu.com/1.rpm
+* dig  nslookup
+  没有dig安装哪个包bind-utils
+ 
+  dig @114.114.114.114 www.baidu.com
+* sreen   nohup    &
+  #+BEGIN_EXAMPLE
+  nohup top &
+  nohup：有时候终端退出时，进城也结束了，有个nohup保险
+  nohup.out
+  #+END_EXAMPLE
+  
+* rsync
+  - 一般模式(复制)
+      #+BEGIN_EXAMPLE
+      rsync -avL admin@192.168.1.102:/export/1.txt ./
+      rsync -avL ./1.txt admin@192.168.1.102:/export/
+      #+END_EXAMPLE
+    - =-a= 递归模式，所有文件都复制
+    - =-v= 打印一些详细信息
+    - =-L= 处理软连接，src中软连接的源文件拷贝到dst中
+    - =-u= dst中比src新的文件保留，src的不复制
+    - =--exclude=*.log= 不复制*.log文件
+    - =--delete= 删除的意思，让所有的目标保持和源ip的文件一样，a删除，b也删除，b多余的也删除
+    - 绝招
+      #+BEGIN_EXAMPLE
+      rsync -avL --delete   --exclude=*.log admin@192.168.1.1::moder/test  ./ --password-file=/home/admin/rsyncd.passwd
+      #+END_EXAMPLE
+  - 后台模式
+    - 编写配置文件：rsync的配置文件：/etc/rsyncd.conf
+      #+BEGIN_EXAMPLE
+      [root@localhost export]# cat /etc/rsyncd.conf 
+      port=873
+      log file=/export/Logs/rsync/rsync.log
+      pid file=/export/servers/rsync/rsyncd.pid
+      #address=192.168.0.10
+      
+      [admin]
+      path=/export
+      use chroot=false
+      max connections=0
+      read only=no
+      list=true
+      uid=root
+      gid=root
+      auth users=admin#和secrets成对出现，如果两个同时注释，就是默认是root拷贝
+      secrets file=/etc/rsyncd.passwd#和上一行成对出现
+      #hosts allow=192.168.146.101
+      #+END_EXAMPLE
+    - 编辑secrets file，保存并赋予600权限
+      #+BEGIN_EXAMPLE
+      auth users=admin        这里是什么就写什么账号的密码
+      
+      [root@localhost export]# cat /etc/rsyncd.passwd 
+      admin:admin123456
+      #+END_EXAMPLE
+    - 启动rsyncd服务
+      #+BEGIN_EXAMPLE
+      rsync --daemon --config=/etc/rsyncd.conf
+      报错查看报错信息
+      #+END_EXAMPLE
+    - 确认rsyncd服务启动 =netstat -lnp |grep 873=
+    - 在另一台电脑上拷贝
+      #+BEGIN_EXAMPLE
+      [admin@bogon ~]$ cat rsyncd.passwd 
+      admin123456
+      chown admin:admin rsyncd.passwd 
+      chmod 600 rsyncd.passwd 
+      rsync -avL admin@192.168.147.129::admin/129.txt ./ --password-file=/home/admin/rsyncd.passwd
+      rsyncd.passwd的所属用户必须和命令中的”admin@192.……“为同一用户，文件中直接写密码就可以，为了安全起见，权限设置成600
+      #+END_EXAMPLE
+    - 配置文件详解
+      #+BEGIN_EXAMPLE
+      port 指定在哪个端口启动rsyncd服务，默认是873
+      log file 指定日志文件
+      pid file 指定pid文件，这个文件的作用涉及到服务的启动以及停止等进程管理操作
+      address 指定启动rsyncd服务的IP，假如你的机器有多个IP，就可以指定其中一个启动rsyncd服务，默认是在全部IP上启动
+      [test] 指定模块名，自定义
+      path 指定数据存放的路径
+      use chroot true|false 默认是true，意思是在传输文件以前首先chroot到path参数所指定的目录下。这样做的原因是实现额外的安全防护，但是缺点是需要以roots权限，并且不能备份指向外部的符号连接所指向的目录文件。默认情况下chroot值为true，如果你的数据当中有软连接文件的话建议设置成false。
+      max connections 指定最大的连接数，默认是0即没有限制
+      read only ture|false 如果为true则不能上传到该模块指定的路径下
+      list 指定当用户查询该服务器上的可用模块时，该模块是否被列出，设定为true则列出，false则隐藏
+      uid/gid 指定传输文件时，以哪个用户/组的身份传输
+      auth users 指定传输时要使用的用户名
+      secrets file 指定密码文件，该参数连同上面的参数如果不指定则不使用密码验证，注意该密码文件的权限一定要是600
+      hosts allow 指定被允许连接该模块的主机，可以是IP或者网段，如果是多个，之间用空格隔开
+      #+END_EXAMPLE
+  - rsync常见错误与解决方法整理 [[file:linked/rsync常见错误与解决方法整理.org][链接]]
+
+* 日志
+  - 硬件 =dmesg |grep -i 'error'=
+  - 登录认证 =tail -100f /var/log/secure= 或 =last=
+    #+BEGIN_EXAMPLE
+    /var/log/messages： 系统里面大部分日志都是在/var/log/messages里面，查问题时，这个日志是不能忽略的，比如内核相关的问题，当你的机器访问量特别大时，这个日志里面就会记录一些内核异常的错误。
+    /var/log/wtmp： wtmp这个是查看登录历史的，last 命令看就是这个日志
+    /var/log/btmp： btmp是查看登录历史中没有正确登录的那些ip，用lastb查看
+    /var/log/maillog：maillog 当然是记录邮件相关日志的，当你发邮件不成功，不正常时就看这个日志
+    /var/log/secure：secure 是安全相关的日志，比如我们以后讲到ftp不能正常登录时，就是看这个日志
+    /var/log/dmesg：dmesg 这个日志是系统开机时，记录的一些硬件信息，很少看这个日志
+    #+END_EXAMPLE
+
+* route
+  #+BEGIN_EXAMPLE
+  route -n   以ip地址的形式显示，不显示主机名
+  route add -host $vip  dev lo:0
+  route del $vip
+  增加路由
+  查看路由信息，路由等
+  route -n
+  netstart -r
+  ifconfig eth1 $vip up                 报错
+  ifconfig lo:0 $vip up                  正常
+  lo:0一个网卡绑定多个ip, eth1没有这个网卡
+  #+END_EXAMPLE
+
+* 查看系统版本
+  #+BEGIN_EXAMPLE
+  uname -a      
+  cat  /etc/issue
+  cat /etc/redhat-release 
+  #+END_EXAMPLE
+  

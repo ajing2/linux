@@ -1,0 +1,103 @@
+#+TITLE: iptables
+
+iptables在centos7和centos6中是有很大差别的:
+
+centos7
+#+BEGIN_EXAMPLE
+Centos7中的防火墙调整为firewalld，systemctl stop firewalld关闭防火墙。
+yum install -y iptables-services
+systemctl enable iptables
+service iptables save
+默认报错在/etc/sysconfig/iptables
+#+END_EXAMPLE
+
+- iptables查看规则
+  #+BEGIN_EXAMPLE
+  iptables -nvL  --line-numbers     查看iptables规则 
+  pkts    接受包的个数    bytes    字节 
+  iptables -F                        临时清除iptables规则
+  iptables -Z                       将指定表中的数据包计数器和流量计数器归零。
+  service iptables save             iptables-save >`date +%F`.iptbles
+  service iptables restore          iptables-restore <2016-08-28.iptables
+  #+END_EXAMPLE
+- iptables的格式
+
+  iptables  [-t表名]  <-A |  D > 链名 [规则编号] [-i | o 网卡名称] [-p 协议类型] [-s 源IP地址 | 源子网] [--sport 源端口号] [-d目标IP地址 | 目标子网] [--dport目标端口号] <-j动作>
+  #+BEGIN_EXAMPLE
+  -A：增加一条规则
+  -D：删除一条规则
+  -P：链名 DROP, ACCEPT, REJECT    修改默认的规则
+  -i：i是指定数据包从哪块网卡进入
+  -o：o是指定数据包从哪块网卡输出
+  -p：包含TCP、UDP和ICMP（ping）等
+  -s：源ip地址或子网地址   192.168.1.0/24
+  --sport：源ip地址端口
+  -d：目的ip地址或子网地址
+  --dport：目的ip地址端口
+  -j：包括ACCEPT（允许）、DROP（丢掉悄悄丢弃，请求端没有任何回应）、REJECT（明确拒绝，相对友好）等
+  #+END_EXAMPLE
+- iptables的三个表
+  - filter表: 过滤包
+
+        INPUT链：进入本机的包
+
+        OUTPUT链：送出本机的包
+
+        FORWARD链：跟本机无关的包
+
+  - nat表：用户网络地址转换，在路由地址转换之前，需要先开启路由转发
+    #+BEGIN_EXAMPLE
+    echo 1 > /proc/sys/net/ipv4/ip_forward；
+    sysctl -p    重新读取修改后的配置
+    #+END_EXAMPLE
+    PREROUTING链：在包刚刚到达防火墙时改变它的目的性：DNAT;
+
+    OUTPUT链：改变本地产生的包的目的地址;
+
+    POSTROUTING链：包在离开防火墙之前改变其原地址：SNAT
+
+    - SNAT: 源网络地址转换，重写包的源ip地址，当我们共享一个internet连接时使用
+
+      例如：Linux网关服务器通过eth0和eth1分别连接Internet和局域网，其中eth0的IP地址为218.29.30.31，eth1的IP地址为192.168.1.1. 现在要求在Linux网关服务器上配置规则，使用局域网内的所有用户可以通过共享的方式访问互联网。可执行以下操作:
+      #+BEGIN_EXAMPLE
+      iptables -t nat -A POSTROUTING -p tcp -s 192.168.1.0/24 -o eth0 -j SNAT --to-source 218.29.30.31      
+      #+END_EXAMPLE
+      公网ip地址是动态的，不是固定的：iptables规则可以这么写:
+      #+BEGIN_EXAMPLE
+      iptables -t nat -A POSTROUTING -p tcp -s 192.168.1.0/24 -o eth0 -j MASQUERADE      
+      #+END_EXAMPLE
+      动作MASQUERADE会自动获取eth0公网ip的地址进行上网
+    - DNAT: 重写包的目的地址
+
+      例如：内网ip为192.168.1.7搭建了一台web服务器，希望通过internet访问该机器
+      #+BEGIN_EXAMPLE
+      iptables -t nat -A  PREROUTING -i eth0 -d 218.29.30.31 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.7:80
+      #+END_EXAMPLE
+    - REDIRECT: 重定向，这个在squid透明代理时肯定要用到它
+      - 配置iptables,把80端口转到8080
+	#+BEGIN_EXAMPLE
+	iptables -t nat -A PREROUTING -p tcp –dport 80 -j REDIRECT –to-ports 8080
+	#+END_EXAMPLE
+
+- 总结
+
+  内网出去SNAT,   外网访问内网DNAT
+
+  多个iptables规则，第一个匹配的话，第二个就不执行
+
+  [[file:image/iptables_example.jpg]]
+
+  只允许访问本地的80  和21端口，22端口部分限制，其他的全部拒绝
+
+  ping 192.168.2.0/24是不能ping通的
+
+
+
+  - iptables的状态监测
+    #+BEGIN_EXAMPLE
+    NEW：第一次握手
+    ESTABLISHED：第二次握手和第三次握手
+    INVALID：数据包不能被识别
+    RELATED:当一个连接和某个已处于ESTABLISHED状态的连接有关系时，就被认为是RELATED的了,特殊例外
+    #+END_EXAMPLE
+    =iptables -A INPUT -p all -m state --state ESTABLISHED -j ACCEPT=
