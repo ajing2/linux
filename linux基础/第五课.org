@@ -1,0 +1,398 @@
+#+TITLE: 第五课
+
+* shell脚本
+  - 条件判断
+    #+BEGIN_EXAMPLE
+    if condition1; then
+        command
+    elif  condition2; then
+        command
+    else
+        command
+    fi
+    #+END_EXAMPLE
+    - =read -p "please input your name:" a=
+    - =[ -e filename ]   [ -d filename] [-f filename]=
+    - 循环
+      - for循环 =for i in `seq 1 10`;do echo$i; done=
+      - while循环
+	#+BEGIN_EXAMPLE
+	while :;
+	    do
+	    command break;
+	    done
+	#+END_EXAMPLE
+
+* 查看系统负载
+  - w命令 uptime
+
+  - 查看cpu的核数    cat /proc/cpuinfo
+    #+BEGIN_EXAMPLE
+    # 总核数 = 物理CPU个数 X 每颗物理CPU的核数 
+    # 总逻辑CPU数 = 物理CPU个数 X 每颗物理CPU的核数 X 超线程数
+    # 查看物理CPU个数
+    cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l
+    # 查看每个物理CPU中core的个数(即核数)
+    cat /proc/cpuinfo| grep "cpu cores"| uniq
+    # 查看逻辑CPU的个数 
+    cat /proc/cpuinfo| grep "processor"| wc -l
+    #+END_EXAMPLE
+
+* vmstat命令
+  
+  - vmstat 1 10
+
+    [[file:image/vmstat.png]]
+
+    #+BEGIN_EXAMPLE
+    r      表示运行队列(就是说多少个进程真的分配到CPU)
+    b      表示阻塞的进程
+    buff   等待写入磁盘的缓冲大小
+    cache  cpu和内存读出磁盘
+    si     每秒从磁盘读入虚拟内存的大小
+    so    每秒虚拟内存写入磁盘的大小
+    bi     块设备每秒接收的块数量
+    bo     块设备每秒发送的块数量
+    us     用户进程占用cpu
+    wa     等待IO的时间
+    #+END_EXAMPLE
+    可以参考这个[[http://www.cnblogs.com/ggjucheng/archive/2012/01/05/2312625.html][猛击]]
+
+* top
+  - =top -bn1= 打印一次top命令的结果后退出
+  - =top -c= 和top后, 再按c键效果相同
+  - PR和NI
+
+    PR为线程优先级，范围[0, 40)，实时优先级的线程显示为RT, 值越小优先级越高;
+
+    NI为Nice值，范围[-20, 20)，PR值为初始线程优先级加上Nice值
+  - cpu的使用率
+    
+    用户态(user)、低优先级用户态(nice)、系统(sys)、闲置(idle)、IOWAIT(内核2.5.41+)、中断(since 2.6.0+)、软终端(since 2.6.0+)、steal(虚拟环境中其他OS消耗2.6.11+)、guest(为访客OS运行虚拟CPU消耗2.6.24)
+
+* 查看io
+  - =iostat -x 1 10= 没有这个命令安装这个包sysstat
+
+    [[file:image/iostat.png]]
+
+    %util   就是有多少没有写进磁盘，等待需要写进磁盘的，如果过高，就要查看进程了;
+  - =iotop= =yum install iotop=
+
+    iotop可查看到io占比比较高的是那个进程
+
+* sar
+  这个命令和iostat命令同属一个包, 如果没有这个命令, 则 =yum install -y sysstat=
+
+  功能最强大，监控系统所有资源，包括平均负载，网卡流量，磁盘状态，内存使用
+
+  库文件放在 /sar/log/sa，以天为单位存放
+
+  cat 可以看sar加日期的文件, sar命令默认读取当前日期的sa文件, 如果文件不存在, 使用 =sar -o 17= 生成, 17代表本月17号
+
+  常见方法为
+  #+BEGIN_EXAMPLE
+  sar -n DEV                      #查看当天从零点到当前时间的网卡流量信息
+  sar -n DEV 1 10                 #每秒显示一次，共显示10次
+  sar -n DEV -f /var/log/sa/saxx  #查看xx日的网卡流量历史
+  sar -q                          #查看历史负载
+  sar -b                          #查看磁盘读写
+  sar -p                          查看CPU使用率                 
+  #+END_EXAMPLE
+  详细用法
+  #+BEGIN_EXAMPLE
+  -A：所有报告的总和
+  -u：输出CPU使用情况的统计信息
+  -v：输出inode、文件和其他内核表的统计信息
+  -d：输出每一个块设备的活动信息
+  -r：输出内存和交换空间的统计信息
+  -b：显示I/O和传送速率的统计信息
+  -a：文件读写情况
+  -c：输出进程统计信息，每秒创建的进程数
+  -R：输出内存页面的统计信息
+  -y：终端设备活动情况
+  -w：输出系统交换活动信息
+  #+END_EXAMPLE
+
+  安装nethogs =yum  -y  install nethogs= 查看进程流量
+
+* free -h  -m
+  -h centos6.5没有此选项, centos7有
+
+  提问：如何查看真正的物理剩于内存 free+buffer+cache
+
+* ps -ef    aux
+  - ps -efL     (其中NLWP)就是线程数
+    #+BEGIN_EXAMPLE
+    UID为User ID.
+    PID为processid,进程标识符
+    PPID为 parent processid，父进程标识符2，
+    LWP为light weight process orthread， 轻量级进程，即线程标识符
+    NLWP为，number oflwps(threads) in the process, 线程的数量
+    #+END_EXAMPLE
+  - 一般配合kill命令使用
+    #+BEGIN_EXAMPLE
+    killall 进程名 批量杀同名的多个进程
+    kill -9 进程号    #强制杀掉
+    #+END_EXAMPLE
+
+* netstat -anp  -nlp(listen本机开启的端口以及socket)
+  established 已建立连接
+
+  time-wait 等待数
+
+  一般配合awk 脚本过滤出指定列
+* tcpdump和tshark
+  #+BEGIN_EXAMPLE
+  关键字
+  host    主机
+  net        网段
+  port       端口
+  src           源
+  dst          目标
+  tcp   
+  udp
+  arp
+  and 
+  not
+  !
+  -e   mac地址
+  #+END_EXAMPLE
+  =tcpdump -nn -i eth0  \(not src net 10.63.96.0/24 and dst host 10.63.96.98\) or \(src host 10.63.96.98 and not dst net 10.63.96.0/24\)=
+
+** tcpdump 与wireshark
+   Wireshark(以前是ethereal)是Windows下非常简单易用的抓包工具。但在Linux下很难找到一个好用的图形化抓包工具;
+
+   还好有Tcpdump; 我们可以用Tcpdump + Wireshark 的完美组合实现：在 Linux 里抓包，然后在Windows 里分析包:
+
+   =tcpdump tcp -i eth1 -t -s 0 -c 100 and dst port ! 22 and src net 192.168.1.0/24 -w ./target.cap=
+
+   #+BEGIN_EXAMPLE
+   (1)tcp: ip icmp arp rarp 和 tcp、udp、icmp这些选项等都要放到第一个参数的位置，用来过滤数据报的类型
+   (2)-i eth1 : 只抓经过接口eth1的包
+   (3)-t : 不显示时间戳
+   (4)-s 0 : 抓取数据包时默认抓取长度为68字节。加上-s 0 后可以抓到完整的数据包
+   (5)-c 100 : 只抓取100个数据包
+   (6)dst port ! 22 : 不抓取目标端口是22的数据包
+   (7)src net 192.168.1.0/24 : 数据包的源网络地址为192.168.1.0/24
+   (8)-w ./target.cap : 保存成cap文件，方便用ethereal(即wireshark)分析
+   #+END_EXAMPLE
+
+* selinux
+  - 获取selinux状态 =getenforce=
+
+    可能出现的结果有: enforcing(默认), permissive, disabled
+
+    当然, 也可以使用 /sestatus/ 
+  - 临时设定selinux状态, 重启后还原 =setenforce 0=
+
+    若要永久生效, 则要 =vim /etc/sysconfig/selinux= (这是一个指向selinux配置文件的软链接), 作如下修改
+    #+BEGIN_EXAMPLE
+    - SELINUX=enforcing
+    + SELINUX=disabled
+    #+END_EXAMPLE
+    注: '-' 代表删除, '+' 代表增加
+
+* iptables
+
+  [[file:linked/iptables.org]]
+
+* crontab
+  #+BEGIN_EXAMPLE
+  # .----------------分钟 (0 - 59)
+  # |  .------------- 小时 (0 - 23)
+  # |  |  .----------  日 (1 - 31)
+  # |  |  |  .-------  月 (1 - 12)
+  # |  |  |  |  .----   周 (0 - 6) (周日=0 or 7) 
+  # |  |  |  |  | 
+  # * *  * *  * user-name command to be executed
+  #+END_EXAMPLE
+  cron 也是一个服务，所以需要先启动服务才能生效：service crond start; service crond status 
+
+  提问:
+        - 每4小时执行/export/1.sh呢？
+        - 执行的日志在什么地方：/var/log/cron
+
+* 自定义的服务
+  #+BEGIN_EXAMPLE
+  vim /etc/init.d/redis
+  chkconfig --add redis    
+  chkconfig redis on
+  #+END_EXAMPLE
+
+* xargs  exec
+  #+BEGIN_EXAMPLE
+  xargs是针对文件的:ls *.txt |rm 
+  find /export -mtime +6 -size -100m  |xargs rm -rf
+  cat 1.txt |xargs
+  find /export -mtime +6 -size 100m -exec rm -rf {} \;
+  #+END_EXAMPLE
+
+* curl
+    curl -I www.baidu.com
+
+    curl -x 192.168.147.128 www.baidu.com    ##-x制定代理的主机和端口
+    
+    本机的话要么加/etc/hosts, 要么加-x
+    
+    直接运行可以查看源代码
+    
+    #+BEGIN_EXAMPLE
+    常见的状态码   200 301 302  403 404 502 503 只有200是正常的 301 302 有可能是有做跳转
+    301：所请求的页面已经转移至新的url。
+    302：所请求的页面已经临时转移至新的url。
+    403：对被请求页面的访问被禁止
+    404：服务器无法找到被请求的页面。
+    501：请求未完成。服务器不支持所请求的功能。
+    502：请求未完成。服务器从上游服务器收到一个无效的响应。
+    300-399：重定向
+    400-499：客户端
+    500-599：服务端，location什么的
+    #+END_EXAMPLE
+    
+    - 用法1：curl -I    省略源代码, 返回类似下面的结果
+      #+BEGIN_EXAMPLE
+      HTTP/1.1 200 OK
+      Server: bfe/1.0.8.18
+      Date: Wed, 17 May 2017 07:50:06 GMT
+      Content-Type: text/html
+      Content-Length: 277
+      Last-Modified: Mon, 13 Jun 2016 02:50:28 GMT
+      Connection: Keep-Alive
+      ETag: "575e1f74-115"
+      Cache-Control: private, no-cache, no-store, proxy-revalidate, no-transform
+      Pragma: no-cache
+      Accept-Ranges: bytes
+      #+END_EXAMPLE
+
+    - 用法2：curl -x   相当于代理
+
+    - 用法3：curl -U username:password 访问有需要用户名名和密码的站点
+
+    - 用法4：curl -O   下载东西，小写o是可以更改文件名
+
+    - 用法5：curl -IV 查看访问过程
+
+* wget
+    wget www.baidu.com/1.rpm
+* dig  nslookup
+  没有dig安装哪个包bind-utils
+ 
+  dig @114.114.114.114 www.baidu.com
+* sreen   nohup    &
+  #+BEGIN_EXAMPLE
+  nohup top &
+  nohup：有时候终端退出时，进城也结束了，有个nohup保险
+  nohup.out
+  #+END_EXAMPLE
+  
+* rsync
+  - 一般模式(复制)
+      #+BEGIN_EXAMPLE
+      rsync -avL admin@192.168.1.102:/export/1.txt ./
+      rsync -avL ./1.txt admin@192.168.1.102:/export/
+      #+END_EXAMPLE
+    - =-a= 递归模式，所有文件都复制
+    - =-v= 打印一些详细信息
+    - =-L= 处理软连接，src中软连接的源文件拷贝到dst中
+    - =-u= dst中比src新的文件保留，src的不复制
+    - =--exclude=*.log= 不复制*.log文件
+    - =--delete= 删除的意思，让所有的目标保持和源ip的文件一样，a删除，b也删除，b多余的也删除
+    - 绝招
+      #+BEGIN_EXAMPLE
+      rsync -avL --delete   --exclude=*.log admin@192.168.1.1::moder/test  ./ --password-file=/home/admin/rsyncd.passwd
+      #+END_EXAMPLE
+  - 后台模式
+    - 编写配置文件：rsync的配置文件：/etc/rsyncd.conf
+      #+BEGIN_EXAMPLE
+      [root@localhost export]# cat /etc/rsyncd.conf 
+      port=873
+      log file=/export/Logs/rsync/rsync.log
+      pid file=/export/servers/rsync/rsyncd.pid
+      #address=192.168.0.10
+      
+      [admin]
+      path=/export
+      use chroot=false
+      max connections=0
+      read only=no
+      list=true
+      uid=root
+      gid=root
+      auth users=admin#和secrets成对出现，如果两个同时注释，就是默认是root拷贝
+      secrets file=/etc/rsyncd.passwd#和上一行成对出现
+      #hosts allow=192.168.146.101
+      #+END_EXAMPLE
+    - 编辑secrets file，保存并赋予600权限
+      #+BEGIN_EXAMPLE
+      auth users=admin        这里是什么就写什么账号的密码
+      
+      [root@localhost export]# cat /etc/rsyncd.passwd 
+      admin:admin123456
+      #+END_EXAMPLE
+    - 启动rsyncd服务
+      #+BEGIN_EXAMPLE
+      rsync --daemon --config=/etc/rsyncd.conf
+      报错查看报错信息
+      #+END_EXAMPLE
+    - 确认rsyncd服务启动 =netstat -lnp |grep 873=
+    - 在另一台电脑上拷贝
+      #+BEGIN_EXAMPLE
+      [admin@bogon ~]$ cat rsyncd.passwd 
+      admin123456
+      chown admin:admin rsyncd.passwd 
+      chmod 600 rsyncd.passwd 
+      rsync -avL admin@192.168.147.129::admin/129.txt ./ --password-file=/home/admin/rsyncd.passwd
+      rsyncd.passwd的所属用户必须和命令中的”admin@192.……“为同一用户，文件中直接写密码就可以，为了安全起见，权限设置成600
+      #+END_EXAMPLE
+    - 配置文件详解
+      #+BEGIN_EXAMPLE
+      port 指定在哪个端口启动rsyncd服务，默认是873
+      log file 指定日志文件
+      pid file 指定pid文件，这个文件的作用涉及到服务的启动以及停止等进程管理操作
+      address 指定启动rsyncd服务的IP，假如你的机器有多个IP，就可以指定其中一个启动rsyncd服务，默认是在全部IP上启动
+      [test] 指定模块名，自定义
+      path 指定数据存放的路径
+      use chroot true|false 默认是true，意思是在传输文件以前首先chroot到path参数所指定的目录下。这样做的原因是实现额外的安全防护，但是缺点是需要以roots权限，并且不能备份指向外部的符号连接所指向的目录文件。默认情况下chroot值为true，如果你的数据当中有软连接文件的话建议设置成false。
+      max connections 指定最大的连接数，默认是0即没有限制
+      read only ture|false 如果为true则不能上传到该模块指定的路径下
+      list 指定当用户查询该服务器上的可用模块时，该模块是否被列出，设定为true则列出，false则隐藏
+      uid/gid 指定传输文件时，以哪个用户/组的身份传输
+      auth users 指定传输时要使用的用户名
+      secrets file 指定密码文件，该参数连同上面的参数如果不指定则不使用密码验证，注意该密码文件的权限一定要是600
+      hosts allow 指定被允许连接该模块的主机，可以是IP或者网段，如果是多个，之间用空格隔开
+      #+END_EXAMPLE
+  - rsync常见错误与解决方法整理 [[file:linked/rsync常见错误与解决方法整理.org][链接]]
+
+* 日志
+  - 硬件 =dmesg |grep -i 'error'=
+  - 登录认证 =tail -100f /var/log/secure= 或 =last=
+    #+BEGIN_EXAMPLE
+    /var/log/messages： 系统里面大部分日志都是在/var/log/messages里面，查问题时，这个日志是不能忽略的，比如内核相关的问题，当你的机器访问量特别大时，这个日志里面就会记录一些内核异常的错误。
+    /var/log/wtmp： wtmp这个是查看登录历史的，last 命令看就是这个日志
+    /var/log/btmp： btmp是查看登录历史中没有正确登录的那些ip，用lastb查看
+    /var/log/maillog：maillog 当然是记录邮件相关日志的，当你发邮件不成功，不正常时就看这个日志
+    /var/log/secure：secure 是安全相关的日志，比如我们以后讲到ftp不能正常登录时，就是看这个日志
+    /var/log/dmesg：dmesg 这个日志是系统开机时，记录的一些硬件信息，很少看这个日志
+    #+END_EXAMPLE
+
+* route
+  #+BEGIN_EXAMPLE
+  route -n   以ip地址的形式显示，不显示主机名
+  route add -host $vip  dev lo:0
+  route del $vip
+  增加路由
+  查看路由信息，路由等
+  route -n
+  netstart -r
+  ifconfig eth1 $vip up                 报错
+  ifconfig lo:0 $vip up                  正常
+  lo:0一个网卡绑定多个ip, eth1没有这个网卡
+  #+END_EXAMPLE
+
+* 查看系统版本
+  #+BEGIN_EXAMPLE
+  uname -a      
+  cat  /etc/issue
+  cat /etc/redhat-release 
+  #+END_EXAMPLE
+  
