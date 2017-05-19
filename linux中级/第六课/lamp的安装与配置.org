@@ -1,0 +1,49 @@
+#+TITLE: LAMP的安装与配置
+
+* 安装mysql
+
+* 安装apache
+
+* 安装php
+
+* 配置apache结合php
+
+  - 修改配置文件 =vim /usr/local/apache2/conf/httpd.conf=
+
+    定位到下面的位置, 并做相应改动
+    #+BEGIN_EXAMPLE
+    <Directory />
+        Options FollowSymLinks
+        AllowOverride None
+        Order deny,allow
+     -  Deny from all
+     +  Allow from all 
+    </Directory>
+    #+END_EXAMPLE
+    注: '-' 表示删除此行, '+' 表示添加此行
+
+    #+BEGIN_EXAMPLE
+      AddType application/x-gzip .gz .tgz
+    + AddType application/x-httpd-php .php
+    #+END_EXAMPLE
+
+    #+BEGIN_EXAMPLE
+    <IfModule dir_module>
+          DirectoryIndex index.html
+        + DirectoryIndex index.html index.htm index.php
+    </IfModule>
+    #+END_EXAMPLE
+
+    #+BEGIN_EXAMPLE
+    - #ServerName www.example.com:80
+    + ServerName localhost:80
+    #+END_EXAMPLE
+  - 测试解析php =vim /usr/local/apache2/htdocs/1.php=
+    #+BEGIN_EXAMPLE
+    <?php
+        echo "php解析正常";
+    ?>
+    #+END_EXAMPLE
+    保存后, 进行测试 =curl localhost/1.php=
+
+    如果php解析正常, 就会显示"php解析正常", 否则就可能变成下载1.php
