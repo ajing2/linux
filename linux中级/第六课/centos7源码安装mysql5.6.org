@@ -1,0 +1,89 @@
+#+TITLE: centos7源码安装mysql5.6
+#+TAGS: { 桌面(d) 服务器(s) } 编辑器(e) 浏览器(f) 多媒体(m) 压缩(z)
+**** 上官网，下源码包
+
+     [[file:image/mysql_source.png]]
+
+**** 安装依赖工具
+
+     #+BEGIN_EXAMPLE
+     yum -y install make gcc-c++ cmake bison-devel ncurses-devel libaio libaio-devel  perl-Data-Dumper net-tools
+     #+END_EXAMPLE
+
+**** 解压
+
+     #+BEGIN_EXAMPLE
+     cd /usr/local/src
+     tar xzvf mysql-5.6.32.tar.gz
+     cd mysql-5.6.32
+     #+END_EXAMPLE
+
+**** 编译
+     #+BEGIN_EXAMPLE
+     cmake -DCMAKE_INSTALL_PREFIX=/export/servers/mysql/ \
+     -DMYSQL_DATADIR=/export/Data/mysql/data \
+     -DSYSCONFDIR=/export/servers/mysql/etc \
+     -DWITH_INNOBASE_STORAGE_ENGINE=1 \
+     -DWITH_PERFSCHEMA_STORAGE_ENGINE=1 \
+     -DDEFAULT_CHARSET=utf8 \
+     -DDEFAULT_COLLATION=utf8_general_ci \
+     -DMYSQL_UNIX_ADDR=/export/Data/mysql/tmp/mysql.sock \
+     -DENABLED_LOCAL_INFILE=ON \
+     -DENABLED_PROFILING=ON \
+     -DWITH_DEBUG=0 \
+     -DMYSQL_TCP_PORT=3358
+     #+END_EXAMPLE
+
+     | =DCMAKE_INSTALL_PREFIX=          |                  /usr/local/mysql | 安装目录             |
+     | =DMYSQL_DATADIR=                 |     /usr/local/mysql/data	 | 数据库位置           |
+     | =DSYSCONFDIR=                    |                              /etc | 配置文件位置         |
+     | =DWITH_MYISAM_STORAGE_ENGINE=    |                                 1 | 安装myisam存储引擎   |
+     | =DWITH_INNOBASE_STORAGE_ENGINE=  |                                 1 | 安装innodb存储引擎   |
+     | =DWITH_MEMORY_STORAGE_ENGINE=    |                                 1 | 安装memory存储引擎   |
+     | =DWITH_READLINE=                 |                                 1 | 快捷键功能           |
+     | =DMYSQL_UNIX_ADDR=               | /var/lib/mysql/mysql.sock	 | Unix socket 文件路径 |
+     | =DMYSQL_TCP_PORT=                |                              3306 | MySQL监听端口        |
+     | =DENABLED_LOCAL_INFILE=          |                                 1 | 允许从本地导入数据   |
+     | =DWITH_PARTITION_STORAGE_ENGINE= |                                 1 | 安装数据库分区       |
+     | =DEXTRA_CHARSETS=                |                               all | 安装所有扩展字符集   |
+     | =DDEFAULT_CHARSET=               |                              utf8 | 使用utf8字符         |
+     | =DDEFAULT_COLLATION=             |                   utf8_general_ci | 校验字符             |
+
+     如图所示编译成功，每次进行 =echo $?= 进行验证
+
+     [[file:image/mysql_compile.png]]
+
+     make && make install
+
+**** 创建mysql用户, 并赋权
+
+     #+BEGIN_EXAMPLE
+     useradd mysql -s /sbin/nologin -M
+     chown -R mysql:mysql /export/servers/mysql /export/Data/mysql
+     #+END_EXAMPLE
+
+**** 初始化系统表
+
+     #+BEGIN_EXAMPLE
+     cd /export/servers/mysql/scripts
+     ./mysql_install_db --basedir=/export/servers/mysql/ --datadir=/export/Data/mysql/data --user=mysql
+     mkdir -p /export/servers/mysql/etc
+     cp /export/servers/mysql/my.cnf
+     yum remove -y mysql
+     #+END_EXAMPLE
+
+**** 启动mysql
+
+     #+BEGIN_EXAMPLE
+     cd /export/servers/mysql
+     cp support-files/mysql.server /etc/init.d/mysqld
+     检查配置文件的datadir，basedir等是否正确
+     service mysqld start
+     #+END_EXAMPLE
+
+**** 检查mysql是否启动成功
+     #+BEGIN_EXAMPLE
+     ps -ef |grep mysql
+     netstat -lnp |grep mysql
+     #+END_EXAMPLE
+     如果启动不了，就在/export/Data/mysql/data找`hostname`.err对应的日志查看

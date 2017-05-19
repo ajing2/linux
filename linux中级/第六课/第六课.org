@@ -1,0 +1,99 @@
+#+TITLE: 第六次课
+
+* 背景
+  了解apache的作用，尽量所有的都源码安装，首先小了解配置文件，对大概有个了解，遇到问题，看日志，搜索关键字，根据报错信息进行排查；下载包尽量去官网下载;
+
+* mysql的安装
+  - 官网: 找源码包安装(mysql5.6)
+
+    [[file:centos7源码安装mysql5.6.org][centos7源码安装mysql5.6]]
+  - 源码安装中, echo $?的使用
+
+    出问题最多的地方是，数据初始化，必须保证mysql版本和系统版本一致
+
+* apache的编译安装
+  - 出最多问题 *httpd: Could not reliably determine the server's fully qualified domain name*
+
+    编辑httpd.conf, 并作如下修改
+    #+BEGIN_EXAMPLE
+    - #ServerName www.example.com:80
+    + ServerName localhost:80
+    #+END_EXAMPLE
+    
+  - 安装apache
+    http://note.youdao.com/noteshare?id=bcf51a8e6ae1298beee397a72338f40d
+  - apache service的启动脚本（我自己改的）
+    http://note.youdao.com/noteshare?id=c7af3712c9e919599e2726ad4abdc10b
+  - apache的mpm模式
+    - 2.2默认是prefork模式，2.4默认是event模式，apache切换不用的模式，需要重新编译 *--with-mpm* 参数
+        http://note.youdao.com/noteshare?id=bcf51a8e6ae1298beee397a72338f40d
+    - pmp配置文件所在的文件位置
+    - http.conf配置文件详解
+        http://note.youdao.com/noteshare?id=7532be28297ebd19caa9a3f12389954b
+* php的安装
+  - php的安装
+        http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
+  - php配置文件的详解
+        http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
+  - 编译参数需不需要记忆，不明白什么意思
+  - php如何和apache结合，php5.so, php和mysql如何结合，指定mysql的安装文件
+* lamp的搭建
+        http://note.youdao.com/noteshare?id=f17cacf620790632a5427c389398486d
+* 测试解析
+
+  关键点
+  #+BEGIN_QUOTE
+  1. apachectl -M 查看是否加载libphp5.so
+  2. httpd.conf 里面是否写对了AddType  Application/x-httpd-php .php
+  3. php代码格式要写对
+  4. selinux要关闭
+  5. deny没有改成allow  2.4 denied  granted
+  6. 没有加host
+  #+END_QUOTE
+
+* 出现的错误
+        1.	错误码403	404		500		502
+* 安装discuz
+    http://note.youdao.com/noteshare?id=b8bf8e6fa389c747cd108b355ab5fc76
+    a.	浏览器不可以访问，curl可以访问iptables
+    b. 	host的作用
+    c. 	一般出问题，启动的rpm的http的（yum），而不是编译安装的apache2
+* 用户认证
+    a.	需求背景
+    b.	401密码输入错误
+    c. 	curl -U  admin:admin123
+    http://note.youdao.com/noteshare?id=99d33606b2ba6965715bbab9b33e64d6
+* 访问控制
+    http://note.youdao.com/noteshare?id=8092d44dc7ee12019ecfb1271404ef7a
+* apache的日志
+    http://note.youdao.com/noteshare?id=eae5156591e58b68f58d407edbf77034
+* 文件的静态缓存
+    http://note.youdao.com/noteshare?id=97ace4231637153ec64410965cf49820
+* 防盗链
+    http://note.youdao.com/noteshare?id=09d525084eb280ae94274eb0831317a3
+* apache的rewrite规则
+    http://note.youdao.com/noteshare?id=0161eba78b2aab8843e0866bdd9470ea
+    301：http://note.youdao.com/noteshare?id=d80b3015eb7fb1d56f0b6afb6b96ad90
+* php.in配置文件详解
+    http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
+* php安装扩展模块
+http://note.youdao.com/noteshare?id=8890bc568d649c86b40b4e1d2c818dc1
+* mysql的配置文件详解
+http://note.youdao.com/noteshare?id=ce11d381cd9f3bd9290e7bf24d442311
+* mysql的调优
+http://note.youdao.com/noteshare?id=229ea531b73a0fa14c020871817a7afa
+mysql的内存：http://note.youdao.com/noteshare?id=1931362daa686fc294efca3fc2356219
+* mysql的root密码重置
+http://note.youdao.com/noteshare?id=260a55e07dbe6aac57dd719048ed38d6
+* mysql的登录
+http://note.youdao.com/noteshare?id=a1e183ae6885ffe2d732aa9977ab5bd3
+* mysql的操作
+http://note.youdao.com/noteshare?id=2bee36bc361f00dac23d8b1fb2fdfd91
+* mysql的备份和恢复
+http://note.youdao.com/noteshare?id=0719b7e077689bc23ba9c69ece85ddd6
+
+* mysql启动报错：
+http://note.youdao.com/noteshare?id=cf4fdc61786018cf1769f06884111990
+* mysql的事件和死锁问题
+http://note.youdao.com/noteshare?id=7be38c478472c12c5d6bb7a8dd7dda43
+http://note.youdao.com/noteshare?id=ec3fa91ec4b57b8c03e9f114659569be
