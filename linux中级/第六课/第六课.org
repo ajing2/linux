@@ -21,7 +21,7 @@
     #+END_EXAMPLE
     
   - 安装apache
-    http://note.youdao.com/noteshare?id=bcf51a8e6ae1298beee397a72338f40d
+    [[file:安装apache和apache的mpm工作模式][安装apache和apache的mpm工作模式]]
   - apache service的启动脚本（我自己改的）
     http://note.youdao.com/noteshare?id=c7af3712c9e919599e2726ad4abdc10b
   - apache的mpm模式

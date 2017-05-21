@@ -1,0 +1,64 @@
+#+TITLE: 安装apache和apache的mpm工作模式
+
+**** 上官网下载源码
+
+     [[file:image/apache-source.png]]
+
+**** 安装apache
+
+     - wget  http://apache.fayea.com//httpd/httpd-2.4.23.tar.gz
+     - tar xzvf httpd-2.2.31.tar.gz
+     - cd httpd-2.2.31
+     - ./configure --prefix=/export/servers/apache2  --enable-mods-shared=most  --enable-so
+     - make && make install
+
+**** 查看mpm的模式
+     - cd /export/servers/apache2/bin
+     - apachectl -M 或者 apachectl -l
+
+***** apache的三种模式
+      - prefork模式: 2.2版本默认prefork模式，多进程模式
+
+	优点：所有进程独立处理请求，进程之间彼此独立，每个子进程只有一个线程，最稳定。缺点：内存消耗较大;
+
+      - worker模式: 有多个进程，每个进程生成多线程
+
+	优点：线程之间内存共享，系统内存利用率较高，内存消耗比prefork小的多，适用于高流量的http服务器，缺点：一个进程崩溃，整个进程里面的所有线程一起死掉;
+
+      - event模式
+
+	在非常繁忙的服务器下，以上两种服务器有点吃不消，在worker基础上，它把服务进程从连接中分离出来。在服务器处理速度很快，同时具有非常高的点击率时，可用的线程数量就是关键的资源限 制，此时Event MPM方式是最有效的;
+
+	对于Event 模式，apache给出了以下警告: =This MPM is experimental, so it may or may not work as expected= 这种MPM目前处于试验状态，他可能不能按照预期的那样工作;
+
+      - 如何设置apche的mpm模式
+	#+BEGIN_EXAMPLE
+	./configure --with-mpm=worker/prefork
+	event模式：     ./configure  --enable-nonportable-atomics=yes 
+	#+END_EXAMPLE
+
+      - 三种MPM参数分析 =cd /export/servers/apache2/conf/extra=
+
+	- prefork
+	  #+BEGIN_EXAMPLE
+	  <IfModule mpm_prefork_module>
+	      StartServers          5			#服务器开始进程
+	      MinSpareServers       5		#最小空闲进程
+	      MaxSpareServers      10		#最大空闲进程
+	      MaxClients          150			#最大处理请求数，对性能影响最大，默认最大256，再多排队
+	      MaxRequestsPerChild   0		#进程处理的最大请求数，0无限制，可以设置大一点，不用回收
+	  </IfModule>
+	  #+END_EXAMPLE
+
+	- worker
+	  #+BEGIN_EXAMPLE
+	  <IfModule mpm_worker_module>
+	      StartServers          2			#开始进程数
+	      MaxClients          150			#最大处理请求数
+	      MinSpareThreads      25		#最小空闲线程数
+	      MaxSpareThreads      75		#最大空闲线程数
+	      ThreadsPerChild      25		#每个进程可以产生多少线程，最大可以是20000，性能密切相关
+	      MaxRequestsPerChild   0		#线程处理的最大请求数， 0无限制
+	  </IfModule>
+	  #+END_EXAMPLE
+	- event就不研究了
