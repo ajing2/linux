@@ -1,0 +1,66 @@
+#+TITLE: 关于合作书写linux笔记的建议
+
+**** 前提
+
+     - 任意一种markdown语法, 可以是简书的, 博客园的, github自带的或者复杂一点的org-mode的
+
+       这部分内容关于org-mode的部分我已有笔记[[file:org-mode简介.org][分享]], 其余的几种我不知道github对其语法的支持程度, 所以需要自行测试, 发现不支持的语法需要及时规避;
+
+     - git的操作
+
+       git的操作有两种: 一种是带GUI的客户端, 还有一种命令行模式, 看你对哪种熟悉; 我个人推荐使用[[https://desktop.github.com/][github-for-windows]] , 这个是github开发的GUI客户端, 操作简便;
+
+     - github网站上的操作
+
+       这是主要是涉及请求合并分支, 如果有兴趣, 可以找git相关的书看看, 如果只想参与笔记的整理中来, 只需要了解我下面介绍的步骤就可以了;
+
+**** 笔记约定
+
+     - 文件结构的约定
+
+       按大师兄要求, 笔记以内容深度进行划分, 如linux基础, linux中级等, 目录中的内容为相应的课时目录; 课时目录下将会有和课时目录名称相同的文件, 如 *第六课时.org* , 这个文件为该课时的主要文件, 所有的相关内容都可以在此文件中找到;
+
+       课时目录下存放的是所有与本课时内容相关的文件, 之所以单独形成文件, 是为了便于以后修改; 这里的所有内容, 都将在课时文件(如第六课时.org)内进行链接;
+
+       每个与 *.org* 结尾的文件同级的目录中, 都将会有一个 *image* 目录, 用来存放图片, 这些图片将会在文件中进行链接显示;
+
+**** 如何进行协作整理
+
+     - 去大师兄的github上fork我们需要的[[https://github.com/ajing2/linux][项目]]
+
+       - 单击右上角的 =Fork= 按钮
+
+	 [[file:image/github-fork.png]]
+
+	 如果你的用户叫test, 那和几秒之后, 你就会在自己的github下看见 *test/linux* 这个项目了
+
+     - 每个整理笔记的人需要一个github的账号, 根据前面所说, 下载自己喜欢的git客户端进行配置
+
+       github-for-windows只需要配置上自己的github账号, 如下图
+
+       [[file:image/github-for-windows-login.png]]
+
+     - 在github-for-windows上克隆你账号下的 *linux* 项目到本地
+
+       依次点开 =File->Clone respository=
+
+       [[file:image/github-file.png]]
+
+       [[file:image/github-clone-repository.png]]
+
+       填入完整的URL或者username/repository, 例如https://github.com/username/linux.git 或者直接填写 *用户名/仓库名* , 两种方式都可以; 填写储存位置后, 点击 *Clone* , 几秒之后, 就克隆完成了;
+
+     - 按照在群里或认领或分配的任务进行笔记的整理
+
+       如果你在整理笔记的同时打开了github-for-windows的客户端, 你会发现它一直在跟踪目录下的文件, 是否有变动, 如增加, 删除, 移动, 重命名等
+
+       [[file:image/github-changes.png]]
+
+     - 当笔记整理完毕后, 在下方输入提交信息(必须写)和详情(可以不写), 点提交后, 菜单栏上会有 =Push origin= 的提示, 点击后就可以将你刚刚的修改提交到你的github上;
+
+       [[file:image/github-push.png]]
+
+     - 接下来将在github网站上进行 =Pull request= , 即将你之前的修改合并到大师的项目上去
+
+       
+
