@@ -56,5 +56,11 @@
 
        [[file:image/github-changes.png]]
 
-     - 当笔记整理完毕后, 在下方输入提交信息(必须写)和详情(可以不写), 点提交后
+     - 当笔记整理完毕后, 在下方输入提交信息(必须写)和详情(可以不写), 点提交后, 菜单栏上会有 =Push origin= 的提示, 点击后就可以将你刚刚的修改提交到你的github上;
+
+       [[file:image/github-push.png]]
+
+     - 接下来将在github网站上进行 =Pull request= , 即将你之前的修改合并到大师的项目上去
+
+       
 
