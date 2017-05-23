@@ -23,22 +23,22 @@
   - 安装apache
     [[file:安装apache和apache的mpm工作模式][安装apache和apache的mpm工作模式]]
   - apache service的启动脚本（我自己改的）
-    http://note.youdao.com/noteshare?id=c7af3712c9e919599e2726ad4abdc10b
+    [[file:apache2启动脚本.org][apache2启动脚本]]
   - apache的mpm模式
     - 2.2默认是prefork模式，2.4默认是event模式，apache切换不用的模式，需要重新编译 *--with-mpm* 参数
-        http://note.youdao.com/noteshare?id=bcf51a8e6ae1298beee397a72338f40d
-    - pmp配置文件所在的文件位置
+      [[file:%E5%AE%89%E8%A3%85apache%E5%92%8Capache%E7%9A%84mpm%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F.org][安装apache和apache的mpm工作模式]]
+    - mpm配置文件所在的文件位置
     - http.conf配置文件详解
-        http://note.youdao.com/noteshare?id=7532be28297ebd19caa9a3f12389954b
+      [[file:http.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E8%AF%A6%E8%A7%A3.org][http.conf配置文件的详解]]
 * php的安装
   - php的安装
-        http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
+    http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
   - php配置文件的详解
         http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
   - 编译参数需不需要记忆，不明白什么意思
   - php如何和apache结合，php5.so, php和mysql如何结合，指定mysql的安装文件
 * lamp的搭建
-        http://note.youdao.com/noteshare?id=f17cacf620790632a5427c389398486d
+  [[file:lamp的安装和配置.org][lamp的安装和配置]]
 * 测试解析
 
   关键点
@@ -54,10 +54,15 @@
 * 出现的错误
         1.	错误码403	404		500		502
 * 安装discuz
-    http://note.youdao.com/noteshare?id=b8bf8e6fa389c747cd108b355ab5fc76
-    a.	浏览器不可以访问，curl可以访问iptables
-    b. 	host的作用
-    c. 	一般出问题，启动的rpm的http的（yum），而不是编译安装的apache2
+  [[file:安装discuz.org][安装discuz]]
+
+  - 可能会遇到的问题
+
+      浏览器不可以访问，curl可以访问------iptables;
+
+      host的作用;
+
+      启动的rpm的http的(yum)而不是编译安装的apache2;
 * 用户认证
     a.	需求背景
     b.	401密码输入错误

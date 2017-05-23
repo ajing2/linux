@@ -1,0 +1,122 @@
+#+TITLE: http.conf配置文件的详解
+
+ServerRoot "/export/servers/apache2"    #安装apache的家目录
+
+Listen 80    #默认监听的端口是80
+
+PidFile /export/servers/apache2/logs/httpd.pid
+
+LoadModule authn_file_module modules/mod_authn_file.so    ##加载的模块
+
+User admin    ##一般默认设置为admin
+
+Group admin    ##一般默认设置为admin
+
+DocumentRoot "/export/servers/apache2/htdocs"    ##设置你的项目文件路径
+
+ServerAdmin you@example.com    #当服务器报错是，返回客户端，让联系管理员
+
+ServerName localhost:80    ##服务器的名字：端口
+
+AddType application/x-httpd-php .php    #让.php文本文件格式也能运行php程序。
+
+#+BEGIN_EXAMPLE
+<Directory />
+     Options FollowSymLinks
+     AllowOverride None
+     Order deny,allow
+     Allow from all
+ </Directory>
+#+END_EXAMPLE
+#Options：配置在特定目录使用哪些特性，常用的值和基本含义如下：
+
+#ExecCGI: 在该目录下允许执行CGI脚本。
+
+#FollowSymLinks: 在该目录下允许文件系统使用符号连接。
+
+#Indexes: 当用户访问该目录时，如果用户找不到DirectoryIndex指定的主页文件(例如#index.html),则返回该目录下的文件列表给用户。
+
+#SymLinksIfOwnerMatch: 当使用符号连接时，只有当符号连接的文件拥有者与实际文件拥有者相同时才可以访问.
+
+Includes 允许服务器端包含。
+
+IncludesNOEXEC 允许服务器端包含，但禁用#exec命令和#exec CGI。但仍可以从ScriptAliase目录使用#include 虚拟CGI脚本。
+
+比如说，没有任何+和-符号:
+#+BEGIN_EXAMPLE
+<Directory /web/docs>
+    Options Indexes FollowSymLinks
+</Directory>
+
+<Directory /web/docs/spec>
+    Options Includes
+</Directory>
+#+END_EXAMPLE
+则只有  Includes  设置到/web/docs/spec目录上。
+
+然而如果第二个  Options  指令使用了+和-符号:
+#+BEGIN_EXAMPLE
+<Directory /web/docs>
+    Options Indexes FollowSymLinks
+</Directory>
+
+<Directory /web/docs/spec>
+    Options +Includes -Indexes
+</Directory>
+#+END_EXAMPLE
+那么就会有  FollowSymLinks  和  Includes  设置到/web/docs/spec目录上。
+
+#AllowOverride：允许存在于.htaccess文件中的指令类型(.htaccess文件名是可以改变的，其文件名由AccessFileName指令决定)：
+
+#None: 当AllowOverride被设置为None时。不搜索该目录下的.htaccess文件（可以减小服务器开销）。
+
+#All: 在.htaccess文件中可以使用所有的指令。
+
+Order：控制在访问时Allow和Deny两个访问规则哪个优先：
+
+Allow：允许访问的主机列表(可用域名或子网，例如：Allow from 192.168.0.0/16)。
+
+Deny：拒绝访问的主机列表。
+
+Apache服务器可以针对目录进行文档的访问控制，然而访问控制可以通过两种方式来实现，一个是在设置文件 httpd.conf（或access.conf）中针对每个目录进行设置
+
+Timeout 300				##客户程序和服务器连接的超时间隔
+
+KeepAlive On				###在一次连接中传递多个HTTP请求
+
+MaxKeepAliveRequests 100		###为一次连接可以进行的HTTP请求的最大请求次数
+
+KeepAliveTimeout 15		###测试一次连接中的多次请求传输之间的时间，如果服务器已经完成了一次请求，但一直没有接收到客户程序的下一次请求，在间隔超过了这个参数设置的值之后，服务器就断开连接。
+
+ErrorLog logs/error_log #日志的保存位置
+
+LogLevel warn    ##日志级别		debug日志界别，日志就比较多
+
+
+日志的缺省格式有如下几种
+#+BEGIN_EXAMPLE
+LogFormat "%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"" combined
+LogFormat "%h %l %u %t "%r" %>s %b" common #common为日志格式名称
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+CustomLog logs/access_log common
+#+END_EXAMPLE
+格式中的各个参数如下:
+
+%h –客户端的ip地址或主机名
+
+%l –The 这是由客户端 identd 判断的RFC 1413身份，输出中的符号 "-" 表示此处信息无效。
+
+%u –由HTTP认证系统得到的访问该网页的客户名。有认证时才有效，输出中的符号 "-" 表示此处信息无效。
+
+%t –服务器完成对请求的处理时的时间。
+
+"%r" –引号中是客户发出的包含了许多有用信息的请求内容。
+
+%>s –这个是服务器返回给客户端的状态码。
+
+%b –最后这项是返回给客户端的不包括响应头的字节数。
+
+"%{Referer}i" –此项指明了该请求是从被哪个网页提交过来的。
+
+"%{User-Agent}i" –此项是客户浏览器提供的浏览器识别信息。

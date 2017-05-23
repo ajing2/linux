@@ -1,0 +1,48 @@
+#+TITLE: 安装discuz
+
+**** 下载discuz
+
+     #+BEGIN_EXAMPLE
+     cd /usr/local/src
+     wget http://download.comsenz.com/DiscuzX/3.2/Discuz_X3.2_SC_GBK.zip
+     unzip Discuz_X3.2_SC_GBK.zip
+     mkdir -p /export/Domains/Discuz
+     mv upload/*  /export/Domains/Discuz/
+     #+END_EXAMPLE
+
+**** 配置第一个虚拟主机
+
+     - 删除httpd.conf中的这行前面的井号 =#Include conf/extra/httpd-vhosts.conf=
+     - vim /export/servers/apache2/conf/extra/httpd-vhosts.conf 
+       #+BEGIN_EXAMPLE
+       <VirtualHost *:80>
+           ServerAdmin 974644081@qq.com
+           DocumentRoot "/export/Domains/Discuz"
+           ServerName  192.168.147.128
+           #ServerAlias www.dummy-host.example.com
+           ErrorLog "logs/Discuz-error_log"
+           CustomLog "logs/Discuz-access_log" common
+       </VirtualHost>
+       #+END_EXAMPLE
+
+**** 配置mysql，给Discuz！增加一个账户
+
+     给mysql root账户设置密码，然后命令行进入mysql，创建新的库，并创建一个新的帐号对该库有所有权限:
+     #+BEGIN_EXAMPLE
+     > create database discuz;
+     > grant all on discuz.* to 'aming'@'localhost' identified by '123456aminglinux';
+     > quit
+     #+END_EXAMPLE
+
+**** 安装Discuz！
+
+     - 先绑定hosts  
+       #+BEGIN_EXAMPLE
+       192.168.147.128  www.123.com
+       #+END_EXAMPLE
+     - 浏览器输入 =www.123.com/install/=
+     - 根据提示，修改对应目录的权限
+       #+BEGIN_EXAMPLE
+       cd /export/Domains/
+       chown -R admin:admin Discuz // 让这几个目录支持apache运行帐号可写
+       #+END_EXAMPLE
