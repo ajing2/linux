@@ -32,13 +32,13 @@
       [[file:http.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E8%AF%A6%E8%A7%A3.org][http.conf配置文件的详解]]
 * php的安装
   - php的安装
-        http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
+    http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
   - php配置文件的详解
         http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
   - 编译参数需不需要记忆，不明白什么意思
   - php如何和apache结合，php5.so, php和mysql如何结合，指定mysql的安装文件
 * lamp的搭建
-        http://note.youdao.com/noteshare?id=f17cacf620790632a5427c389398486d
+  [[file:lamp的安装和配置.org][lamp的安装和配置]]
 * 测试解析
 
   关键点
@@ -54,10 +54,15 @@
 * 出现的错误
         1.	错误码403	404		500		502
 * 安装discuz
-    http://note.youdao.com/noteshare?id=b8bf8e6fa389c747cd108b355ab5fc76
-    a.	浏览器不可以访问，curl可以访问iptables
-    b. 	host的作用
-    c. 	一般出问题，启动的rpm的http的（yum），而不是编译安装的apache2
+  [[file:安装discuz.org][安装discuz]]
+
+  - 可能会遇到的问题
+
+      浏览器不可以访问，curl可以访问------iptables;
+
+      host的作用;
+
+      启动的rpm的http的(yum)而不是编译安装的apache2;
 * 用户认证
     a.	需求背景
     b.	401密码输入错误
