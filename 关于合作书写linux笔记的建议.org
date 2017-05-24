@@ -60,7 +60,28 @@
 
        [[file:image/github-push.png]]
 
-     - 接下来将在github网站上进行 =Pull request= , 即将你之前的修改合并到大师的项目上去
+     - 接下来将在自己github主页上进行 =Pull request= , 即将你之前的修改合并到大师兄的项目上去
 
-       
+       [[file:image/github-pull-request.png]]
 
+       如图所示, 两个任意点击一个, 然后出现
+
+       [[file:image/github-comparing-changes.png]]
+
+       一般情况下默认就好, 除非你使用了非master分支; 然后点击 *Create pull request* , 填写一些提交信息, 然后点 *Create pull request* , 这时候协作项目的主页上就会有合并请求的提示
+
+       [[file:image/pull-request-prompt.png]]
+
+       经大师兄本人同意或授权人同意后, 合并请求将被接纳进来;
+
+**** 如何保持从大师兄处fork的项目保持更新
+
+     参考这篇[[http://blog.csdn.net/qq1332479771/article/details/56087333][文章]] , 实际上就是反向操作一下Pull request;
+
+     建议在发起合并请求前, 先更新项目到最新状态, 这样可以最大程度上保证不发生冲突;
+
+     记住, 更新项目后, 记得要拉到本地电脑上来
+
+     [[file:image/github-fetch.png]]
+
+     点击后, 如果本地较新, 则会出现 *Push origin* , 如果远程仓库较新, 则出现 *Pull origin* , 这时再次点击, 将使得本地仓库和远程仓库保持一致;
