@@ -1,0 +1,34 @@
+#+TITLE: apache用户认证
+
+- 背景: 网站需要用户认证
+
+     [[file:image/apache_authconfig.png]]
+
+- vim /export/servers/apache2/conf/extra/httpd-vhosts.conf
+
+  #+BEGIN_EXAMPLE
+  <Directory /export/Domains/Discuz/admin.php>
+      AllowOverride AuthConfig
+      AuthName "admin123321"
+      AuthType Basic
+      AuthUserFile /export/Domains/Discuz/.htpasswd
+      require valid-user
+  </Directory>
+  #+END_EXAMPLE
+  解释说明:
+  #+BEGIN_EXAMPLE
+  <Directory /export/Domains/Discuz/admin.php>   ##当访问什么路径的时候需要验证
+  AllowOverride AuthConfig   ##需要后台验证的关键设置，一般不推荐，会影响服务器的性能，只有后台管理者才会设置
+  AuthName "admin123321"    #显示在认证时的提示模块，自定的提示信息
+  AuthUserFile /export/Domains/Discuz/.htpasswd  ##指定密码文件
+  require valid-user 或者 require user frank 限制是所有合法用户还是指定用户
+  #+END_EXAMPLE
+   密码文件的生成，需要用/export/servers/apache2/bin/htpasswd -c /export/Domains/Discuz/.htpasswd admin
+
+   输入密码就生成了密码文件
+
+   检测httpd
+
+   service httpd configtest
+
+   service httpd graceful       (相当于reload)
