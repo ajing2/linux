@@ -67,7 +67,8 @@
     a.	需求背景
     b.	401密码输入错误
     c. 	curl -U  admin:admin123
-    http://note.youdao.com/noteshare?id=99d33606b2ba6965715bbab9b33e64d6
+
+    [[file:apache用户认证.org][apache用户认证]]
 * 访问控制
     http://note.youdao.com/noteshare?id=8092d44dc7ee12019ecfb1271404ef7a
 * apache的日志
