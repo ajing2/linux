@@ -1,0 +1,98 @@
+#+TITLE: apache访问控制
+
+**** Order的访问顺序
+
+     注意: *Order allow,deny######allow,deny不能有空格*
+
+     - 第一情况
+
+       #+BEGIN_EXAMPLE
+       Order allow,deny
+       deny from all
+       #+END_EXAMPLE
+       全部不能通行
+
+     - 第二种情况
+
+       #+BEGIN_EXAMPLE
+       Order deny,allow
+       deny from all
+       #+END_EXAMPLE
+       全部不能通行
+
+     - 第三种情况
+
+       #+BEGIN_EXAMPLE
+       Order deny, allow
+       #+END_EXAMPLE
+       全部可以通行，因为allow在最后
+
+     - 第四种情况
+
+       #+BEGIN_EXAMPLE
+       Order allow, deny
+       #+END_EXAMPLE
+       全部不可以通行，因为deny在最后
+
+
+     判断依据: 看Order后面的，哪个在前，先看其规则，哪个在后，最后执行其规则
+
+**** 禁止访问apache的文件
+
+     ###########设置禁止访问某些文件或目录#######################
+     #+BEGIN_EXAMPLE
+     #<Files ~ "\.html$">
+     #       Order allow,deny
+     #       Deny from all
+     #</Files>
+     </VirtualHost>
+     #+END_EXAMPLE
+
+**** 禁止访问apache的目录
+
+     ###########禁止访问制定目录##########################
+     #+BEGIN_EXAMPLE
+     #<Directory ~ "/export/Domains/Discuz/xiang">##也可以写成正则匹配
+     #       Order allow,deny
+     #       Deny from all
+     #</Directory>
+     ##########
+     <Directory ~ "/var/www/(.+)*[0-9]{3}">正则匹配
+     #+END_EXAMPLE
+
+**** apacheFilesMatch查找文件
+
+     ##########FileMatch#######################
+     #+BEGIN_EXAMPLE
+     <FilesMatch \.(jpg|png|gif)$>
+         Order allow,deny
+         Deny from all
+     </FilesMatch>
+     #+END_EXAMPLE
+
+**** 相对路径的禁止访问
+
+     #+BEGIN_EXAMPLE
+     #<Location /html/>
+     #       Order allow,deny
+     #       Deny from all
+     #</Location>
+     #+END_EXAMPLE
+
+**** apache禁止解析php
+
+     某个目录下禁止解析php
+     #+BEGIN_EXAMPLE
+     <Directory /data/www/path>
+         php_admin_flag engine off             
+         <filesmatch "(.*)php">
+             Order deny,allow
+             Deny from all
+         </filesmatch> 
+     </Directory>
+     #+END_EXAMPLE
+     =php_admin_flag engine off= 这个语句禁止解析php，后面的禁止访问
+
+**** apache 2.4和2.2的区别
+
+     *granted* *denied*
