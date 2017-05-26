@@ -79,7 +79,8 @@
   [[file:apache的日志.org][apache的日志]]
 
 * 文件的静态缓存
-    http://note.youdao.com/noteshare?id=97ace4231637153ec64410965cf49820
+
+  [[file:apache静态文件缓存.org][apache静态文件缓存]]
 * 防盗链
     http://note.youdao.com/noteshare?id=09d525084eb280ae94274eb0831317a3
 * apache的rewrite规则
