@@ -75,7 +75,9 @@
 
   [[file:apache访问控制.org][apache访问控制]]
 * apache的日志
-    http://note.youdao.com/noteshare?id=eae5156591e58b68f58d407edbf77034
+
+  [[file:apache的日志.org][apache的日志]]
+
 * 文件的静态缓存
     http://note.youdao.com/noteshare?id=97ace4231637153ec64410965cf49820
 * 防盗链

@@ -1,0 +1,40 @@
+#+TITLE: apache的日志
+
+**** 日志切割
+
+     <这部分内容给的笔记链接没有>
+
+**** 不记录指定文件类型日志
+
+     - =vim /export/servers/apache2/conf/extra/httpd-vhosts.conf=
+
+       在对应的虚拟主机的配置文件中加入
+
+       #+BEGIN_EXAMPLE
+       ErrorLog "|/export/servers/apache2/bin/rotatelogs -l /export/servers/apache2/logs/Discuz-error_%Y%m%d.log 86400"
+       SetEnvIf Request_URI ".*\.gif$" image-request
+       SetEnvIf Request_URI ".*\.jpg$" image-request
+       SetEnvIf Request_URI ".*\.png$" image-request
+       SetEnvIf Request_URI ".*\.bmp$" image-request
+       SetEnvIf Request_URI ".*\.swf$" image-request
+       SetEnvIf Request_URI ".*\.js$" image-request
+       SetEnvIf Request_URI ".*\.css$" image-request
+       CustomLog "|/export/servers/apache2/bin/rotatelogs -l /export/servers/apache2/logs/Discuz-access_%Y%m%d.log 86400"
+       combined env=!image-request
+       #+END_EXAMPLE
+
+       ErrorLog：错误日志，
+     
+       CustomLog：访问日志，日志级别在http.conf的文件中有定义LogFormat
+
+       网站的访问量比较，不需要记录照片什么，在其中添加如上
+
+***** apache 日志中记录代理IP以及真实客户端IP
+
+      默认情况下log日志格式为
+
+      =LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined=
+
+      其中 =%h= 是记录访问者的IP，如果在web的前端有一层代理，那么这个%h其实就是代理机器的IP，这不是我们想要的。在这种情况下, =%{X-FORWARDED-FOR}i=  字段会记录客户端真实的IP; 
+
+      所以log日志改为: =LogFormat "%h %{X-FORWARDED-FOR}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined=
