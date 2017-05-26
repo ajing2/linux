@@ -1,0 +1,41 @@
+** apache静态文件缓存
+
+对于图片，html，css，javascripts等，让客户端缓存，让访问时不需要去服务器上访问，提高用户体验，需要提前确认是否支持mod_expires.c和mod_headers模块
+
+配置静态文件缓存
+#+BEGIN_EXAMPLE
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresByType image/gif  "access plus 1 days"
+    ExpiresByType image/jpeg "access plus 24 hours"
+    ExpiresByType image/png "access plus 24 hours"
+    ExpiresByType text/css "now plus 2 hour"
+    ExpiresByType application/x-javascript "now plus 2 hours"    
+    ExpiresByType application/javascript "now plus 2 hours"
+    ExpiresByType application/x-shockwave-flash "now plus 2 hours"
+    ExpiresDefault "now plus 0 min"
+</IfModule>
+#+END_EXAMPLE
+
+或者使用mod_headers模块实现
+#+BEGIN_EXAMPLE
+<ifmodule mod_headers.c>
+
+    # htm,html,txt类的文件缓存一个小时  
+    <filesmatch "\.(html|htm|txt)$">  
+        header set cache-control "max-age=3600"  
+    </filesmatch>  
+
+    # css, js, swf类的文件缓存一个星期  
+    <filesmatch "\.(css|js|swf)$">  
+        header set cache-control "max-age=604800"  
+    </filesmatch>  
+
+    # jpg,gif,jpeg,png,ico,flv,pdf等文件缓存一年  
+    <filesmatch "\.(ico|gif|jpg|jpeg|png|flv|pdf)$">  
+        header set cache-control "max-age=29030400"  
+    </filesmatch>  
+</ifmodule>
+#+END_EXAMPLE
+  
+
