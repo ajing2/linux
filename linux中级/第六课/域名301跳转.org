@@ -1,0 +1,42 @@
+**** 域名301跳转
+     - 应用场景: 网站有多个域名时，需要域名跳转
+     - 经常出错要点
+       - 本机上要加host
+
+	 不加host就会走dns解析: www.123.com www.aaa.com www.bbb.com无法解析，导致报错;
+
+	 所以需要在C:\Windows\System32\drivers\etc\hosts文件中加入 =192.168.147.128 www.123.com  www.aaa.com www.bbb.com=
+
+       - 本机检查301跳转的时候，需要curl -I -x 192.168.147.128 www.aaa.com  或者加host，否则走DNS解析
+
+       - 在增加IfModule模块的时候，没有写在<VirtualHost></VirtualHost>模块里面
+
+       - 没有定于域名
+	 #+BEGIN_EXAMPLE
+	 ServerName  www.123.com
+	 ServerAlias www.aaa.com
+	 ServerAlias www.bbb.com
+	 #+END_EXAMPLE
+
+     - 域名跳转代码示例如下
+       #+BEGIN_EXAMPLE
+       <VirtualHost *:80>
+       ServerAdmin 974644081@qq.com
+       DocumentRoot "/export/Domains/Discuz"
+       ServerName  www.123.com
+       ServerAlias www.aaa.com
+       ServerAlias www.bbb.com
+       ErrorLog "logs/Discuz-error_log"
+       CustomLog "logs/Discuz-access_log" common
+
+       ###########域名301跳转###############
+       <IfModule mod_rewrite.c>
+       RewriteEngine on
+       RewriteCond %{HTTP_HOST} ^www.aaa.com [OR]
+       RewriteCond %{HTTP_HOST} ^www.bbb.com$
+       RewriteRule ^/(.*)$ http://www.123.com/$1 [R=301,L]
+       </IfModule>
+       </VirtualHost>
+       ##HTTP_HOST代表的就是域名头的变量  R=301 返回码 L 代表最后的意思
+       #+END_EXAMPLE
+       301:永久重定向 302:临时重定向

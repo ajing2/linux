@@ -1,4 +1,6 @@
 ﻿#+TITLE: 第六次课
+
+
 ** 背景
    了解apache的作用，尽量所有的都源码安装，首先小了解配置文件，对大概有个了解，遇到问题，看日志，搜索关键字，根据报错信息进行排查；下载包尽量去官网下载;
 
@@ -86,10 +88,14 @@
    [[file:apache配置防盗链.org][apache配置防盗链]]
 
 ** apache的rewrite规则
-     http://note.youdao.com/noteshare?id=0161eba78b2aab8843e0866bdd9470ea
-     301：http://note.youdao.com/noteshare?id=d80b3015eb7fb1d56f0b6afb6b96ad90
+
+   [[file:apache的rewrite规则.org][apache的rewrite规则]]
+
+   [[file:域名301跳转.org][域名301跳转]]
+
 ** php.in配置文件详解
-     http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
+
+   [[file:php.org][php.ini详解]]
 ** php安装扩展模块
 http://note.youdao.com/noteshare?id=8890bc568d649c86b40b4e1d2c818dc1
 ** mysql的配置文件详解

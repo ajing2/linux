@@ -1,0 +1,95 @@
+#+TITLE:apache的rewrite规则
+**** rewrite规则
+
+     #+BEGIN_EXAMPLE
+     <IfModule mod_rewrite.c>
+         RewriteEngine on
+         RewriteCond %{HTTP_USER_AGENT}  ^.*Firefox/4.0* [NC,OR]
+         RewriteCond %{HTTP_USER_AGENT}  ^.*Tomato Bot/1.0* [NC]
+         RewriteCond   %{REQUEST_URI} !^/404*
+         RewriteRule  .*  /404.html 
+     </IfModule>
+     
+     <IfModule mod_rewrite.c>
+         RewriteEngine on
+         RewriteCond %{HTTP_USER_AGENT}  ^*Firefox/4.0* [NC,OR]
+         RewriteCond %{HTTP_USER_AGENT}  ^*Tomato Bot/1.0* [NC]
+         RewriteRule  .*  -  [F]
+     </IfModule>
+     #+END_EXAMPLE
+     RewriteEngine on                     #打开rewirte功能
+
+     RewriteCond %{变量} 正则 [标志]
+
+     RewriteRule 正则1  正则2
+
+     正则1一般是从www.apelearn.com/这个以后开始的
+
+     =- [F]=   这里的 *-* 表示替换
+
+
+     - 标志
+
+       - [R=301](force redirect) 强制外部重定向
+
+	 强制在替代字符串加上http://thishost[:thisport]/前缀重定向到外部的URL.如果code不指定，将用缺省的302 HTTP状态码;
+
+       - [F]禁用URL,返回403HTTP状态码
+
+       - [G](force URL to be gone) 强制URL为GONE，返回410HTTP状态码
+
+       - [P](force proxy) 强制使用代理转发
+
+       - [L](last rule) 表明当前规则是最后一条规则，停止分析以后规则的重写
+
+       - [N](next round) 重新从第一条规则开始运行重写过程
+
+       - [C](chained with next rule) 与下一条规则关联
+
+	 如果规则匹配则正常处理，该标志无效，如果不匹配，那么下面所有关联的规则都跳过
+
+       - [T]=MIME-type(force MIME type) 强制MIME类型
+
+       - [NS] (used only if no internal sub-request) 只用于不是内部子请求
+
+       - [NC](no case) 不区分大小写
+
+       - [QSA](query string append) 追加请求字符串
+
+       - [NE](no URI escaping of output) 不在输出转义特殊字符
+
+	 例如：RewriteRule /foo/(.*) /bar?arg=P1\%3d$1 [R,NE] 能正确的将/foo/zoo转换成/bar?arg=P1=zed
+
+       - [PT](pass through to next handler) 传递给下一个处理
+
+	 例如:
+	 #+BEGIN_EXAMPLE
+	 RewriteRule ^/abc(.*) /def$1 [PT] # 将会交给/def规则处理
+	 Alias /def /ghi
+	 #+END_EXAMPLE
+
+       - [S=num](skip next rule(s)) 跳过num条规则
+
+       - [E=VAR:VAL](set environment variable) 设置环境变量
+
+       - [OR] *或者* ; 两个RewriteCond 之间什么都不写就是 *且*
+**** 变量
+
+     - =%{HTTP_USER_AGENT}= 表示：访问的user_agent
+     - =%{HTTP_HOST}= 表示：当前访问的网址，只是指前缀部分，格式是www.xxx.com不包括“http://”和“/”
+     - =%{REQUEST_URI}= 表示：访问的相对地址，就是相对根目录的地址，就是域名/后面的成分，格式上包括最前面的“/”
+
+**** rewrite 出现死循环
+
+     - =RewriteRule ^(.*) /111/$1 [R,L]=
+
+       使用curl测试，没有问题，但是使用浏览器访问时，出现了无限循环;
+
+       本来访问的是 www.111.com 结果变成了  www.111.com/111/111/111/..... ;
+
+       虽然在最后加了 [L] 依然不管用，可能apache还是不够智能，一直满足条件就一直去匹配，一直去跳转。最后没招了只能再加一个条件
+
+       #+BEGIN_EXAMPLE
+       RewriteCond %{REQUEST_URI} !^/111
+       RewriteRule ^(.*) /111/$1 [R,L]
+       #+END_EXAMPLE
