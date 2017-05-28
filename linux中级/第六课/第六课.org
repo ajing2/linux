@@ -81,8 +81,11 @@
 * 文件的静态缓存
 
   [[file:apache静态文件缓存.org][apache静态文件缓存]]
+
 * 防盗链
-    http://note.youdao.com/noteshare?id=09d525084eb280ae94274eb0831317a3
+
+  [[file:apache配置防盗链.org][apache配置防盗链]]
+
 * apache的rewrite规则
     http://note.youdao.com/noteshare?id=0161eba78b2aab8843e0866bdd9470ea
     301：http://note.youdao.com/noteshare?id=d80b3015eb7fb1d56f0b6afb6b96ad90

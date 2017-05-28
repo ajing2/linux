@@ -1,0 +1,16 @@
+#+BEGIN_CENTER
+#+TITLE: apache配置防盗链
+#+END_CENTER
+
+**** 配置防盗链
+
+     #+BEGIN_EXAMPLE
+     SetEnvIfNoCase Referer "^http://.*\.yourdomin\.com" local_ref
+     SetEnvIfNoCase Referer ".*\.yourdomin\.com" local_ref
+     SetEnvIfNoCase Referer "^$" local_ref
+     <filesmatch "\.(txt|doc|mp3|zip|rar|jpg|gif)"> 
+         Order Allow,Deny 
+         Allow from env=local_ref 
+     </filesmatch> 
+     #+END_EXAMPLE
+     referer，就是上次访问的网页地址
