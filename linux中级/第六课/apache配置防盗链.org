@@ -1,6 +1,4 @@
-#+BEGIN_CENTER
 #+TITLE: apache配置防盗链
-#+END_CENTER
 
 **** 配置防盗链
 
