@@ -1,0 +1,20 @@
+*** mysql的备份和恢复
+
+    - 备份
+
+      =mysqldump -uroot -p -B test >test.sql=
+
+      -B 会把databases也会备份
+
+    - 恢复 =mysql -uroot -plingxiangxiang test <test.sql=
+
+    - 只备份一个表 =mysqldump -uroot -p test teble1 > 2.sql=
+
+    - 备份时指定字符集 =mysqldump -uroot -p --default-character-set=utf8  db >1.sql=
+
+    - 恢复也指定字符集 =mysql -uroot -p --default-character-set=utf8  db  < 1.sql=
+
+    - 所有的数据备份成文件
+      #+BEGIN_EXAMPLE
+      mysqldump -utangnanbing -p --default-character-set=utf8 --hex-blob --opt --routines --triggers --master-data --single-transaction --all-databases >/export/all.sql
+      #+END_EXAMPLE

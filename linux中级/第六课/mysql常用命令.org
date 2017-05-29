@@ -1,0 +1,103 @@
+*** mysql常用命令
+
+    - 授权超级用户: =grant all privileges on *.* to 'tangnanbing'@'%' identified by '1qaz@WSX' with grant option;=
+    - 创建普通用户并授权 =grant all on *.* to databases1.user1 identified by '123456';=
+
+      grant all on db1.* to 'user2'@'10.0.2.100' identified by '111222'; 
+
+      grant all on db1.* to 'user3'@'%' identified by '231222';insert into tb1 (id,name) values(1,'aming');
+    - 查看都有哪些库  =show databases;=
+    - 查看某个库的表 =use db; show tables \G;=
+    - 查看表的字段 =desc tb;=
+    - 查看建表语句 =show create table tb;=
+    - 当前是哪个用户 =select user();=
+    - 当前库 =select database();=
+    - 创建库 =create database db1;=
+    - 创建表 =create table t1 (id int, name char(40) adress varchar(30));=
+    - 查看数据库版本 =select version();=
+    - 查看mysql状态 =show status;=
+    - 修改mysql参数 =show variables like 'max_connect%'; set global max_connect_errors = 1000;=
+    - 查看mysql队列 =show processlist;=
+
+      select * from information_schema.processlist where info is not null;
+
+      sleep的可以忽略，qurey查询的才有
+    - 更改密码 *UPDATE mysql.user SET password=PASSWORD("newpwd") WHERE user='username';*
+    - 查询 =select count(*) from mysql.user; select * from mysql.db; select * from mysql.db where host like '10.0.%';=
+    - 插入 *update db1.t1 set name='aaa' where id=1;*
+    - 清空表 =truncate table db1.t1;=
+    - 删除表 =drop table db1.t1;=
+    - 删除数据库 =drop database db1;=
+    - 修复表 =repair table tb1 [use frm];=
+    - 查看权限 =show grants for root@'localhost';=
+    - MySQL四步走
+      #+BEGIN_EXAMPLE
+      增:
+          insert into test.test (id, name) values (123, 'ling');
+          insert into test.test values (value1_1, value2_2), (value2_1,value2_2), (value3_1, value3_2);
+      删:
+          delete from test.test where id in (123, 456);  
+          alter table test drop column dt;删除字段，test表，dt字段
+      改:
+          update msyql.user set password = password('lingxiangxiang')
+          alter table employees add primary key (emp_no);       增加主键
+          alter table employees drop/add column salaries;         删除字段
+          create table blog_blogmodel as select * from book_blogmodel;   创建一样的新表
+      查:
+          select user, host, password from mysql.user where user = "root";
+          select * from msyql.user where conditions order by user [desc];
+      #+END_EXAMPLE
+    - 调整字段顺序
+      #+BEGIN_EXAMPLE
+      ALTER TABLE `user_movement_log` CHANGE `GatewayId` `GatewayId` int not null default 0 AFTER RegionID
+      alter table test2 drop column cj, drop column goushi;
+      #+END_EXAMPLE
+    - 排序: =select * from test.test order by id asc/desc;=
+    - 导出 =select * into outfile '/tmp/test/users.txt' fields terminated by '<[!]>' lines terminated by '<[end]>' from users;=
+    - 导入 =load data infile '/tmp/test/users.txt' into table gamedb.users fields terminated by '<[!]>' lines terminated by '<[end]>';=
+    - 创建salaries表的emp_no字段的索引 =create index idx_name on salaries(emp_no);=
+    - 查看索引 =show index from salaries\G;=
+
+    - 复杂语句
+      select * from (select * from employees order by emp_no desc) aa group by hire_date ;
+
+      先对emp_no 进行反向排序，然后在把hire_date分组
+
+      [[file:image/compelex.jpeg]]
+
+
+    - 内连接：join默认是inner
+
+      =select * from employees inner join salaries on employees.emp_no = salaries.emp_no;=
+
+      [[file:image/joinorinner.png]]
+
+    - 左外链接右外链
+
+      =select * from employees left join salaries on employees.emp_no = salaries.emp_no;=
+
+      =select * from employees right join salaries on employees.emp_no = salaries.emp_no;=
+
+      [[file:image/left-join.png]]
+
+      =select * from employees right join salaries on employees.emp_no = salaries.emp_no;=
+ 
+      [[file:image/right-join.png]]
+    - update的加强版
+
+      =select * from employees;=
+
+      [[file:image/update-enhance.png]]
+
+      #+BEGIN_EXAMPLE
+      UPDATE `employees`
+      SET emp_name = CASE emp_name
+            WHEN 'ling' THEN 'lingjing'
+            WHEN 'xiang' THEN 'lingxiang'
+            ELSE 'wang'
+            END
+      WHERE gender='M';
+      #+END_EXAMPLE
+
+      [[file:image/update-enhance-modify.png]]
+

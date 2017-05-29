@@ -1,0 +1,50 @@
+*** mysql配置(部分常用的参数)
+
+    - =[mysqld]=
+
+      #+BEGIN_EXAMPLE
+      socket = /tmp/mysql.sock     
+          # 为MySQL客户程序与服务器之间的本地通信指定一个套接字文件(Linux下默认是/var/lib/mysql/mysql.sock文件)
+      port             = 3306      
+          # 指定MsSQL侦听的端口 
+      skip-name-resolve  
+          #禁止MySQL对外部连接进行DNS解析，使用这一选项可以消除MySQL进行DNS解析的时间。但需要注意，如果开启该选项， 则所有远程主机连接授权都要使用IP地址方式，否则MySQL将无法正常处理连接请求. 
+      key_buffer       = 384M      
+          # key_buffer是用于索引块的缓冲区大小，增加它可得到更好处理的索引(对所有读和多重写)。索引被所有的线程共享，key_buffer的大小视内存大小而定。
+      table_open_cache      = 512       
+          # MySQL每打开一个表，都会读入一些数据到table_open_cache缓存中，当MySQL在这个缓存中找不到相应信息时，才会去磁盘上读取。默认值64, 假定系统有200个并发连接，则需将此参数设置为200*N(N为每个连接所需的文件描述符数目)；当把table_open_cache设置为很大时，如果系统处理不了那么多文件描述符，那么就会出现客户端失效，连接不上.
+      max_allowed_packet = 4M   
+          # 接受的数据包大小；增加该变量的值十分安全，这是因为仅当需要时才会分配额外内存。例如，仅当你发出长查询或MySQLd必须返回大的结果行时MySQLd才会分配更多内存。 该变量之所以取较小默认值是一种预防措施，以捕获客户端和服务器之间的错误信息包，并确保不会因偶然使用大的信息包而导致内存溢出。
+      sort_buffer_size = 2M        
+          # MySQL执行排序使用的缓冲大小。如果想要增加ORDER BY的速度，首先看是否可以让MySQL使用索引而不是额外的排序阶段。如果不能，可以尝试增加sort_buffer_size变量的大小
+      read_buffer_size = 2M        
+          # 读查询操作所能使用的缓冲区大小。和sort_buffer_size一样，该参数对应的分配内存也是每连接独享。对表进行顺序扫描的请求将分配一个读入缓冲区，MySQL会为它分配一段内存缓冲区。 如果对表的顺序扫描请求非常频繁，并且你认为频繁扫描进行得太慢，可以通过增加该变量值以及内存缓冲区大小提高其性能.
+      join_buffer_size = 2M  
+          # 联合查询操作所能使用的缓冲区大小，和sort_buffer_size一样，该参数对应的分配内存也是每连接独享
+      query_cache_size = 32M       
+          # 指定MySQL查询结果缓冲区的大小
+      read_rnd_buffer_size    = 2M 
+          # 随机读缓冲区大小。当按任意顺序读取行时(例如，按照排序顺序)，将分配一个随机读缓存区。进行排序查询时，MySQL会首先扫描一遍该缓冲，以避免磁盘搜索，提高查询速度，如果需要排序大量数据，可适当调高该值。但MySQL会为每个客户连接发放该缓冲空间，所以应尽量适当设置该值，以避免内存开销过大
+      myisam_sort_buffer_size =64M 
+          # MyISAM表发生变化时重新排序所需的缓冲
+      thread_concurrency      = 8 
+          # 最大并发线程数，取值为服务器逻辑CPU数量×2
+      thread_cache            = 8 
+          #该值表示可以重新利用保存在缓存中线程的数量，当断开连接时若缓存中还有空间，那么客户端的线程将被放到缓存中，如果线程重新被请求，那么请求将从缓存中读取，若果缓存中是空的或者是新的请求，那么线程将被重新创建。设置规律为：1G内存设置为8,2G内存设置为16,4G以上设置为64
+      max_connections = 1000 
+          #MySQL的最大连接数，如果服务器的并发连接请求量比较大，建议调高此值，以增加并行连接数量，当然这建立在机器能支撑的情况下，因为如果连接数越多，介于MySQL会为每个连接提供连接缓冲区，就会开销越多的内存，所以要适当调整该值，不能盲目提高设值。可以过'conn%'通配符查看当前状态的连接数量，以定夺该值的大小。
+      max_connect_errors = 6000  
+          # 对于同一主机，如果有超出该参数值个数的中断错误连接，则该主机将被禁止连接。如需对该主机进行解禁，执行：FLUSH HOST。
+      open_files_limit = 65535 
+          # MySQL打开的文件描述符限制，默认最小1024
+      skip-locking                 
+          # 避免MySQL的外部锁定，减少出错几率增强稳定性。 
+      wait_timeout  = 8  
+          # 表示空闲的连接超时时间，默认是28800s，这个参数是和interactive_timeout一起使用的，也就是说要想让wait_timeout 生效，必须同时设置interactive_timeout
+      interactive_timeout = 8
+      
+      long_query_time = 1   
+          #慢查询日志的超时时间
+      log_slow_queries = /path/to/slow_queries  
+          #慢查询日志路径，必须配合上面的参数一同使用
+      #+END_EXAMPLE

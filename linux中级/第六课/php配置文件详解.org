@@ -380,109 +380,142 @@
        默认值能够确保浮点型数据被解序列化程序解码时不会丢失数据.
        #+END_EXAMPLE
        
-     [PHP-Core-OutputControl]
-　　输出控制函数很有用，特别是在已经输出了信息之后再发送HTTP头的情况下.
-输出控制函数不会作用于header()或setcookie()等函数发送的HTTP头，
-而只会影响类似于echo()函数输出的信息和嵌入在PHP代码之间的信息.
-implicit_flush = Off
-　　是否要求PHP输出层在每个输出块之后自动刷新数据.
-这等效于在每个 print()、echo()、HTML块 之后自动调用flush()函数.
-打开这个选项对程序执行的性能有严重的影响，通常只推荐在调试时使用.
-在CLI SAPI的执行模式下，该指令默认为 On .
-output_buffering = 0
-　　输出缓冲区大小(字节).建议值为4096~8192.
-输出缓冲允许你甚至在输出正文内容之后再发送HTTP头(包括cookies).
-其代价是输出层减慢一点点速度.
-设置输出缓冲可以减少写入，有时还能减少网络数据包的发送.
-这个参数的实际收益很大程度上取决于你使用的是什么Web服务器以及什么样的脚本.
-output_handler =
-　　将所有脚本的输出重定向到一个输出处理函数.
-比如，重定向到mb_output_handler()函数时，字符编码将被透明地转换为指定的编码.
-一旦你在这里指定了输出处理程序，输出缓冲将被自动打开(output_buffering=4096).
-注意0: 此处仅能使用PHP内置的函数，自定义函数应在脚本中使用ob_start()指定.
-注意1: 可移植脚本不能依赖该指令，而应使用ob_start()函数明确指定输出处理函数.
-使用这个指令可能会导致某些你不熟悉的脚本出错.
-注意2: 你不能同时使用"mb_output_handler"和"ob_iconv_handler"两个输出处理函数.
-你也不能同时使用"ob_gzhandler"输出处理函数和zlib.output_compression指令.
-注意3: 如果使用zlib.output_handler指令开启zlib输出压缩，该指令必须为空.
-[PHP-Core-Directory]
-doc_root =
-　　SYS
-PHP的"根目录".仅在非空时有效.
-如果safe_mode=On，则此目录之外的文件一概被拒绝.
-如果编译PHP时没有指定FORCE_REDIRECT，并且在非IIS服务器上以CGI方式运行，则必须设置此指令(参见手册中的安全部分).
-替代方案是使用的cgi.force_redirect指令.
-include_path = ".:/path/to/php/pear"
-　　指定一组目录用于require(), include(), fopen_with_path()函数寻找文件.
-格式和系统的PATH环境变量类似(UNIX下用冒号分隔，Windows下用分号分隔)：
-UNIX: "/path1:/path2"
-Windows: "path1;path2"
-在包含路径中使用''.''可以允许相对路径，它代表当前目录.
-user_dir =
-　　SYS
-告诉php在使用 /~username 打开脚本时到哪个目录下去找，仅在非空时有效.
-也就是在用户目录之下使用PHP文件的基本目录名，例如："public_html"
-extension_dir = "/path/to/php"
-　　SYS
-存放扩展库(模块)的目录，也就是PHP用来寻找动态扩展模块的目录.
-Windows下默认为"C:/php5"
-[PHP-Core-HTTP]
-default_mimetype = "text/html"
-default_charset =　;"gb2312"
-　　PHP默认会自动输出"Content-Type: text/html" HTTP头.
-如果将default_charset指令设为"gb2312"，
-那么将会自动输出"Content-Type: text/html; charset=gb2312".
-[PHP-Core-Unicode]
-detect_unicode = On
-　　尚无文档
-[PHP-Core-Misc]
-auto_detect_line_endings = Off
-　　是否让PHP自动侦测行结束符(EOL).
-如果的你脚本必须处理Macintosh文件，
-或者你运行在Macintosh上，同时又要处理unix或win32文件，
-打开这个指令可以让PHP自动侦测EOL，以便fgets()和file()函数可以正常工作.
-但同时也会导致在Unix系统下使用回车符(CR)作为项目分隔符的人遭遇不兼容行为.
-cgi.rfc2616_headers = 0
-　　指定PHP在发送HTTP响应代码时使用何种报头.
-0 表示发送一个"Status: "报头，Apache和其它web服务器都支持.
-若设为1，则PHP使用RFC2616标准的头.
-除非你知道自己在做什么，否则保持其默认值 0
-cgi.nph = Off
-在CGI模式下是否强制对所有请求都发送"Status: 200"状态码.
-fastcgi.impersonate = Off
-IIS中的FastCGI支持模仿客户端安全令牌的能力.
-这使得IIS能够定义运行时所基于的请求的安全上下文.
-Apache中的mod_fastcgi不支持此特性(03/17/2002)
-如果在IIS中运行则设为On，默认为Off.
-fastcgi.logging = On
-是否记录通过FastCGI进行的连接.
-[PHP-Core-Weirdy]
-　　这些选项仅存在于文档中，却不存在于phpinfo()函数的输出中
-async_send = Off
-　　是否异步发送.
-from =　;"john@doe.com"
-　　定义匿名ftp的密码(一个email地址)
-近核心模块　;;
-[Pcre]
-　　Perl兼容正则表达式模块
-pcre.backtrack_limit = 100000
-　PCRE的最大回溯(backtracking)步数.
-pcre.recursion_limit = 100000
-PCRE的最大递归(recursion)深度.
-如果你将该值设的非常高，将可能耗尽进程的栈空间，导致PHP崩溃.
-[Session]
-　　除非使用session_register()或$_SESSION注册了一个变量.
-否则不管是否使用了session_start()，都不会自动添加任何session记录.
-包括resource变量或有循环引用的对象包含指向自身的引用的对象，不能保存在会话中.
-register_globals指令会影响到会话变量的存储和恢复.
-session.save_handler = "files"
-　　存储和检索与会话关联的数据的处理器名字.默认为文件("files").
-如果想要使用自定义的处理器(如基于数据库的处理器)，可用"user".
-有一个使用PostgreSQL的处理器：http://sourceforge.net/projects/phpform-ext/
-session.save_path = "/tmp"
-传递给存储处理器的参数.对于files处理器，此值是创建会话数据文件的路径.
-Windows下默认为临时文件夹路径.
-你可以使用"N;[MODE;]/path"这样模式定义该路径(N是一个整数).
-N表示使用N层深度的子目录，而不是将所有数据文件都保存在一个目录下.
-[MODE;]可选，必须使用8进制数，默认600(=384)，表示每个目录下最多保存的会话文件数量.
-这是一个提高大量会话性能的好主意.
+     - =[PHP-Core-OutputControl]=
+
+       输出控制函数很有用，特别是在已经输出了信息之后再发送HTTP头的情况下.
+
+       输出控制函数不会作用于header()或setcookie()等函数发送的HTTP头，
+
+       而只会影响类似于echo()函数输出的信息和嵌入在PHP代码之间的信息.
+
+       #+BEGIN_EXAMPLE
+       implicit_flush = Off
+       　　是否要求PHP输出层在每个输出块之后自动刷新数据.
+           这等效于在每个 print()、echo()、HTML块 之后自动调用flush()函数.
+           打开这个选项对程序执行的性能有严重的影响，通常只推荐在调试时使用.
+           在CLI SAPI的执行模式下，该指令默认为 On .
+       output_buffering = 0
+       　　输出缓冲区大小(字节).建议值为4096~8192.
+           输出缓冲允许你甚至在输出正文内容之后再发送HTTP头(包括cookies).
+           其代价是输出层减慢一点点速度.
+           设置输出缓冲可以减少写入，有时还能减少网络数据包的发送.
+           这个参数的实际收益很大程度上取决于你使用的是什么Web服务器以及什么样的脚本.
+       output_handler =
+       　　将所有脚本的输出重定向到一个输出处理函数.
+           比如，重定向到mb_output_handler()函数时，字符编码将被透明地转换为指定的编码.
+           一旦你在这里指定了输出处理程序，输出缓冲将被自动打开(output_buffering=4096).
+           注意0: 此处仅能使用PHP内置的函数，自定义函数应在脚本中使用ob_start()指定.
+           注意1: 可移植脚本不能依赖该指令，而应使用ob_start()函数明确指定输出处理函数.
+               使用这个指令可能会导致某些你不熟悉的脚本出错.
+           注意2: 你不能同时使用"mb_output_handler"和"ob_iconv_handler"两个输出处理函数.
+               你也不能同时使用"ob_gzhandler"输出处理函数和zlib.output_compression指令.
+           注意3: 如果使用zlib.output_handler指令开启zlib输出压缩，该指令必须为空.
+       #+END_EXAMPLE
+
+     - =[PHP-Core-Directory]=
+       #+BEGIN_EXAMPLE
+       doc_root =
+           PHP的"根目录".仅在非空时有效.
+           如果safe_mode=On，则此目录之外的文件一概被拒绝.
+           如果编译PHP时没有指定FORCE_REDIRECT，并且在非IIS服务器上以CGI方式运行，则必须设置此指令(参见手册中的安全部分).
+           替代方案是使用的cgi.force_redirect指令.
+       include_path = ".:/path/to/php/pear"
+       　　指定一组目录用于require(), include(), fopen_with_path()函数寻找文件.
+           格式和系统的PATH环境变量类似(UNIX下用冒号分隔，Windows下用分号分隔)：
+           UNIX: "/path1:/path2"
+           Windows: "path1;path2"
+           在包含路径中使用''.''可以允许相对路径，它代表当前目录.
+       user_dir =
+           告诉php在使用 /~username 打开脚本时到哪个目录下去找，仅在非空时有效.
+           也就是在用户目录之下使用PHP文件的基本目录名，例如："public_html"
+           extension_dir = "/path/to/php"
+           存放扩展库(模块)的目录，也就是PHP用来寻找动态扩展模块的目录.
+           Windows下默认为"C:/php5"
+       #+END_EXAMPLE
+
+     - =[PHP-Core-HTTP]=
+
+       #+BEGIN_EXAMPLE
+       default_mimetype = "text/html"
+       default_charset =　;"gb2312"
+       　　PHP默认会自动输出"Content-Type: text/html" HTTP头.
+           如果将default_charset指令设为"gb2312"，
+           那么将会自动输出"Content-Type: text/html; charset=gb2312".
+       #+END_EXAMPLE
+
+     - =[PHP-Core-Unicode]=
+
+       #+BEGIN_EXAMPLE
+       detect_unicode = On
+       　　尚无文档
+       #+END_EXAMPLE
+
+     - =[PHP-Core-Misc]=
+
+       #+BEGIN_EXAMPLE
+       auto_detect_line_endings = Off
+       　　是否让PHP自动侦测行结束符(EOL).
+           如果的你脚本必须处理Macintosh文件，
+           或者你运行在Macintosh上，同时又要处理unix或win32文件，
+           打开这个指令可以让PHP自动侦测EOL，以便fgets()和file()函数可以正常工作.
+           但同时也会导致在Unix系统下使用回车符(CR)作为项目分隔符的人遭遇不兼容行为.
+       cgi.rfc2616_headers = 0
+       　　指定PHP在发送HTTP响应代码时使用何种报头.
+           0 表示发送一个"Status: "报头，Apache和其它web服务器都支持.
+           若设为1，则PHP使用RFC2616标准的头.
+           除非你知道自己在做什么，否则保持其默认值 0
+       cgi.nph = Off
+          在CGI模式下是否强制对所有请求都发送"Status: 200"状态码.
+       fastcgi.impersonate = Off
+           IIS中的FastCGI支持模仿客户端安全令牌的能力.
+           这使得IIS能够定义运行时所基于的请求的安全上下文.
+           Apache中的mod_fastcgi不支持此特性(03/17/2002)
+       如果在IIS中运行则设为On，默认为Off.
+       fastcgi.logging = On
+           是否记录通过FastCGI进行的连接.
+       #+END_EXAMPLE
+
+     - =[PHP-Core-Weirdy]= 这些选项仅存在于文档中，却不存在于phpinfo()函数的输出中
+
+       #+BEGIN_EXAMPLE
+       async_send = Off
+       　　是否异步发送.
+       from =　;"john@doe.com"
+       　　定义匿名ftp的密码(一个email地址)
+           近核心模块　;;
+       #+END_EXAMPLE
+
+     - =[Pcre]= Perl兼容正则表达式模块
+
+       #+BEGIN_EXAMPLE
+       pcre.backtrack_limit = 100000
+         　PCRE的最大回溯(backtracking)步数.
+       pcre.recursion_limit = 100000
+           PCRE的最大递归(recursion)深度.
+           如果你将该值设的非常高，将可能耗尽进程的栈空间，导致PHP崩溃.
+       #+END_EXAMPLE
+
+     - =[Session]=
+
+       除非使用session_register()或$_SESSION注册了一个变量.
+
+       否则不管是否使用了session_start()，都不会自动添加任何session记录.
+
+       包括resource变量或有循环引用的对象包含指向自身的引用的对象，不能保存在会话中.
+
+       register_globals指令会影响到会话变量的存储和恢复.
+
+       #+BEGIN_EXAMPLE
+       session.save_handler = "files"
+       　　存储和检索与会话关联的数据的处理器名字.默认为文件("files").
+           如果想要使用自定义的处理器(如基于数据库的处理器)，可用"user".
+           有一个使用PostgreSQL的处理器：http://sourceforge.net/projects/phpform-ext/
+       session.save_path = "/tmp"
+           传递给存储处理器的参数.对于files处理器，此值是创建会话数据文件的路径.
+           Windows下默认为临时文件夹路径.
+           你可以使用"N;[MODE;]/path"这样模式定义该路径(N是一个整数).
+           N表示使用N层深度的子目录，而不是将所有数据文件都保存在一个目录下.
+           [MODE;]可选，必须使用8进制数，默认600(=384)，表示每个目录下最多保存的会话文件数量.
+           这是一个提高大量会话性能的好主意.
+       #+END_EXAMPLE
+
