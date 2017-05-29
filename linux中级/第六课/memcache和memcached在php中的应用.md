@@ -36,7 +36,7 @@ make && make install
 -l  指定绑定的IP  
 -u  指定以某个账户的身份启动  
 
-* **php 添加 redis 扩展模块**
+* **php 添加 redis 扩展模块**  
 下载地址：
 [redis-2.2.5.tgz](http://pecl.php.net/get/redis-2.2.5.tgz)
 ```
