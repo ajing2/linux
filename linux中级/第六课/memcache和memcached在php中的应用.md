@@ -52,9 +52,9 @@ make&&make install
 cp modules/redis.so /export/servers/php/ext/
 ```  
 
-```vim /usr/local/php/php.ini```
-extension_dir = /
-extension = redis.so
+```vim /usr/local/php/php.ini```  
+extension_dir = /  
+extension = redis.so  
 
-```/usr/local/php/bin/php -m | grep redis```
+```/usr/local/php/bin/php -m | grep redis```  
 redis
