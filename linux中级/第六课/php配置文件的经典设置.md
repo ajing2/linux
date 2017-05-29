@@ -14,5 +14,3 @@
 </p>
 <h3>配置open_basedir</h3>
 <p>php.ini: open_basedir = /dir1/:/dir2<br>httpd.conf: php_admin_value open_basedir "/dir1/:/dir2/"<br>这两个都是针对的解析php文件的，写一个简单的html可不行
-Edit By <a href="http://mahua.jser.me">MaHua</a></p>
-</body></html>
