@@ -1,104 +1,132 @@
-#+TITLE: µÚÁù´Î¿Î
+ï»¿#+TITLE: ç¬¬å…­æ¬¡è¯¾
 
-* ±³¾°
-  ÁË½âapacheµÄ×÷ÓÃ£¬¾¡Á¿ËùÓĞµÄ¶¼Ô´Âë°²×°£¬Ê×ÏÈĞ¡ÁË½âÅäÖÃÎÄ¼ş£¬¶Ô´ó¸ÅÓĞ¸öÁË½â£¬Óöµ½ÎÊÌâ£¬¿´ÈÕÖ¾£¬ËÑË÷¹Ø¼ü×Ö£¬¸ù¾İ±¨´íĞÅÏ¢½øĞĞÅÅ²é£»ÏÂÔØ°ü¾¡Á¿È¥¹ÙÍøÏÂÔØ;
 
-* mysqlµÄ°²×°
-  - ¹ÙÍø: ÕÒÔ´Âë°ü°²×°(mysql5.6)
+** èƒŒæ™¯
+   äº†è§£apacheçš„ä½œç”¨ï¼Œå°½é‡æ‰€æœ‰çš„éƒ½æºç å®‰è£…ï¼Œé¦–å…ˆå°äº†è§£é…ç½®æ–‡ä»¶ï¼Œå¯¹å¤§æ¦‚æœ‰ä¸ªäº†è§£ï¼Œé‡åˆ°é—®é¢˜ï¼Œçœ‹æ—¥å¿—ï¼Œæœç´¢å…³é”®å­—ï¼Œæ ¹æ®æŠ¥é”™ä¿¡æ¯è¿›è¡Œæ’æŸ¥ï¼›ä¸‹è½½åŒ…å°½é‡å»å®˜ç½‘ä¸‹è½½;
 
-    [[file:centos7Ô´Âë°²×°mysql5.6.org][centos7Ô´Âë°²×°mysql5.6]]
-  - Ô´Âë°²×°ÖĞ, echo $?µÄÊ¹ÓÃ
+** mysqlçš„å®‰è£…
+   - å®˜ç½‘: æ‰¾æºç åŒ…å®‰è£…(mysql5.6)
 
-    ³öÎÊÌâ×î¶àµÄµØ·½ÊÇ£¬Êı¾İ³õÊ¼»¯£¬±ØĞë±£Ö¤mysql°æ±¾ºÍÏµÍ³°æ±¾Ò»ÖÂ
+     [[file:centos7æºç å®‰è£…mysql5.6.org][centos7æºç å®‰è£…mysql5.6]]
+   - æºç å®‰è£…ä¸­, echo $?çš„ä½¿ç”¨
 
-* apacheµÄ±àÒë°²×°
-  - ³ö×î¶àÎÊÌâ *httpd: Could not reliably determine the server's fully qualified domain name*
+     å‡ºé—®é¢˜æœ€å¤šçš„åœ°æ–¹æ˜¯ï¼Œæ•°æ®åˆå§‹åŒ–ï¼Œå¿…é¡»ä¿è¯mysqlç‰ˆæœ¬å’Œç³»ç»Ÿç‰ˆæœ¬ä¸€è‡´
 
-    ±à¼­httpd.conf, ²¢×÷ÈçÏÂĞŞ¸Ä
-    #+BEGIN_EXAMPLE
-    - #ServerName www.example.com:80
-    + ServerName localhost:80
-    #+END_EXAMPLE
-    
-  - °²×°apache
-    [[file:°²×°apacheºÍapacheµÄmpm¹¤×÷Ä£Ê½][°²×°apacheºÍapacheµÄmpm¹¤×÷Ä£Ê½]]
-  - apache serviceµÄÆô¶¯½Å±¾£¨ÎÒ×Ô¼º¸ÄµÄ£©
-    [[file:apache2Æô¶¯½Å±¾.org][apache2Æô¶¯½Å±¾]]
-  - apacheµÄmpmÄ£Ê½
-    - 2.2Ä¬ÈÏÊÇpreforkÄ£Ê½£¬2.4Ä¬ÈÏÊÇeventÄ£Ê½£¬apacheÇĞ»»²»ÓÃµÄÄ£Ê½£¬ĞèÒªÖØĞÂ±àÒë *--with-mpm* ²ÎÊı
-      [[file:%E5%AE%89%E8%A3%85apache%E5%92%8Capache%E7%9A%84mpm%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F.org][°²×°apacheºÍapacheµÄmpm¹¤×÷Ä£Ê½]]
-    - mpmÅäÖÃÎÄ¼şËùÔÚµÄÎÄ¼şÎ»ÖÃ
-    - http.confÅäÖÃÎÄ¼şÏê½â
-      [[file:http.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E8%AF%A6%E8%A7%A3.org][http.confÅäÖÃÎÄ¼şµÄÏê½â]]
-* phpµÄ°²×°
-  - phpµÄ°²×°
-    http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
-  - phpÅäÖÃÎÄ¼şµÄÏê½â
-        http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
-  - ±àÒë²ÎÊıĞè²»ĞèÒª¼ÇÒä£¬²»Ã÷°×Ê²Ã´ÒâË¼
-  - phpÈçºÎºÍapache½áºÏ£¬php5.so, phpºÍmysqlÈçºÎ½áºÏ£¬Ö¸¶¨mysqlµÄ°²×°ÎÄ¼ş
-* lampµÄ´î½¨
-  [[file:lampµÄ°²×°ºÍÅäÖÃ.org][lampµÄ°²×°ºÍÅäÖÃ]]
-* ²âÊÔ½âÎö
+** apacheçš„ç¼–è¯‘å®‰è£…
+   - å‡ºæœ€å¤šé—®é¢˜ *httpd: Could not reliably determine the server's fully qualified domain name*
 
-  ¹Ø¼üµã
-  #+BEGIN_QUOTE
-  1. apachectl -M ²é¿´ÊÇ·ñ¼ÓÔØlibphp5.so
-  2. httpd.conf ÀïÃæÊÇ·ñĞ´¶ÔÁËAddType  Application/x-httpd-php .php
-  3. php´úÂë¸ñÊ½ÒªĞ´¶Ô
-  4. selinuxÒª¹Ø±Õ
-  5. denyÃ»ÓĞ¸Ä³Éallow  2.4 denied  granted
-  6. Ã»ÓĞ¼Óhost
-  #+END_QUOTE
+     ç¼–è¾‘httpd.conf, å¹¶ä½œå¦‚ä¸‹ä¿®æ”¹
+     #+BEGIN_EXAMPLE
+     - #ServerName www.example.com:80
+     + ServerName localhost:80
+     #+END_EXAMPLE
+     
+   - å®‰è£…apache
+     [[file:å®‰è£…apacheå’Œapacheçš„mpmå·¥ä½œæ¨¡å¼][å®‰è£…apacheå’Œapacheçš„mpmå·¥ä½œæ¨¡å¼]]
+   - apache serviceçš„å¯åŠ¨è„šæœ¬ï¼ˆæˆ‘è‡ªå·±æ”¹çš„ï¼‰
+     [[file:apache2å¯åŠ¨è„šæœ¬.org][apache2å¯åŠ¨è„šæœ¬]]
+   - apacheçš„mpmæ¨¡å¼
+     - 2.2é»˜è®¤æ˜¯preforkæ¨¡å¼ï¼Œ2.4é»˜è®¤æ˜¯eventæ¨¡å¼ï¼Œapacheåˆ‡æ¢ä¸ç”¨çš„æ¨¡å¼ï¼Œéœ€è¦é‡æ–°ç¼–è¯‘ *--with-mpm* å‚æ•°
+       [[file:%E5%AE%89%E8%A3%85apache%E5%92%8Capache%E7%9A%84mpm%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F.org][å®‰è£…apacheå’Œapacheçš„mpmå·¥ä½œæ¨¡å¼]]
+     - mpmé…ç½®æ–‡ä»¶æ‰€åœ¨çš„æ–‡ä»¶ä½ç½®
+     - http.confé…ç½®æ–‡ä»¶è¯¦è§£
+       [[file:http.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E8%AF%A6%E8%A7%A3.org][http.confé…ç½®æ–‡ä»¶çš„è¯¦è§£]]
+** phpçš„å®‰è£…
+   - phpçš„å®‰è£…
+     http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
+   - phpé…ç½®æ–‡ä»¶çš„è¯¦è§£
+         http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
+   - ç¼–è¯‘å‚æ•°éœ€ä¸éœ€è¦è®°å¿†ï¼Œä¸æ˜ç™½ä»€ä¹ˆæ„æ€
+   - phpå¦‚ä½•å’Œapacheç»“åˆï¼Œphp5.so, phpå’Œmysqlå¦‚ä½•ç»“åˆï¼ŒæŒ‡å®šmysqlçš„å®‰è£…æ–‡ä»¶
+** lampçš„æ­å»º
+   [[file:lampçš„å®‰è£…å’Œé…ç½®.org][lampçš„å®‰è£…å’Œé…ç½®]]
+** æµ‹è¯•è§£æ
 
-* ³öÏÖµÄ´íÎó
-        1.	´íÎóÂë403	404		500		502
-* °²×°discuz
-  [[file:°²×°discuz.org][°²×°discuz]]
+   å…³é”®ç‚¹
+   #+BEGIN_QUOTE
+   1. apachectl -M æŸ¥çœ‹æ˜¯å¦åŠ è½½libphp5.so
+   2. httpd.conf é‡Œé¢æ˜¯å¦å†™å¯¹äº†AddType  Application/x-httpd-php .php
+   3. phpä»£ç æ ¼å¼è¦å†™å¯¹
+   4. selinuxè¦å…³é—­
+   5. denyæ²¡æœ‰æ”¹æˆallow  2.4 denied  granted
+   6. æ²¡æœ‰åŠ host
+   #+END_QUOTE
 
-  - ¿ÉÄÜ»áÓöµ½µÄÎÊÌâ
+** å‡ºç°çš„é”™è¯¯
+         1.	é”™è¯¯ç 403	404		500		502
+** å®‰è£…discuz
+   [[file:å®‰è£…discuz.org][å®‰è£…discuz]]
 
-      ä¯ÀÀÆ÷²»¿ÉÒÔ·ÃÎÊ£¬curl¿ÉÒÔ·ÃÎÊ------iptables;
+   - å¯èƒ½ä¼šé‡åˆ°çš„é—®é¢˜
 
-      hostµÄ×÷ÓÃ;
+       æµè§ˆå™¨ä¸å¯ä»¥è®¿é—®ï¼Œcurlå¯ä»¥è®¿é—®------iptables;
 
-      Æô¶¯µÄrpmµÄhttpµÄ(yum)¶ø²»ÊÇ±àÒë°²×°µÄapache2;
-* ÓÃ»§ÈÏÖ¤
-    a.	ĞèÇó±³¾°
-    b.	401ÃÜÂëÊäÈë´íÎó
-    c. 	curl -U  admin:admin123
-    http://note.youdao.com/noteshare?id=99d33606b2ba6965715bbab9b33e64d6
-* ·ÃÎÊ¿ØÖÆ
-    http://note.youdao.com/noteshare?id=8092d44dc7ee12019ecfb1271404ef7a
-* apacheµÄÈÕÖ¾
-    http://note.youdao.com/noteshare?id=eae5156591e58b68f58d407edbf77034
-* ÎÄ¼şµÄ¾²Ì¬»º´æ
-    http://note.youdao.com/noteshare?id=97ace4231637153ec64410965cf49820
-* ·ÀµÁÁ´
-    http://note.youdao.com/noteshare?id=09d525084eb280ae94274eb0831317a3
-* apacheµÄrewrite¹æÔò
-    http://note.youdao.com/noteshare?id=0161eba78b2aab8843e0866bdd9470ea
-    301£ºhttp://note.youdao.com/noteshare?id=d80b3015eb7fb1d56f0b6afb6b96ad90
-* php.inÅäÖÃÎÄ¼şÏê½â
-    http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
-* php°²×°À©Õ¹Ä£¿é
+       hostçš„ä½œç”¨;
+
+       å¯åŠ¨çš„rpmçš„httpçš„(yum)è€Œä¸æ˜¯ç¼–è¯‘å®‰è£…çš„apache2;
+** ç”¨æˆ·è®¤è¯
+     a.	éœ€æ±‚èƒŒæ™¯
+
+     b.	401å¯†ç è¾“å…¥é”™è¯¯
+
+     c. 	curl -U  admin:admin123
+
+     [[file:apacheç”¨æˆ·è®¤è¯.org][apacheç”¨æˆ·è®¤è¯]]
+** è®¿é—®æ§åˆ¶
+
+   [[file:apacheè®¿é—®æ§åˆ¶.org][apacheè®¿é—®æ§åˆ¶]]
+** apacheçš„æ—¥å¿—
+
+   [[file:apacheçš„æ—¥å¿—.org][apacheçš„æ—¥å¿—]]
+
+** æ–‡ä»¶çš„é™æ€ç¼“å­˜
+
+   [[file:apacheé™æ€æ–‡ä»¶ç¼“å­˜.org][apacheé™æ€æ–‡ä»¶ç¼“å­˜]]
+
+** é˜²ç›—é“¾
+
+   [[file:apacheé…ç½®é˜²ç›—é“¾.org][apacheé…ç½®é˜²ç›—é“¾]]
+   
+** apacheçš„rewriteè§„åˆ™
+
+   [[file:apacheçš„rewriteè§„åˆ™.org][apacheçš„rewriteè§„åˆ™]]
+
+   [[file:åŸŸå301è·³è½¬.org][åŸŸå301è·³è½¬]]
+
+** php.iné…ç½®æ–‡ä»¶è¯¦è§£
+
+   [[file:php.org][php.iniè¯¦è§£]]
+** phpå®‰è£…æ‰©å±•æ¨¡å—
 http://note.youdao.com/noteshare?id=8890bc568d649c86b40b4e1d2c818dc1
-* mysqlµÄÅäÖÃÎÄ¼şÏê½â
-http://note.youdao.com/noteshare?id=ce11d381cd9f3bd9290e7bf24d442311
-* mysqlµÄµ÷ÓÅ
-http://note.youdao.com/noteshare?id=229ea531b73a0fa14c020871817a7afa
-mysqlµÄÄÚ´æ£ºhttp://note.youdao.com/noteshare?id=1931362daa686fc294efca3fc2356219
-* mysqlµÄrootÃÜÂëÖØÖÃ
-http://note.youdao.com/noteshare?id=260a55e07dbe6aac57dd719048ed38d6
-* mysqlµÄµÇÂ¼
-http://note.youdao.com/noteshare?id=a1e183ae6885ffe2d732aa9977ab5bd3
-* mysqlµÄ²Ù×÷
-http://note.youdao.com/noteshare?id=2bee36bc361f00dac23d8b1fb2fdfd91
-* mysqlµÄ±¸·İºÍ»Ö¸´
-http://note.youdao.com/noteshare?id=0719b7e077689bc23ba9c69ece85ddd6
+** mysqlçš„é…ç½®æ–‡ä»¶è¯¦è§£
 
-* mysqlÆô¶¯±¨´í£º
-http://note.youdao.com/noteshare?id=cf4fdc61786018cf1769f06884111990
-* mysqlµÄÊÂ¼şºÍËÀËøÎÊÌâ
-http://note.youdao.com/noteshare?id=7be38c478472c12c5d6bb7a8dd7dda43
-http://note.youdao.com/noteshare?id=ec3fa91ec4b57b8c03e9f114659569be
+   [[file:mysqlå¸¸ç”¨å‚æ•°é…ç½®.org][mysqlå¸¸ç”¨å‚æ•°é…ç½®]]
+
+** mysqlçš„è°ƒä¼˜
+
+   [[file:msyqlè°ƒä¼˜.org][mysqlè°ƒä¼˜]] [[file:mysqlçš„å†…å­˜.org][mysqlçš„å†…å­˜]]
+
+** mysqlçš„rootå¯†ç é‡ç½®
+
+   [[file:mysqlä¿®æ”¹rootå¯†ç .org][mysqlä¿®æ”¹å¯†ç ]]
+
+** mysqlçš„ç™»å½•
+
+   [[file:mysqlç™»å½•.org][mysqlç™»å½•]]
+
+** mysqlçš„æ“ä½œ
+
+   [[file:mysqlå¸¸ç”¨å‘½ä»¤.org][mysqlå¸¸ç”¨å‘½ä»¤]]
+** mysqlçš„å¤‡ä»½å’Œæ¢å¤
+
+   [[file:mysqlçš„å¤‡ä»½å’Œæ¢å¤.org][å¤‡ä»½å’Œæ¢å¤]]
+
+** mysqlå¯åŠ¨æŠ¥é”™ï¼š
+
+   [[file:mysqlæŒ‡å®šé…ç½®æ–‡ä»¶æ—¶å¯åŠ¨æŠ¥é”™.org][mysqlæŒ‡å®šé…ç½®æ–‡ä»¶æ—¶å¯åŠ¨æŠ¥é”™]]
+
+** mysqlçš„äº‹ä»¶å’Œæ­»é”é—®é¢˜
+
+   [[file:MySQLäº‹åŠ¡.org][MySQLäº‹åŠ¡]]
+
+   [[file:æ•°æ®åº“æ­»é”åŸç†åŠè§£å†³æ€è·¯.org][æ•°æ®åº“æ­»é”åŸç†åŠè§£å†³æ€è·¯]]

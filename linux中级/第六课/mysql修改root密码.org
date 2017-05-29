@@ -1,0 +1,15 @@
+*** mysql修改密码
+
+忘记了mysql的root密码怎么办：
+
+drop user 'tangnanbing./c'@'%';
+
+1. 编辑mysql主配置文件 my.cnf 在[mysqld]字段下添加参数  skip-grant  ,
+
+2. 重启数据库服务,
+
+3. mysql -uroot ,修改相应用户密码 use mysql; update user set password=password('your password') where user='root';flush privileges;(这里的不能进行授权，只能进行update)
+
+   password = password('123456')             第二个password是一个函数
+
+4. 最后修改/etc/my.cnf 去掉 skip-grant , 重启mysql服务
