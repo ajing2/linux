@@ -1,0 +1,21 @@
+*** mysql指定配置文件时启动报错
+
+    #+BEGIN_EXAMPLE
+    [root@192 bin]# ./mysqld_safe --datadir=/export/Data/mysql/data/ --pid-file=/export/Data/mysql/data/192.168.147.128.pid --basedir=/export/servers/mysql/ --defaults-file=/export/servers/mysql/etc/my.cnf &
+    [1] 29196
+    160903 18:03:01 mysqld_safe Logging to '/export/Data/mysql/data//192.168.147.128.err'.
+    160903 18:03:01 mysqld_safe Starting mysqld daemon with databases from /export/Data/mysql/data/
+    160903 18:03:03 mysqld_safe mysqld from pid file /export/Data/mysql/data/192.168.147.128.pid ended
+    #+END_EXAMPLE
+    启动mysql时报错，在日志中显示
+    #+BEGIN_QUOTE
+    2016-09-03 18:03:01 29310 [ERROR] /export/servers/mysql/bin/mysqld: unknown variable 'defaults-file=/export/servers/mysql/etc/my.cnf'
+    2016-09-03 18:03:01 29310 [ERROR] Aborting
+    #+END_QUOTE
+    当使用如下方式启动时：可以正常启动：mysql的--default-file  必须紧跟mysqld_safe其后;
+
+    环境centos7   mysql5.6
+    #+BEGIN_EXAMPLE
+    [root@192 bin]# ./mysqld_safe --defaults-file=/export/servers/mysql/etc/my.cnf --datadir=/export/Data/mysql/data/ --pid-file=/export/Data/mysql/data/192.168.147.128.pid --basedir=/export/servers/mysql/ &
+    #+END_EXAMPLE
+    这个是mysql的一个bug，--defaults-file必须是第一个参数

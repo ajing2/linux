@@ -86,7 +86,7 @@
 ** 防盗链
 
    [[file:apache配置防盗链.org][apache配置防盗链]]
-
+   
 ** apache的rewrite规则
 
    [[file:apache的rewrite规则.org][apache的rewrite规则]]
@@ -99,21 +99,34 @@
 ** php安装扩展模块
 http://note.youdao.com/noteshare?id=8890bc568d649c86b40b4e1d2c818dc1
 ** mysql的配置文件详解
-http://note.youdao.com/noteshare?id=ce11d381cd9f3bd9290e7bf24d442311
+
+   [[file:mysql常用参数配置.org][mysql常用参数配置]]
+
 ** mysql的调优
-http://note.youdao.com/noteshare?id=229ea531b73a0fa14c020871817a7afa
-mysql的内存：http://note.youdao.com/noteshare?id=1931362daa686fc294efca3fc2356219
+
+   [[file:msyql调优.org][mysql调优]] [[file:mysql的内存.org][mysql的内存]]
+
 ** mysql的root密码重置
-http://note.youdao.com/noteshare?id=260a55e07dbe6aac57dd719048ed38d6
+
+   [[file:mysql修改root密码.org][mysql修改密码]]
+
 ** mysql的登录
-http://note.youdao.com/noteshare?id=a1e183ae6885ffe2d732aa9977ab5bd3
+
+   [[file:mysql登录.org][mysql登录]]
+
 ** mysql的操作
-http://note.youdao.com/noteshare?id=2bee36bc361f00dac23d8b1fb2fdfd91
+
+   [[file:mysql常用命令.org][mysql常用命令]]
 ** mysql的备份和恢复
-http://note.youdao.com/noteshare?id=0719b7e077689bc23ba9c69ece85ddd6
+
+   [[file:mysql的备份和恢复.org][备份和恢复]]
 
 ** mysql启动报错：
-http://note.youdao.com/noteshare?id=cf4fdc61786018cf1769f06884111990
+
+   [[file:mysql指定配置文件时启动报错.org][mysql指定配置文件时启动报错]]
+
 ** mysql的事件和死锁问题
-http://note.youdao.com/noteshare?id=7be38c478472c12c5d6bb7a8dd7dda43
-http://note.youdao.com/noteshare?id=ec3fa91ec4b57b8c03e9f114659569be
+
+   [[file:MySQL事务.org][MySQL事务]]
+
+   [[file:数据库死锁原理及解决思路.org][数据库死锁原理及解决思路]]
