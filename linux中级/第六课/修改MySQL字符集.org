@@ -1,0 +1,10 @@
+**** 修改mysql的字符集
+
+     #+BEGIN_EXAMPLE
+     alter database xxx character set utf8;
+     alter table xxx character set utf8;
+     alter table blog_blogmodel change content content longtext character set utf8 collate utf8_general_ci;
+     alter table blog_blogmodel change title title varchar(100) character set utf8 collate utf8_general_ci;
+     
+     create database xxx character set 'utf8';
+     #+END_EXAMPLE

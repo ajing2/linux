@@ -1,0 +1,17 @@
+**** 查是否走索引
+
+     *explain select * from mysql.user where user='xiang';*
+
+     [[file:image/find-index.png]]
+
+***** 增加索引
+
+      *create index idx_user_user on mysql.user(user);*
+
+      [[file:image/add-index.png]]
+
+***** 查看是否走索引
+
+      *explain select * from mysql.user where user='xiang';*
+
+      [[file:image/find-index-1.png]]

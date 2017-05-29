@@ -1,0 +1,119 @@
+*** innobackupex备份和Xtrabackup增量备份
+
+    - Mysql增量备份Xtrabackup中包含两个工具
+
+      - xtrabackup - 用于热备份innodb, xtradb表的工具，不能备份其他表(MYISAM表)。
+      - innobackupex - 对xtrabackup封装的perl脚本，提供了myisam表备份的能力。(能进行整库和数据表备份)
+
+      注：备份恢复之前请做好全库备份
+
+    - 安装Xtrabackup
+
+      官网网址[[http://www.percona.com/doc/percona-xtrabackup/index.html]]
+      
+      - 安装
+
+        配置文件中需要添加 datadir = /usr/local/mysql/datadir //MYSQL数据文件目录;
+
+	1. 自动安装 YUM 源后，用YUM安装
+	   #+BEGIN_EXAMPLE
+	   yum install -y gnupg
+	   rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+	   yum install -y percona-xtrabackup
+	   #+END_EXAMPLE
+
+	2. 手动写入YUM源
+
+	   新建文件 /etc/yum.repos.d/Percona.repo
+	   #+BEGIN_EXAMPLE
+	   [percona]
+	   name = CentOS $releasever - Percona
+	   baseurl=http://repo.percona.com/centos/$releasever/os/$basearch/
+	   enabled = 1
+	   gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-percona
+	   gpgcheck = 1
+	   #+END_EXAMPLE
+	   之后YUM安装 ，安装后可执行xtrabackup -v 查看
+
+	   之后可以用xtrabackup 备份
+
+    - innobackupex 备份全库
+
+      备份主程序为 /usr/bin/innobackupex-1.5.1，其需要从 mysql 配置文件中读取相关信息，Mysql缺省配置文件 my.cnf 中未配置 datadir 选项，必须显性添加，否则备份程序会报错;
+
+      innobackupex:: Warning: Ignored unrecognized line 2 in options : 'xtrabackup: Error: Please set parameter 'datadir'
+
+      在论坛Mysql 配置文件 /etc/my.cnf 配置文件添加 datadir 内容:
+      #+BEGIN_EXAMPLE
+      在[mysqld]段加入
+      datadir = /usr/local/mysql/var
+      #+END_EXAMPLE
+
+      1. 备份
+	 #+BEGIN_EXAMPLE
+	 #/usr/bin/innobackupex-1.5.1 --user=root --password=password --defaults-file=/etc/my.cnf /usr/local/bbsBackup
+	 #+END_EXAMPLE
+
+      2. 恢复
+	 #+BEGIN_EXAMPLE
+	 #/usr/bin/innobackupex-1.5.1 --apply-log /usr/local/bbsBackup/2011-09-26_02-00-01/
+	 #/usr/bin/innobackupex-1.5.1 --copy-back /usr/local/bbsBackup/2011-09-26_02-00-01/
+	 #chown -R mysql:mysql /usr/local/mysql/
+	 #/etc/init.d/mysqld start
+	 #+END_EXAMPLE
+
+    - 全量备份及恢复
+
+      1. 备份
+	 #+BEGIN_EXAMPLE
+	 #/usr/bin/xtrabackup --defaults-file=/etc/my.cnf --backup --target-dir=/usr/local/bbsBackup/base/
+	 #+END_EXAMPLE
+	 注：使用xtrabackup，仅限InnoDB和xtradb表，且注意mysql配置文件my.cnf中需设置“default_table_type = InnoDB”否则不成功;
+
+      2. 恢复时执行两次(原因是什么?)
+         #+BEGIN_EXAMPLE
+	 #/usr/bin/xtrabackup --defaults-file=/etc/my.cnf --prepare --target-dir=/usr/local/bbsBackup/base
+	 #/usr/bin/xtrabackup --defaults-file=/etc/my.cnf --prepare --target-dir=/usr/local/bbsBackup/base
+	 #+END_EXAMPLE
+	 #+BEGIN_EXAMPLE
+	 //将数据库停掉
+	 #/etc/init.d/mysqld stop
+	 //删除数据库目录下的ib*（ib开头的所有）文件。
+	 #rm /usr/local/mysql/var/ib*
+	 //将/usr/local/bbsBackup/base目录下的ib*文件拷贝到数据库目录。
+	 #cd /usr/local/mysql/var/
+	 #cp /usr/local/bbsBackup/base/ib* ./
+	 #+END_EXAMPLE
+	 设置权限: =#chown mysql:mysql ib*= 重启数据库后测试，是否成功;
+	 
+    - 增量备份及恢复
+
+      注：做增量前当然要先进行全量备份，在全量的基础上来进行增量;
+
+      - 首先进行全量备份
+	#+BEGIN_EXAMPLE
+	#/usr/bin/xtrabackup --defaults-file=/etc/my.cnf --backup --target-dir=/usr/local/bbsBackup/base/
+	#+END_EXAMPLE
+
+      - 在全量备份的基础上进行增量
+	#+BEGIN_EXAMPLE
+	#/usr/bin/xtrabackup --defaults-file=/etc/my.cnf --backup --target-dir=/usr/local/bbsBackup/1 --incremental-basedir=/usr/local/bbsBackup/base/
+	#+END_EXAMPLE
+	注：/usr/local/bbsBackup/1是每次都需修改的。比如第二次增量就改成/usr/local/bbsBackup/2增量恢复. (步骤同全量恢复，只是在执行恢复命令的时候中间多一步)
+	#+BEGIN_EXAMPLE
+	#/usr/bin/xtrabackup --defaults-file=/etc/my.cnf --prepare --target-dir=/usr/local/bbsBackup/base
+	#/usr/bin/xtrabackup --target-dir=/usr/local/bbsBackup/base --prepare --incremental-dir=/usr/local/bbsBackup/1
+	#/usr/bin/xtrabackup --defaults-file=/etc/my.cnf --prepare --target-dir=/usr/local/bbsBackup/base
+	#+END_EXAMPLE
+	#+BEGIN_EXAMPLE
+	//将数据库停掉
+	#/etc/init.d/mysqld stop
+	//删除数据库目录下的ib*（ib开头的所有）文件。
+	#rm /usr/local/mysql/var/ib*
+	//将/usr/local/bbsBackup/base目录下的ib*文件拷贝到数据库目录。
+	#cd /usr/local/mysql/var/
+	#cp /usr/local/bbsBackup/base/ib* ./
+	#+END_EXAMPLE
+	设置权限 =#chown mysql:mysql ib*= 重启数据库后测试，是否成功
+
+	参考自[[http://xikder.blog.51cto.com/blog/1423200/309339]]
