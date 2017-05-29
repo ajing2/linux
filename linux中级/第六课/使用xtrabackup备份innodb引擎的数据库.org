@@ -1,0 +1,28 @@
+*** 使用xtrabackup备份innodb引擎的数据库
+
+    innodb引擎的数据库可以使用mysqldump备份, 如果表很大几十个G甚至上百G, 用mysqldump备份会非常慢. 然后使用 *xtrabackup* 可以很快的在线备份innodb数据库.
+
+    InnoDB 有个商业的InnoDB Hotbackup, 可以对InnoDB引擎的表实现在线热备.而 percona出品的Xtrabackup, 是InnoDB Hotbackup的一个开源替代品, 可以在线对InnoDB/XtraDB引擎的表进行物理备份. innobackupex是参考了InnoDB Hotbackup的innoback脚本修改而来的, 主要是为了方便的同时备份InnoDB和MyISAM引擎的表, 并且加入了一些使用的选项, 如 –slave-info可以记录备份恢复后, 作为slave需要的一些信息, 根据这些信息, 可以很方便的利用备份来重做slave.
+
+    安装如下：
+    #+BEGIN_EXAMPLE
+    tar zxf xtrabackup-0.7.tar.gz 
+    cd xtrabackup-0.7 
+    ./configure 
+    make 
+    千万不要make install 而是要接着下面的步骤操作.
+    cd innobase/xtrabackup/ 
+    make 
+    make install 
+    #+END_EXAMPLE
+    然后, 就会在你的/usr/bin目录里安装上两个工具：xtrabackup, innobackupex-1.5.1 
+
+    xtrabackup可以在不加锁的情况下备份innodb数据表, 不过此工具 *不能操作myisam* . 
+
+    innobackupex-1.5.1是一个脚本封装, 能同时处理innodb和myisam, 但在处理myisam时需要加一个读锁. 
+
+    =/usr/bin/xtrabackup --backup --target-dir=/backup/mysqlbackup= 这里的target-dir 就是要备份到的目录, 这个工具不用指定数据库名的, 默认会把所有innodb引擎的数据库全部备份.
+
+    等备份完了, 你会看到 target-dir 下会有所有innodb引擎的库, 但是奇怪的是并没有备份 .frm 的文件, 这个没有关系, 需要你手动拷贝一份即可.
+
+    至于恢复, 拷贝回去就ok啦.
