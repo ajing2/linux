@@ -33,15 +33,19 @@
        [[file:http.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E8%AF%A6%E8%A7%A3.org][http.conf配置文件的详解]]
 ** php的安装
    - php的安装
-     http://note.youdao.com/noteshare?id=cc2c288abae1da4d38a60ae30f822532
+
+     [[file:php安装.md][php安装]]
+
    - php配置文件的详解
-         http://note.youdao.com/noteshare?id=19191c3d92f147c1aeb71fb15ef24593
+
+     [[file:php配置文件详解.org][php配置文件详解]]
+
    - 编译参数需不需要记忆，不明白什么意思
    - php如何和apache结合，php5.so, php和mysql如何结合，指定mysql的安装文件
 ** lamp的搭建
    [[file:lamp的安装和配置.org][lamp的安装和配置]]
 ** 测试解析
-
+   
    关键点
    #+BEGIN_QUOTE
    1. apachectl -M 查看是否加载libphp5.so
@@ -97,7 +101,9 @@
 
    [[file:php.org][php.ini详解]]
 ** php安装扩展模块
-http://note.youdao.com/noteshare?id=8890bc568d649c86b40b4e1d2c818dc1
+
+   [[file:memcache和memcached在php中的应用.md][memcache和memcached在php中的应用]]
+
 ** mysql的配置文件详解
 
    [[file:mysql常用参数配置.org][mysql常用参数配置]]
