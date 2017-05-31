@@ -2,4 +2,5 @@
 
 *** MySQL的安装
 
-    [[file:e:/kerwin/linux/linux%E4%B8%AD%E7%BA%A7/%E7%AC%AC%E5%85%AD%E8%AF%BE/apache%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6.org][test]]
+    [[file:e:/kerwin/linux/linux中级/第六课/apache访问控制.org][test]]
+
