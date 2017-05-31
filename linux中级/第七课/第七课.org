@@ -1,0 +1,5 @@
+#+TITLE: 第七课
+
+*** lnmp环节的搭建
+
+    [[file:lnmp的安装.org][lnmp的安装]]
