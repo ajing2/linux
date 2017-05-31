@@ -2,5 +2,5 @@
 
 *** MySQL的安装
 
-    [[file:e:/kerwin/linux/linux中级/第六课/apache访问控制.org][test]]
+    [[file:第六课/apache访问控制.org][test]]
 
