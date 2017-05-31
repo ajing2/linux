@@ -2,5 +2,5 @@
 
 *** MySQL的安装
 
-    [[file:第六课/apache访问控制.org][test]]
+    [[https://github.com/kerwincsc/linux/blob/master/linux%E4%B8%AD%E7%BA%A7/%E7%AC%AC%E5%85%AD%E8%AF%BE/centos7%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85mysql5.6.org][test]]
 
