@@ -3,3 +3,26 @@
 *** lnmp环节的搭建
 
     [[file:lnmp的安装.org][lnmp的安装]]
+
+    - FAQ
+      - lamp和lnmp同时占用一个80端口问题(nginx服务器上安装了apache)
+      - 编译顺序，php不依赖nginx，但是依赖mysql
+      - 依赖哪些库怎么看 =ldd /export/servers/php/bin/php=
+
+*** nginx编译的问题
+
+    - NGINX和apache的区别
+
+      - [[file:Nginx为什么比Apache_Httpd高效.org][Nginx为什么比Apache_ Httpd高效]]
+
+      - 高并发的性能: [[http://blog.csdn.net/guoguo1980/article/details/4729668][Nginx:承受3万并发连接数,胜过Apache10倍]]-来自CSDN
+
+    - FAQ
+
+      - 502问题，fastcgi_pass写错取决于php-fpm.conf的listen，php-fpm的线程用完了
+
+      - nginx重启的时候，一定要注意先configtest，或者用reload
+
+      - 403的问题
+
+      - nginx增加chkconfig报错，脚本有问题 [[file:nginx的启动脚本.org][nginx的启动脚本]]

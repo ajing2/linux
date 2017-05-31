@@ -2,4 +2,101 @@
 
 *** MySQL的安装
 
-    [[file:../第六课/centos7源码安装mysql5.6.org][test]]
+    [[file:../第六课/centos7源码安装mysql5.6.org][MySQL的安装]]
+
+*** PHP的安装
+
+    - 安装依赖包
+
+      #+BEGIN_EXAMPLE
+      yum install -y bzip2-devel curl-devel db4-devel libjpeg-devel \
+      libpng-devel libXpm-devel gmp-devel libc-client-devel \
+      openldap-devel unixODBC-devel postgresql-devel sqlite-devel \
+      aspell-devel  net-snmp-devel libxslt-devel libxml2-devel \
+      pcre-devel mysql-devel unixODBC-devel postgresql-devel \
+      pspell-devel net-snmp-devel freetype-devel \
+      libtomcrypt-devel.x86_64 php-mcrypt  libmcrypt  libmcrypt-devel
+      #+END_EXAMPLE
+
+    - 下载PHP源码包进行编译安装
+
+      #+BEGIN_EXAMPLE
+      wget  http://cn2.php.net/distributions/php-5.5.38.tar.gz
+      cd /usr/local/src
+      tar xzvf php-5.5.38.tar.gz
+      cd php-5.5.38
+      ./configure --prefix=/export/servers/php \
+      --with-config-file-path=/export/servers/php/etc \
+      --enable-fpm --with-fpm-user=php-fpm \
+      --with-fpm-group=php-fpm --with-mysql=/export/servers/mysql \
+      --with-mysql-sock=/export/Data/mysql/tmp/mysql.sock \
+      --with-libxml-dir --with-gd --with-jpeg-dir --with-png-dir \
+      --with-freetype-dir --with-iconv-dir --with-zlib-dir \
+      --with-mcrypt --enable-soap --enable-gd-native-ttf --enable-ftp \
+      --enable-mbstring --enable-exif --disable-ipv6 --with-curl
+      #+END_EXAMPLE
+
+      [[file:php-install-complete.png]]
+
+    - 安装后必要的修改
+
+      #+BEGIN_EXAMPLE
+      cp php.ini-production  /export/servers/php/etc/php.ini
+      cp sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+      chmod +x /etc/init.d/php-fpm
+      cd /export/servers/php/etc/
+      mv php-fpm.conf.default php-fpm.conf
+      service php-fpm restart
+      #+END_EXAMPLE
+
+*** Nginx安装
+
+    - 官网下载一个源码包1.8
+
+      #+BEGIN_EXAMPLE
+      cd /usr/local/src/
+      wget http://nginx.org/download/nginx-1.6.2.tar.gz
+      tar zxvf nginx-1.6.2.tar.gz 
+      cd nginx-1.6.2
+      ./configure   --prefix=/usr/local/nginx   --with-pcre 
+      make 
+      make install
+      #+END_EXAMPLE
+
+    - 启动nginx =/usr/local/nginx/sbin/nginx=
+
+*** 配置解析php
+
+    vim  /usr/local/nginx/conf/nginx.conf
+    #+BEGIN_EXAMPLE
+    location / {
+        root   html;
+        index  index.html index.htm;
+    }
+    #+END_EXAMPLE
+    找到这个，在后面添加如下
+    #+BEGIN_EXAMPLE
+    location ~ \.php$ {
+        root           html;
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  /export/servers/nginx/html$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+    #+END_EXAMPLE
+
+    重新加载 =/usr/local/nginx/sbin/nginx -s  reload=
+
+**** 测试解析
+
+     vim  /usr/local/nginx/html/1.php
+
+     增加
+
+     #+BEGIN_EXAMPLE
+     <?php
+         phpinfo();
+     ?>
+     #+END_EXAMPLE
+
+     测试: =curl localhost/1.php=
