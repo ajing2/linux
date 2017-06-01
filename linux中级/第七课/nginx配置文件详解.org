@@ -1,0 +1,112 @@
+*** nginx配置文件详解
+
+    就nginx的配置文件nginx.conf进行详细说明
+    #+BEGIN_EXAMPLE
+    user admin admin; #定义nginx运行的用户和用户组;
+    worker_processes 8; #nginx的运行进程数，建议设置等于cpu的总核心数，一般是8;
+    pid /export/servers/nginx/run/nginx.pid; #进程pid的的文件;
+    worker_rlimit_nofile 65535; #一个nginx进程应许打开的最大文件数;
+
+    events
+    {
+        use epoll; #参考事件模型，use [ kqueue | rtsig | epoll | /dev/poll | select | poll ];
+        #epoll模型是Linux 2.6以上版本内核中的高性能网络I/O模型，如果跑在FreeBSD上面，就用kqueue模型;
+        worker_connections 65535; #单个进程的最大连接数
+    }
+    
+    http #设定http服务器，利用它的反向代理功能提供负载均衡支持
+    {
+        include mime.types; #设定mime类型，类型由mime.types文件定义
+        default_type application/octet-stream; #默认文件类型
+        server_tokens on;  #nginx在调用的时候，可以知道nginx的版本信息
+        log_format main '$remote_addr - $remote_user [$time_local]' #记录客户端的ip，客户端用户名称，访问时间和时区
+        '"$request" $status $bytes_sent' #用来记录请求的url与http协议，状态（200成功），发送客户端文件大小
+        '"$http_referer" "$http_user_agent"' #记录从哪个页面链接访问过来了，记录客户端浏览器的相关信息
+        '"$request_time $upstream_response_time $pipe"' #求情相应时间，upstream请求相应时间
+        '"$gzip_ratio"'; #设定日志格式
+        charset utf-8; #默认的编码字符集
+        server_names_hash_bucket_size 128; #服务器名字的hash表的大小
+        client_header_buffer_size 32k; #上传文件大小限制
+        large_client_header_buffers 4 32k; #设定请求缓存
+        #nginx默认会用client_header_buffer_size这个buffer来读取header值;
+        #如果header过大，它会使用large_client_header_buffers来读取；
+        #如果设置过小HTTP头/Cookie过大 会报400 错误即：nginx 400 bad request；
+        #如果超过buffer，就会报HTTP 414错误(URI Too Long);
+        #nginx接受最长的HTTP头部大小必须比其中一个buffer大，否则就会报400的，HTTP错误(Bad Request);
+        client_max_body_size 300m;
+        client_body_buffer_size 512k; #设定请求缓存
+        sendfile on; #开启高效文件传输模式，sendfile指令指定nginx是否调用sendfile函数来输出文件，对于普通应用设为on
+        tcp_nopush on; #防止网络堵塞
+        tcp_nodelay on; #防止网络堵塞
+        keepalive_timeout 0; #长链接超时时间，单位是秒
+
+        #fastcgi相关参数是为了改善网站性能；减少资源占用，提高访问速率
+        fastcgi_intercept_errors on; #指定是否传递4xx和5xx错误信息到客户端，或者允许nginx使用error_page处理错误信息
+    
+        #利用proxy模块给nginx加入缓存，提高http的相应请求效率
+        proxy_connect_timeout 90; #后端服务器连接超时的时间，发起握手等候响应超时时间，
+        proxy_read_timeout 180; #连接成功后，后端服务器处理请求的时间
+        proxy_send_timeout 180; #在180秒内，后端服务器必须传完所有数据
+        proxy_buffer_size 256k; #通常情况下，这部分被设置为第一部分应答的缓存区的大小，这个是应答头的大小
+        proxy_buffers 4 256k; #缓存区的大小
+        proxy_busy_buffers_size 256k; #高负荷下缓冲大小（proxy_buffers*2）
+        proxy_temp_file_write_size 256k; #设置在写入proxy_temp_path时数据的大小，预防一个工作进程在传递文件时阻塞太长
+        proxy_intercept_errors on; #设置客户端应许看到缓存的出错信息
+        proxy_hide_header X-Powered-By; #隐藏不必要的头，减少数据传输
+        server_name_in_redirect off; #让 nginx 在处理自己内部重定向时不默认使用 server_name 设置中的第一个域名；
+    
+        gzip on; #开启gzip压缩传输
+        gzip_min_length 100; #最小压缩文件大小
+        gzip_buffers 4 16k; #压缩缓冲区
+        gzip_http_version 1.0; #压缩版本
+        gzip_comp_level 9; #压缩级别
+        gzip_types text/plain application/x-javascript text/css application/xml; #压缩类型
+        gzip_vary on;
+        error_page 400 401 402 403 404 405 408 410 412 413 414 415 500 501 502 503 506 = http://www.jd.com/error2.aspx;
+        lua_package_path '/export/servers/nginx/var/lua/?/?.lua;/export/servers/nginx/var/lua/?.lua;;'; #lua脚本
+        include domains/*.upstream.conf; #nginx的upstream模块，负载均衡主要通过这个模块实现
+
+        ####### server ##########
+        server
+        {
+            listen 80; #监听的端口
+            server_name shpls.wms5.jd.com; #第一个域名
+            access_log /export/servers/nginx/logs/access.log main; #访问日志
+            error_log /export/servers/nginx/logs/error.log warn;
+            #错误日志，error_log 级别分为 debug, info, notice, warn, error, crit;
+            #默认为crit, 该级别在日志名后边定义格式如下：error_log /your/path/error.log crit;
+            #crit 记录的日志最少，而debug记录的日志最多;
+            #如果你的nginx遇到一些问题，比如502比较频繁出现，但是看默认的error_log并没有看到有意义的信息,
+            #那么就可以调一下错误日志的级别，当你调成error级别时，错误日志记录的内容会更加丰富;
+            location / {
+                #access_log on;
+                root html;
+                indexindex.html index.htm;
+            }
+
+            location = /status {
+                stub_statuson;
+                access_logoff;
+            }
+
+            include domains/*.location.conf;
+            location ^~ /winapp/ {
+                root /export/App/app.wms5.jd.local;
+                index ReleaseList.xml;
+            }
+
+            location ^~ /rfapp/ {
+                root /export/App/app.wms5.jd.local;
+                index ReleaseList.xml;
+            }
+
+            location ~ ^/([^/]+)/.+ {
+                set $wms_app_module $1;
+                rewrite ^/\w+/(.+)$ /$1 break;
+                content_by_lua_file /export/servers/nginx/var/lua/approute.lua;
+            }
+        }
+    }
+    #+END_EXAMPLE
+
+    

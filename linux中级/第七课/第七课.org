@@ -26,3 +26,20 @@
       - 403的问题
 
       - nginx增加chkconfig报错，脚本有问题 [[file:nginx的启动脚本.org][nginx的启动脚本]]
+*** PHP的测试
+
+    - FAQ
+      - 搜索引擎去自我解决(前面lamp部分有, 自行查看)
+      - 权限的问题, data权限
+*** php-fpm配置文件
+
+    多个pool  [slow_log]
+
+    一个服务器上跑了多个站点，不同的站点网站目录属主要求不同，那么php-ftp就设置多个pool，设置不同的用户
+
+    [[file:深入理解PHP之Nginx与FPM的工作机制.org][深入理解PHP之Nginx与FPM的工作机制]]
+*** nginx的配置文件详解
+
+    [[file:image/nginx-conf-png.png]]
+
+    [[file:nginx配置文件详解.org][nginx配置文件详解]]
