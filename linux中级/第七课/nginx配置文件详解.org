@@ -2,7 +2,7 @@
 
     就nginx的配置文件nginx.conf进行详细说明
 
-    #+BEGIN_QUOTE
+    #+BEGIN_EXAMPLE
     user admin admin; #定义nginx运行的用户和用户组;
     worker_processes 8; #nginx的运行进程数，建议设置等于cpu的总核心数，一般是8;
     pid /export/servers/nginx/run/nginx.pid; #进程pid的的文件;
@@ -108,4 +108,4 @@
             }
         }
     }
-    #+END_QUOTE
+    #+END_EXAMPLE
