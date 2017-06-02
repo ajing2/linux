@@ -1,0 +1,68 @@
+*** nginx中proxy问题
+
+    反向代理: 就是把location中匹配的请求转发给其他服务器,主要就是用到proxy_pass这个选项;
+
+    负载均衡: 主要是upstrem模块,把请求平均分发给各个web服务器;
+
+    #+BEGIN_EXAMPLE
+    location /master/ {
+        proxy_next_upstream http_500 http_502 http_503 http_504 error timeout invalid_header;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        expires 0;
+        proxy_pass http://master.wms5.jd.local/;
+    }
+    #+END_EXAMPLE
+    拿以上这个实例来举例
+
+    - =proxy_pass=
+      #+BEGIN_EXAMPLE
+      语法：proxy_pass URL;
+      例子：proxy_pass http://master.wms5.jd.local;
+          后面tomcat中根目录就需要带master目录,去访问master下面的东西;
+          curl -I http://master.wms5.jd.local/master/*
+
+      语法：proxy_pass URL/;
+      例子：proxy_pass http://master.wms5.jd.local/;
+          后面tomcat根目录中就不需要带master目录,直接在根目录中查找
+          curl -I http://master.wms5.jd.local/*
+      #+END_EXAMPLE
+
+    - =proxy_set_header=
+      #+BEGIN_EXAMPLE
+      语法：proxy_set_header field value;
+      允许重新定义或者添加发往后端服务器的请求头. value可以是文本,变量,或者他们的组合;
+      $proxy_add_x_forwarded_for变量包含客户端请求头中的"X-Forwarded-For",与$remote_addr用逗号分开,
+      如果没有"X-Forwarded-For" 请求头,则$proxy_add_x_forwarded_for等于$remote_addr;
+      $remote_addr变量的值是客户端的IP
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      #+END_EXAMPLE
+
+    - =expires= 指定文件的过期时间
+
+      30d 30天
+
+      0 不过期
+
+    - =proxy_next_upstream=
+      #+BEGIN_EXAMPLE
+      语法：proxy_next_upstream [error|timeout|invalid_header|http_500|http_502|http_503|http_504|http_404|of
+      遇到以上情况时,转发给另一台后端服务器处理;
+      详解：此配置项表示当向一台上游服务器转发请求出现错误时,
+          继续换一台上游服务器处理这个请求,这样可以更好的保证客户端只收到来自一个上游服务器的应答;
+      proxy_next_upstream的参数用来说明在哪些情况下会继续选择下一台上游服务器转发请求:
+      error：当向上游服务器发起连接,发送请求,读取响应时出错时;
+          timeout:发送请求或者读取响应发生超时时;
+          invalid_header:上游服务器发送的响应时不合法时;
+          http_500:上游服务器返回的HTTP响应码是500时;
+          http_502:上游服务器返回的HTTP响应码是502时;
+          http_503:上游服务器返回的HTTP响应码是503时;
+          http_504:上游服务器返回的HTTP响应码是504时;
+          http_404:上游服务器返回的HTTP响应码是404时;
+          off:关闭proxy_next_upstream 功能一出错就选择另一台上游服务器再次转发;
+      #+END_EXAMPLE
+
+
+    大家代理www.baidu.com的时候出错，是因为百度是https协议，默认是443端口(自己搭建后台服务器就可以了)

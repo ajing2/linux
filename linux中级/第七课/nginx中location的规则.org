@@ -1,0 +1,64 @@
+*** nginx中location的规则
+
+    *语法规则： location [=|~|~*|^~] /uri/ { … }*
+
+    #+BEGIN_QUOTE
+    =  开头表示精确匹配
+
+    ^~ 开头表示uri以某个常规字符串开头，不是正则匹配。#^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录。nginx不对url做编码，因此请求为/static/20%/aa，可以被规则^~ /static/ /aa匹配到（注意是空格）。
+
+    ~  开头表示区分大小写的正则匹配
+
+    ~* 开头表示不区分大小写的正则匹配
+
+    !~ 和 !~* 分别为区分大小写不匹配及不区分大小写不匹配的正则
+
+    /  通用匹配，任何请求都会匹配到
+
+    @  #"@" 定义一个命名的 location，使用在内部定向时，例如 error_page, try_files如 error_page, try_files
+    #+END_QUOTE
+    多个location配置的情况下匹配顺序为: 首先匹配 =，其次匹配^~, 其次是按文件中顺序的正则匹配，最后是交给 / 通用匹配。当有匹配成功时候，停止匹配，按当前匹配规则处理请求; "@"不能通过外部输入的url匹配;
+
+    例子，有如下匹配规则:
+
+    #+BEGIN_EXAMPLE
+    location = / {精确匹配，必须是127.0.0.1/
+        #规则A
+    }
+    location = /login {精确匹配，必须是127.0.0.1/login
+        #规则B
+    }
+    location ^~ /static/ {非精确匹配，并且不区分大小写，比如127.0.0.1/static/js.
+        #规则C
+    }
+    location ~ .(gif|jpg|png|js|css)$ {区分大小写，以gif,jpg,js结尾
+        #规则D
+    }
+    location ~* .png$ {不区分大小写，匹配.png结尾的
+        #规则E
+    }
+    location !~ .xhtml$ {区分大小写，匹配不已.xhtml结尾的
+        #规则F
+    }
+    location !~* .xhtml$ {
+        #规则G
+    }
+    location / {什么都可以
+        #规则H
+    }
+    #+END_EXAMPLE
+
+    静态文件不记录日志，配置缓存示例:
+    #+BEGIN_EXAMPLE
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+    {
+        expires      30d;
+        access_log off;
+    }
+    
+    location ~ .*\.(js|css)$
+    {
+        expires      12h;
+        access_log off;
+    }
+    #+END_EXAMPLE

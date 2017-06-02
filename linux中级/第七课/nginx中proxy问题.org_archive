@@ -1,0 +1,51 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file e:/kerwin/linux/linux中级/第七课/nginx中proxy问题.org
+
+
+* nginx中proxy问题
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-06-02 周五 14:59
+  :ARCHIVE_FILE: e:/kerwin/linux/linux中级/第七课/nginx中proxy问题.org
+  :ARCHIVE_CATEGORY: nginx中proxy问题
+  :END:
+
+  反向代理: 就是把location中匹配的请求转发给其他服务器，主要就是用到proxy_pass这个选项;
+
+  负载均衡: 主要是upstrem模块，把请求平均分发给各个web服务器;
+
+  #+BEGIN_EXAMPLE
+  location /master/ {
+      proxy_next_upstream http_500 http_502 http_503 http_504 error timeout invalid_header;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      expires 0;
+      proxy_pass http://master.wms5.jd.local/;
+  }
+  #+END_EXAMPLE
+  拿以上这个实例来举例
+
+  - =proxy_pass=
+
+    #+BEGIN_EXAMPLE
+    语法：proxy_pass URL;
+
+    例子：proxy_pass http://master.wms5.jd.local;
+
+    后面tomcat中根目录就需要带master目录，去访问master下面的东西;
+
+    curl -I http://master.wms5.jd.local/master/*
+
+
+    语法：proxy_pass URL/;
+
+    例子：proxy_pass http://master.wms5.jd.local/;
+
+    后面tomcat根目录中就不需要带master目录，直接在根目录中查找
+
+    curl -I http://master.wms5.jd.local/*
+    #+END_EXAMPLE
+
+
+    

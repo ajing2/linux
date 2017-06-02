@@ -1,0 +1,18 @@
+*** nginx的用户认证
+
+    - 首先需要安装apache，可以使用yum install httpd 安装
+
+    - 生成密码文件，创建用户
+      #+BEGIN_EXAMPLE
+      htpasswd -c /usr/local/nginx/conf/htpasswd  test
+      //添加test用户，第一次添加时需要加-c参数，第二次添加时不需要-c参数
+      #+END_EXAMPLE
+
+    - 在nginx的配置文件中添加
+      #+BEGIN_EXAMPLE
+      location  / {
+          root /data/www/wwwroot/count;
+          auth_basic              "Auth";
+          auth_basic_user_file   /usr/local/nginx/conf/htpasswd;
+      }
+      #+END_EXAMPLE

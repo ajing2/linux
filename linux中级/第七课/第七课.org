@@ -43,3 +43,19 @@
     [[file:image/nginx-conf-png.png]]
 
     [[file:nginx配置文件详解.org][nginx配置文件详解]]
+*** nginx的location
+
+    nginx下面跑discuz的问题, 权限问题
+
+    [[file:nginx中location的规则.org][nginx中location的规则]]
+*** nginx的负载均衡模块upstrem和反向代理模块proxy
+
+    [[file:nginx的负载均衡和反向代理.org][nginx的负载均衡和反向代理]]
+
+
+    proxy容易出错的地方[[file:nginx中proxy问题.org][nginx中proxy问题]]
+*** [[file:nginx的用户认证.org][nginx的用户认证]]
+*** [[file:nginx的301与302如何配置.org][nginx的域名跳转]]
+
+    搞清302(临时)和301的区别
+*** [[file:nginx的URL的重写规则.org][nginx的url重写]]
