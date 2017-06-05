@@ -1,0 +1,36 @@
+*** nginx防盗链
+
+    在 nginx.conf中的server部分中添加如下代码:
+
+    #+BEGIN_EXAMPLE
+    location ~* ^.+\.(gif|jpg|png|swf|flv|rar|zip|doc|pdf|gz|bz2|jpeg|bmp|xls)$ {   
+        // 对这些域名的网站不进行防盗链;
+        valid_referers none blocked server_names  *.taobao.com *.baidu.com *.google.com *.google.cn *.soso.com ;
+        if ($invalid_referer) {
+            # return 403;
+            rewrite ^/ http://www.example.com/nophoto.gif;
+        }
+    }
+    #+END_EXAMPLE
+    说明：如果前面配置中已经加了
+    #+BEGIN_EXAMPLE
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$ {
+        expires    30d;
+        access_log off;
+    }
+    #+END_EXAMPLE
+    那么会和这一部分重复，这时候上面的生效，所以，我们需要把两者合在一起. 如下:
+    #+BEGIN_EXAMPLE
+    location ~* ^.+\.(gif|jpg|png|swf|flv|rar|zip|doc|pdf|gz|bz2|jpeg|bmp|xls)$ {
+        expires 30d;
+        // 对这些域名的网站不进行盗链;
+        valid_referers none blocked server_names  *.taobao.com *.baidu.com *.google.com *.google.cn *.soso.com ;
+
+        if ($invalid_referer) {
+        # return 403;
+            rewrite ^/ http://www.example.com/nophoto.gif;
+        }
+
+        access_log off;
+    }
+    #+END_EXAMPLE
