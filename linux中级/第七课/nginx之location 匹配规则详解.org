@@ -1,0 +1,143 @@
+*** nginx之location 匹配规则详解
+**** 关于一些对location认识的误区
+
+     - location 的匹配顺序是“先匹配正则, 再匹配普通”;
+
+       矫正:  location 的匹配顺序其实是“先匹配普通, 再匹配正则”. 我这么说, 大家一定会反驳我, 因为按“先匹配普通, 再匹配正则”解释不了大家平时习惯的按“先匹配正则, 再匹配普通”的实践经验. 这里我只能暂时解释下, 造成这种误解的原因是: 正则匹配会覆盖普通匹配(实际的规则, 比这复杂, 后面会详细解释);
+
+     -  location 的执行逻辑跟 location 的编辑顺序无关
+
+	矫正: 这句话不全对, “普通 location ”的匹配规则是“最大前缀”, 因此“普通 location ”的确与 location 编辑顺序无关;但是“正则 location ”的匹配规则是“顺序匹配, 且只要匹配到第一个就停止后面的匹配”;“普通location ”与“正则 location ”之间的匹配顺序是？先匹配普通 location , 再“考虑”匹配正则 location . 注意这里的“考虑”是“可能”的意思, 也就是说匹配完“普通 location ”后, 有的时候需要继续匹配“正则 location ”, 有的时候则不需要继续匹配“正则 location ”. 两种情况下, 不需要继续匹配正则 location: (1)当普通 location 前面指定了“ ^~ ”, 特别告诉 Nginx 本条普通 location 一旦匹配上, 则不需要继续正则匹配;(2)当普通location 恰好严格匹配上, 不是最大前缀匹配, 则不再继续匹配正则;
+
+
+     *总结一句话:  “正则 location 匹配让步普通 location 的严格精确匹配结果;但覆盖普通 location 的最大前缀匹配结果”*
+**** [[http://nginx.org/en/docs/http/ngx_http_core_module.html#location][官方文档解释]]
+
+     #+BEGIN_QUOTE
+     location
+
+     syntax: location [=|~|~*|^~|@] /uri/ { … }
+     
+     default: no
+     
+     context: server
+     
+     This directive allows different configurations depending on the URI.
+
+     (译者注: 
+     1. different configurations depending on the URI 说的就是语法格式: location [=|~|~*|^~|@] /uri/ { … } , 
+     依据不同的前缀“= ”, “^~ ”, “~ ”, “~* ”和不带任何前缀的(因为[A] 表示可选, 可以不要的), 表达不同的含义, 
+     简单的说尽管location 的/uri/ 配置一样, 但前缀不一样, 表达的是不同的指令含义;
+     2. 查询字符串不在URI范围内. 例如: /films.htm?fid=123 的URI 是/films.htm.)
+
+     It can be configured using both literal strings and regular expressions. To use regular expressions, you must use a prefix:
+
+     1. “~” for case sensitive matching
+     2. “~*” for case insensitive matching
+
+
+     译文: 上文讲到location /uri/ 可通过使用不同的前缀, 表达不同的含义;
+     对这些不同前缀, 分下类, 就2 大类: 
+     正则location , 英文说法是location using regular expressions 和普通location, 英文说法是location using literal strings;
+     那么其中“~”和“~*”前缀表示正则location , “~ ”区分大小写, “~* ”不区分大小写;其他前缀(包括: “=”, “^~ ”和“@ ”)和无任何前缀的都属于普通location;
+
+     To determine which location directive matches a particular query, the literal strings are checked first.
+
+     译文: 对于一个特定的 HTTP 请求( a particular query ),  nginx 应该匹配哪个 location 块的指令呢(注意: 我们在 nginx.conf 配置文件里面一般会定义多个 location 的)？匹配 规则是: 先匹配普通location (再匹配正则表达式). 注意: 官方文档这句话就明确说了, 先普通location , 而不是有些同学的误区“先匹配正则location ”;
+
+     Literal strings match the beginning portion of the query – the most specific match will be used.
+
+     前面说了“普通location ”与“正则location ”之间的匹配规则是: 先匹配普通location , 再匹配正则location . 那么, “普通location ”内部(普通location 与普通location )是如何匹配的呢？简单的说: 最大前缀匹配. 原文: 1、match the beginning portion of the query (说的是匹配URI 的前缀部分beginning portion ); 2 、the most specific match will be used (因为location 不是“严格匹配”, 而是“前缀匹配”, 就会产生一个HTTP 请求, 可以“前缀匹配”到多个普通location , 例如: location /prefix/mid/ {} 和location /prefix/ {} , 对于HTTP 请求/prefix/mid/t.html , 前缀匹配的话两个location 都满足, 选哪个？原则是: the most specific match , 于是选的是location /prefix/mid/ {} );
+
+     Afterwards, regular expressions are checked in the order defined in the configuration file. The first regular expression to match the query will stop the search.
+
+     这段话说了两层意思, 第一层是: “Afterwards, regular expressions are checked ”, 意思是普通location 先匹配, 而且选择了最大前缀匹配后, 不能就停止后面的匹配, 最大前缀匹配只是一个临时的结果, nginx 还需要继续检查正则location (但至于最终才能普通location 的最大前缀匹配, 还是正则location 的匹配, 截止当前的内容还没讲, 但后面会讲). 第二层是“regular expressions are checked in the order defined in the configuration file. The first regular expression to match the query will stop the search. ”, 意思是说“正则location ”与“正则location”内部的匹配规则是: 按照正则location 在配置文件中的物理顺序(编辑顺序)匹配的(这句话就说明location 并不是一定跟顺序无关, 只是普通location 与顺序无关, 正则location 还是与顺序有关的), 并且只要匹配到一条正则location , 就不再考虑后面的(这与“普通location ”与“正则location ”之间的规则不一样, “普通location ”与“正则location ”之间的规则是: 选择出“普通location ”的最大前缀匹配结果后, 还需要继续搜索正则location );
+
+     If no regular expression matches are found, the result from the literal string search is used.
+
+     这句话回答了“普通location ”的最大前缀匹配结果与继续搜索的“正则location ”匹配结果的决策关系. 如果继续搜索的“正则location ”也有匹配上的, 那么“正则location ”覆盖 “普通location ”的最大前缀匹配(因为有这个覆盖关系, 所以造成有些同学以为正则location 先于普通location 执行的错误理解);但是如果“正则location ”没有能匹配上, 那么就用“普通location ”的最大前缀匹配结果;
+
+     For case insensitive operating systems, like Mac OS X or Windows with Cygwin, literal string matching is done in a case insensitive way (0.7.7). However, comparison is limited to single-byte locale’s only.
+
+     Regular expression may contain captures (0.7.40), which can then be used in other directives.
+
+     It is possible to disable regular expression checks after literal string matching by using “^~” prefix.If the most specific match literal location has this prefix: regular expressions aren’t checked.
+
+     通常的规则是, 匹配完了“普通location ”指令, 还需要继续匹配“正则location ”, 但是你也可以告诉Nginx : 匹配到了“普通location ”后, 不再需要继续匹配“正则location ”了, 要做到这一点只要在“普通location ”前面加上“^~ ”符号(^ 表示“非”, ~ 表示“正则”, 字符意思是: 不要继续匹配正则);
+
+     By using the “=” prefix we define the exact match between request URI and location. When matched search stops immediately. E.g., if the request “/” occurs frequently, using “location = /” will speed up processing of this request a bit as search will stop after first comparison.
+
+     除了上文的“^~ ”可以阻止继续搜索正则location 外, 你还可以加“= ”. 那么如果“^~ ”和“= ”都能阻止继续搜索正则location 的话, 那它们之间有什么区别呢？区别很简单, 共同点是它们都能阻止继续搜索正则location , 不同点是“^~ ”依然遵守“最大前缀”匹配规则, 然而“= ”不是“最大前缀”, 而是必须是严格匹配(exact match );
+
+     这里顺便讲下“location / {} ”和“location = / {} ”的区别, “location / {} ”遵守普通location 的最大前缀匹配, 由于任何URI 都必然以“/ ”根开头, 所以对于一个URI , 如果有更specific 的匹配, 那自然是选这个更specific 的, 如果没有, “/ ”一定能为这个URI 垫背(至少能匹配到“/ ”), 也就是说“location / {} ”有点默认配置的味道, 其他更specific的配置能覆盖overwrite 这个默认配置(这也是为什么我们总能看到location / {} 这个配置的一个很重要的原因). 而“location = / {} ”遵守的是“严格精确匹配exact match ”, 也就是只能匹配 http://host:port/ 请求, 同时会禁止继续搜索正则location . 因此如果我们只想对“GET / ”请求配置作用指令, 那么我们可以选“location = / {} ”这样能减少正则location 的搜索, 因此效率比“location / {}” 高(注: 前提是我们的目的仅仅只想对“GET / ”起作用);
+
+     On exact match with literal location without “=” or “^~” prefixes search is also immediately terminated.
+
+     前面我们说了, 普通location 匹配完后, 还会继续匹配正则location ;但是nginx 允许你阻止这种行为, 方法很简单, 只需要在普通location 前加“^~ ”或“= ”. 但其实还有一种“隐含”的方式来阻止正则location 的搜索, 这种隐含的方式就是: 当“最大前缀”匹配恰好就是一个“严格精确(exact match )”匹配, 照样会停止后面的搜索. 原文字面意思是: 只要遇到“精确匹配exact match ”, 即使普通location 没有带“= ”或“^~ ”前缀, 也一样会终止后面的匹配;
+
+     先举例解释下, 后面例题会用实践告诉大家. 假设当前配置是: location /exact/match/test.html { 配置指令块1}, location /prefix/ { 配置指令块2} 和 location ~ \.html$ { 配置指令块3} , 如果我们请求 GET /prefix/index.html , 则会被匹配到指令块3 , 因为普通location /prefix/ 依据最大匹配原则能匹配当前请求, 但是会被后面的正则location 覆盖;当请求GET /exact/match/test.html , 会匹配到指令块1 , 因为这个是普通location 的exact match , 会禁止继续搜索正则location;
+
+     To summarize, the order in which directives are checked is as follows:
+
+       1. Directives with the “=” prefix that match the query exactly. If found, searching stops.
+       2. All remaining directives with conventional strings. If this match used the “^~” prefix, searching stops.
+       3. Regular expressions, in the order they are defined in the configuration file.
+       4. If #3 yielded a match, that result is used. Otherwise, the match from #2 is used.
+
+
+     这个顺序没必要再过多解释了. 但我想用自己的话概括下上面的意思“正则 location 匹配让步普通location 的严格精确匹配结果;但覆盖普通 location 的最大前缀匹配结果”;
+
+     It is important to know that nginx does the comparison against decoded URIs. For example, if you wish to match “/images/ /test”, then you must use “/images/ /test” to determine the location.
+
+     在浏览器上显示的URL 一般都会进行URLEncode , 例如“空格”会被编码为 , 但是Nginx 的URL 的匹配都是针对URLDecode 之后的. 也就是说, 如果你要匹配“/images/ /test ”, 你写location 的时候匹配目标应该是: “/images/ /test ”;
+
+     #+BEGIN_EXAMPLE
+     Example:
+     location = / {
+     # matches the query / only.
+     [ configuration A ]
+     }
+     location / {
+     # matches any query, since all queries begin with /, but regular
+     # expressions and any longer conventional blocks will be
+     # matched first.
+
+     [ configuration B ]
+     }
+     location ^~ /images/ {
+     # matches any query beginning with /images/ and halts searching,
+     # so regular expressions will not be checked.
+
+     [ configuration C ]
+     }
+     location ~* \.(gif|jpg|jpeg)$ {
+     # matches any request ending in gif, jpg, or jpeg. However, all
+     # requests to the /images/ directory will be handled by
+     # Configuration C.
+
+     [ configuration D ]
+     }
+     #+END_EXAMPLE
+
+     上述这4 个location 的配置, 没什么好解释的, 唯一需要说明的是location / {[configuration B]} , 原文的注释严格来说是错误的, 但我相信原文作者是了解规则的, 只是文字描述上简化了下, 但这个简化容易给读者造成“误解: 先检查正则location , 再检查普通location ”. 原文: “matches any query, since all queries begin with /, butregular expressions and any longer conventional blocks will be matched first. ”大意是说: “location / {} 能够匹配所有HTTP 请求, 因为任何HTTP 请求都必然是以‘/ ’开始的(这半句没有错误). 但是, 正则location 和其他任何比‘/ ’更长的普通location (location / {} 是普通location 里面最短的, 因此其他任何普通location 都会比它更长, 当然location = / {} 和 location ^~ / {} 是一样长的)会优先匹配(matched first ). ” 原文作者说“ but regular expressions will be matched first. ”应该只是想说正则 location 会覆盖这里的 location / {} , 但依然是普通location / {} 先于正则 location 匹配, 接着再正则 location 匹配;但其他更长的普通 location ( any longer conventional blocks )的确会先于 location / {} 匹配;
+
+     #+BEGIN_EXAMPLE
+     Example requests:
+     - / -> configuration A
+     - /documents/document.html -> configuration B
+     - /images/1.gif -> configuration C
+     - /documents/1.jpg -> configuration D
+     #+END_EXAMPLE
+
+     Note that you could define these 4 configurations in any order and the results would remain the same.
+
+     需要提醒下: 这里说“in any order ”和“… remain the same ”是因为上面只有一个正则location . 文章前面已经说了正则location 的匹配是跟编辑顺序有关系的;
+
+     While nested locations are allowed by the configuration file parser, their use is discouraged and may produce unexpected results.
+
+     实际上 nginx 的配置文件解析程序是允许 location 嵌套定义的( location / { location /uri/ {} } ). 但是我们平时却很少看见这样的配置, 那是因为 nginx 官方并不建议大家这么做, 因为这样会导致很多意想不到的后果;
+
+     The prefix “@” specifies a named location. Such locations are not used during normal processing of requests, they are intended only to process internally redirected requests (see error_page ,try_files ).
+
+     文章开始说了location 的语法中, 可以有“= ”, “^~ ”, “~ ”和“~* ”前缀, 或者干脆没有任何前缀, 还有“@ ”前缀, 但是后面的分析我们始终没有谈到“@ ”前缀. 文章最后点内容, 介绍了“＠”的用途: “@ ”是用来定义“Named Location ”的(你可以理解为独立于“普通location (location using literal strings )”和“正则location (location using regular expressions )”之外的第三种类型), 这种“Named Location ”不是用来处理普通的HTTP 请求的, 它是专门用来处理“内部重定向(internally redirected )”请求的. 注意: 这里说的“内部重定向(internally redirected )”或许说成“forward ”会好点, 以为内internally redirected 是不需要跟浏览器交互的, 纯粹是服务端的一个转发行为;
+     #+END_QUOTE

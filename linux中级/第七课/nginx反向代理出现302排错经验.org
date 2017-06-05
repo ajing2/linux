@@ -1,0 +1,17 @@
+#+TITLE: nginx反向代理出现302排错经验
+
+nginx/conf/domains/dmscache.com
+
+[[file:image/nginx-proxy-reverse1.png]]
+
+[[file:image/nginx-proxy-reverse2.png]]
+
+[[file:image/nginx-proxy-reverse3.png]]
+
+基于ip进行访问的，先找server_name为ip的进行匹配，如果匹配到，没有locaiton就会进行报错;
+
+nginx匹配规则有一个默认的顺序就是：先来后到，前面的先匹配;
+
+[[file:image/nginx-proxy-reverse4.png]]
+
+这个是nginx.conf的配置文件，哪个有ip，哪个优先进行匹配;

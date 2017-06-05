@@ -43,3 +43,41 @@
     [[file:image/nginx-conf-png.png]]
 
     [[file:nginx配置文件详解.org][nginx配置文件详解]]
+*** nginx的location
+
+    nginx下面跑discuz的问题, 权限问题
+
+    [[file:nginx中location的规则.org][nginx中location的规则]]
+*** nginx的负载均衡模块upstrem和反向代理模块proxy
+
+    [[file:nginx的负载均衡和反向代理.org][nginx的负载均衡和反向代理]]
+
+
+    proxy容易出错的地方[[file:nginx中proxy问题.org][nginx中proxy问题]]
+*** [[file:nginx的用户认证.org][nginx的用户认证]]
+*** [[file:nginx的301与302如何配置.org][nginx的域名跳转]]
+
+    搞清302(临时)和301的区别
+*** [[file:nginx的URL的重写规则.org][nginx的url重写]]
+*** [[file:nginx的日志.org][nginx的日志]]
+
+    a. 日志的切割
+
+    b. 不记录指定文件类型日志
+
+        access_log off 或者 > /dev/null
+
+    c. mv以后为什么reload呢?
+*** [[file:nginx的访问控制.org][nginx的访问控制]]
+
+    nginx的匹配规则和apache的区别:
+
+    - nginx的先匹配，先执行，后面的不匹配
+    - apache所有的都匹配一遍
+*** [[file:nginx防盗链.org][nginx防盗链]]
+*** nginx的内核参数的优化
+
+    - [[file:nginx内核参数优化.org][nginx内核参数优化]]
+    - [[http://lingjing.blog.51cto.com/9190942/1682173][ulimit -a详解]] 这篇直接链接到了51CTO上
+*** nginx的status
+    

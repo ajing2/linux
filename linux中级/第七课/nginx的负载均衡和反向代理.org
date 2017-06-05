@@ -1,0 +1,73 @@
+*** nginx的负载均衡和反向代理
+
+    - 负载均衡模块upstream
+
+      [[file:image/nginx-upstream.png]]
+
+    - nginx的负载均衡的算法
+
+      1. 轮询（默认）
+
+      2. weight 权重轮询
+
+      3. ip_hash  每个请求按访问ip的hash结果分配，这样来自同一个ip的请求固定到后台的一段服务器上，有效的解决动态网页存在的session共享问题;
+
+      4. fair 根据服务器的相应时间短来进行负载，需要安装nginx的upstream_fair模块;
+
+      5. url_hash 根据url的hash结果分配，同一个url定向到同一后台服务器，提高缓存服务器的效率，需要安装nginx的hash包;
+
+
+    注意: 当负载均衡的算法是ip_hash时，后端服务器的在负载均衡的调度中的状态不是weight和backup
+
+    例如:
+    #+BEGIN_EXAMPLE
+    upstream bakend {  
+        ip_hash;  
+        server 192.168.0.14:88;  
+        server 192.168.0.15:80;  
+    }  
+    #+END_EXAMPLE
+
+    - 常用到的状态有
+      #+BEGIN_EXAMPLE
+      down， 表示server暂时不参与负载均衡
+      backup 备份机器
+      max_fails 允许请求失败的次数，默认为1，当超过最大次数是，返回proxy_next_upstream模块定义的错误
+      fail_timeout：经历了max_fails次失败后， 暂停服务的时间，max_fails可以和fail_timeout一起使用
+      #+END_EXAMPLE
+      *nginx对后端服务器的检查能力较弱，仅限于端口检查！*
+    - 反向代理模块proxy
+
+      [[file:image/nginx-proxy.png]]
+
+      =proxy_pass: http:url1 要和upstream模块的url1对应；否则没法实现=
+
+      expires 过期时间:0为不过期
+
+      - http proxy模块中的相关指令
+
+	- =proxy_next_upstream=
+
+	  语法： proxy_next_upstream [error|timeout|invalid_header|http_500|http_502|http_503|http_504|http_404|off]
+
+	  确定在何种情况下请求将转发到下一个服务器。转发请求只发生在没有数据传递到客户端的过程中;
+
+        - =max_fails=
+
+          允许请求失败的次数默认为1。当超过最大次数时，返回proxy_next_upstream 模块定义的错误;
+
+	- =proxy_connect_timeout=
+
+	  后端服务器连接的超时时间_发起握手等候响应超时时间
+
+	- =proxy_read_timeout=
+
+	  连接成功后_等候后端服务器响应时间_其实已经进入后端的排队之中等候处理（也可以说是后端服务器处理请求的时间）
+
+	- =proxy_send_timeout=
+
+	  后端服务器数据回传时间_就是在规定时间之内后端服务器必须传完所有的数据
+
+	- =proxy_pass=
+
+	  这个指令设置被代理服务器的地址和被映射的URI

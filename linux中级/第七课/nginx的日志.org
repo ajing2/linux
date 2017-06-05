@@ -1,0 +1,65 @@
+*** nginx的日志
+
+    - 编写脚本 =vim /usr/local/sbin/logrotate.sh= 加入:
+
+      #+BEGIN_EXAMPLE
+      #! /bin/bash
+      datedir=`date +%Y%m%d`
+      /bin/mkdir  /home/logs/$datedir >/dev/null 2>&1
+      /bin/mv /home/logs/*.log /home/logs/$datedir
+      /bin/kill -HUP `cat /var/run/nginx.pid`
+      #+END_EXAMPLE
+
+    - 日志格式 accesss的日志
+
+      #+BEGIN_EXAMPLE
+      log_format main '$remote_addr - $remote_user [$time_local] $request '
+                    '"$status" $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+      log_format main1 '$proxy_add_x_forwarded_for - $remote_user [$time_local] ' 
+                      '"$request" $status $body_bytes_sent '
+                      '"$http_referer" "$http_user_agent"';
+                      //此日志格式为, ip不仅记录代理的ip还记录远程客户端真实IP;
+      #+END_EXAMPLE
+
+      - 日志格式说明
+
+	#+BEGIN_EXAMPLE
+	1.  $remote_addr与$http_x_forwarded_for 用以记录客户端的ip地址;
+	2.  $remote_user:用来记录客户端用户名称;
+	3.  $time_local:用来记录访问时间与时区;
+	4.  $request:用来记录请求的url与http协议;
+	5.  $status:用来记录请求状态;成功是200, 
+	6.  $bytes_sent:记录发送客户端的总字节数;
+	7.  $http_referer:用来记录从那个页面链接访问过来的;
+	8.  $http_user_agent:记录客户端浏览器的相关信息;
+	9.  $connection 连接的序列号;
+	10. $connection_requests 当前通过一个连接获得的请求数量;
+	11. $msec 日志写入时间。单位为秒, 精度是毫秒;
+	12. $pipe 如果请求是通过HTTP流水线(pipelined)发送, pipe值为“p”, 否则为“. ”;
+	13. $request_length 请求的长度（包括请求行, 请求头和请求正文）;
+	#+END_EXAMPLE
+
+	[[file:image/nginx-log-explain1.png]]
+
+	[[file:image/nginx-log-explain2.png]]
+
+      - 下面介绍 *request_time* 和 *upstream_response_time* 的区别
+
+	- request_time
+
+	  官网描述：request processing time in seconds with a milliseconds resolution; time elapsed between the first bytes were read from the client and the log write after the last bytes were sent to the client;
+    
+          指的就是从接受用户请求的第一个字节到发送完响应数据的时间, 即包括接收请求数据时间、程序响应时间、输出响应数据时间;
+
+	- upstream_response_time
+
+	  官网描述：keeps times of responses obtained from upstream servers; times are kept in seconds with a milliseconds resolution. Several response times are separated by commas and colons like addresses in the $upstream_addr variable;
+
+	  是指从Nginx向后端（php-cgi)建立连接开始到接受完数据然后关闭连接为止的时间;
+
+
+      从上面的描述可以看出, *$request_time* 肯定比 *$upstream_response_time* 值大, 特别是使用POST方式传递参数时, 因为Nginx会把request body缓存住, 接受完毕后才会把数据一起发给后端。所以如果用户网络较差, 或者传递数据较大时, $request_time会比$upstream_response_time大很多;
+
+      所以如果使用nginx的accesslog查看php程序中哪些接口比较慢的话, 记得在log_format中加入$upstream_response_time;

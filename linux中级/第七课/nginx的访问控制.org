@@ -1,0 +1,51 @@
+*** nginx的访问控制
+
+    - 限制只让某个ip访问
+
+      #+BEGIN_EXAMPLE
+      allow          219.232.244.234;
+      deny           all;
+      #+END_EXAMPLE
+
+    - 禁止某个IP或者IP段访问站点的设置方法
+      
+      首先建立下面的配置文件放在nginx的conf目录下面,命名为deny.ip
+
+      #+BEGIN_EXAMPLE
+      cat  deny.ip
+      deny 192.168.1.11;
+      deny 192.168.1.123;
+      deny 10.0.1.0/24;
+      #+END_EXAMPLE
+
+      在nginx的配置文件nginx.conf中加入: =include deny.ip;=
+
+      重启一下nginx的服务: =/usr/local/nginx/sbin/nginx reload= 就可以生效了;
+
+      deny.ip 的格式中也可以用deny all;
+
+      如果你想实现这样的应用，除了几个IP外，其他全部拒绝,那需要你在deny.ip中这样写:
+
+      #+BEGIN_EXAMPLE
+      allow 1.1.1.1; 
+      allow 1.1.1.2;
+      deny all;
+      #+END_EXAMPLE
+
+    - 有时候会根据目录来限制php解析:
+      #+BEGIN_EXAMPLE
+      location ~ .*(diy|template|attachments|forumdata|attachment|image)/.*\.php$ 
+      {
+          deny all;
+      }
+      #+END_EXAMPLE
+
+    - 使用 user_agent 控制客户端访问
+      #+BEGIN_EXAMPLE
+      location / {
+          if ($http_user_agent ~ 'bingbot/2.0|MJ12bot/v1.4.2|Spider/3.0|YoudaoBot|Tomato|Gecko/20100315'){
+              return 403;
+          }
+      }
+      #+END_EXAMPLE
+      没用的蜘蛛都删除, 有用的才保留;
