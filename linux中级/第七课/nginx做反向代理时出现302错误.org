@@ -1,0 +1,9 @@
+#+TITLE: nginx做反向代理时出现302错误
+
+现象: nginx在使用非80端口做反向代理时，浏览器访问发现返回302错误
+
+原因: proxy.conf文件中定义的proxy_set_header Host $host;
+
+意思是nginx接收到浏览器请求后修改请求头中的host信息，然后再把请求转发给后端真实服务节点，服务节点响应后把返回信息传送给nginx，而由于nginx是使用的非80端口做代理，后端服务节点却依然以为nginx是80端口，所以响应信息没有正确的返回给nginx的非80端口;
+
+解决: 修改为proxy_set_header Host $host: $server_port;即可，这样就把请求头中的host修改为nginx的非80端口了，后端服务节点就知道响应应该返回的正确nginx代理端口;

@@ -78,3 +78,6 @@
 *** nginx的内核参数的优化
 
     - [[file:nginx内核参数优化.org][nginx内核参数优化]]
+    - [[http://lingjing.blog.51cto.com/9190942/1682173][ulimit -a详解]] 这篇直接链接到了51CTO上
+*** nginx的status
+    
