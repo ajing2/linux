@@ -1,0 +1,80 @@
+*** nginx查看并发连接数status
+
+    通过查看Nginx的并发连接，我们可以更清除的知道网站的负载情况。Nginx并发查看有两种方法（之所以这么说，是因为笔者只知道两种），一种是通过web界面，一种是通过命令，web查看要比命令查看显示的结果精确一些。下面介绍这两种查看方法
+
+    - 通过浏览器查看
+
+      通过web界面查看时Nginx需要开启status模块，也就是安装Nginx时加上 --with-http_stub_status_module 然后配置Nginx.conf，在server点里面加入如下内容
+      #+BEGIN_EXAMPLE
+      location /status {
+          stub_status on;
+          access_log /usr/local/nginx/logs/status.log;
+          auth_basic "NginxStatus";
+      }
+      #+END_EXAMPLE
+      配置完后重新启动Nginx后我们可以通过浏览器访问http://localhost/status 查看，如下图:
+
+      [[file:image/nginx-status.jpeg]]
+
+      解析:
+      #+BEGIN_QUOTE
+      Active connections //当前 Nginx 正处理的活动连接数。
+
+      server accepts handledrequests //总共处理了8 个连接 , 成功创建 8 次握手,总共处理了500个请求。
+
+      Reading //nginx 读取到客户端的 Header 信息数。
+
+      Writing //nginx 返回给客户端的 Header 信息数。
+
+      Waiting //开启 keep-alive 的情况下，这个值等于 active - (reading + writing)，意思就是 Nginx 已经处理完正在等候下一次请求指令的驻留连接
+      #+END_QUOTE
+
+    - 通过命令查看
+
+      #+BEGIN_EXAMPLE
+      #netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
+
+      TIME_WAIT 17
+      ESTABLISHED 3254
+      LAST_ACK 236
+      FIN_WAIT_1 648
+      FIN_WAIT_2 581
+      CLOSING 7
+      CLOSE_WAIT 4916
+      #+END_EXAMPLE
+
+      网络连接状态详解:
+
+      共有12中可能的状态，前面11种是按照TCP连接建立的三次握手和TCP连接断开的四次挥手过程来描述的。
+
+      #+BEGIN_QUOTE
+      LISTEN:首先服务端需要打开一个socket进行监听，状态为LISTEN./* The socket is listening for incoming connections. 侦听来自远方TCP端口的连接请求 */
+
+      SYN_SENT:客户端通过应用程序调用connect进行active open.于是客户端tcp发送一个SYN以请求建立一个连接.之后状态置为SYN_SENT./*The socket is actively attempting to establish a connection. 在发送连接请求后等待匹配的连接请求 */
+
+      SYN_RECV:服务端应发出ACK确认客户端的 SYN,同时自己向客户端发送一个SYN. 之后状态置为SYN_RECV/* A connection request has been received from the network. 在收到和发送一个连接请求后等待对连接请求的确认 */
+
+      ESTABLISHED: 代表一个打开的连接，双方可以进行或已经在数据交互了。/* The socket has an established connection. 代表一个打开的连接，数据可以传送给用户 */
+
+      FIN_WAIT1:主动关闭(active close)端应用程序调用close，于是其TCP发出FIN请求主动关闭连接，之后进入FIN_WAIT1状态./* The socket is closed, and the connection is shutting down. 等待远程TCP的连接中断请求，或先前的连接中断请求的确认 */
+
+      CLOSE_WAIT:被动关闭(passive close)端TCP接到FIN后，就发出ACK以回应FIN请求(它的接收也作为文件结束符传递给上层应用程序),并进入CLOSE_WAIT./* The remote end has shut down, waiting for the socket to close. 等待从本地用户发来的连接中断请求 */
+
+      FIN_WAIT2:主动关闭端接到ACK后，就进入了 FIN-WAIT-2 ./* Connection is closed, and the socket is waiting for a shutdown from the remote end. 从远程TCP等待连接中断请求 */
+
+      LAST_ACK:被动关闭端一段时间后，接收到文件结束符的应用程序将调用CLOSE关闭连接。这导致它的TCP也发送一个 FIN,等待对方的ACK.就进入了LAST-ACK ./* The remote end has shut down, and the socket is closed. Waiting for acknowledgement. 等待原来发向远程TCP的连接中断请求的确认 */
+
+      TIME_WAIT:在主动关闭端接收到FIN后，TCP 就发送ACK包，并进入TIME-WAIT状态。/* The socket is waiting after close to handle packets still in the network.等待足够的时间以确保远程TCP接收到连接中断请求的确认 */
+
+      CLOSING: 比较少见./* Both sockets are shut down but we still don’t have all our data sent. 等待远程TCP对连接中断的确认 */
+
+      CLOSED : 被动关闭端在接受到ACK包后，就进入了closed的状态。连接结束./* The socket is not being used. 没有任何连接状态 */
+
+      UNKNOWN: 未知的Socket状态。/* The state of the socket is unknown. */
+      
+      SYN: (同步序列编号,Synchronize Sequence Numbers)该标志仅在三次握手建立TCP连接时有效。表示一个新的TCP连接请求。
+
+      ACK: (确认编号,Acknowledgement Number)是对TCP请求的确认标志,同时提示对端系统已经成功接收所有数据。
+
+      FIN: (结束标志,FINish)用来结束一个TCP回话.但对应端口仍处于开放状态,准备接收后续数据
+      #+END_QUOTE
