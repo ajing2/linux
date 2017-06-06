@@ -81,3 +81,4 @@
     - [[http://lingjing.blog.51cto.com/9190942/1682173][ulimit -a详解]] 这篇直接链接到了51CTO上
 *** nginx的status
     
+    [[file:nginx查看并发连接数status.org][nginx查看并发连接数status]]
