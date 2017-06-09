@@ -1,0 +1,277 @@
+*** squid专题
+
+**** 原理(squi的作用，正向代理，反向代理，两个区别)
+
+     代理服务器是介于浏览器和Web服务器之间的另一台服务器。有了该服务器之后，浏览器发出的信息会先送到代理服务器，由代理服务器来取回网页内容并传送给客户的浏览器;
+
+     Squid代理服务器是一个自带缓存Internet数据的软件，可以代理HTTP、FTP、GOPHER、SSL和WAIS等协议，提高用户下载页面的速度，并设置过滤。使用Squid可以通过访问控制特性来灵活的控制用户访问时间、站点等限制;
+
+     *正向代理* ，squid后面是客户端，客户端上网要通过Squid去上；用在企业的办公环境中，员工上网需要通过squid代理来上网，这样可以节省网络带宽资源，保障内网安全;
+
+     *反向代理* ，squid后面是服务器，服务器返回给用户数据需要走squid. 用来作为网站静态项(图片、html、流媒体、js、css等)的缓存服务器，节省带宽，减轻服务器的I/O压力，它用于网站架构中;
+
+
+     和nginx的不同异步代理和同步代理的区别: [[http://www.cnblogs.com/yihang/archive/2010/12/19/1910363.html]]
+
+     作为缓存服务器的优势:
+
+     [[file:image/squid-compare-with-others.png]]
+
+
+     squid常用命令:
+     #+BEGIN_EXAMPLE
+     squid -z 		 	#初始化缓存空间，生成所有缓存目录
+     squid  start		#启动
+     squid -k restart		#重启
+     squid -k shutdown	 	#停止
+     squid -k rec		#检查配置文件
+     squid -k rec		#重新载入配置文件
+     squid -k rotate 	 	#轮循日志
+     squid			#查看版本以及编译参数
+     squidclient -p 3128 mgr:info |grep Hits #查看命中率，端口看你自己改的那个
+     谷歌浏览器 ctl +shift +c  	#查看head头，是否命中缓存
+     #+END_EXAMPLE
+
+**** 搭建squid正向代理
+
+     - yum install -y squid (官网:http://www.squid-cache.org/)
+     - vim /etc/squid/squid.conf 加入如下配置:
+       #+BEGIN_EXAMPLE
+       http_port 3128
+       #定义服务监听端口
+       acl manager proto cache_object
+       acl localhost src 127.0.0.1/32 ::1
+       acl to_localhost dst 127.0.0.0/8 0.0.0.0/32 ::1
+       acl localnet src 10.0.0.0/8     # RFC1918 possible internal network
+       acl localnet src 172.16.0.0/12  # RFC1918 possible internal network
+       acl localnet src 192.168.0.0/16 # RFC1918 possible internal network
+       acl SSL_ports port 443
+       acl Safe_ports port 80 8080         # http
+       acl Safe_ports port 21          # ftp
+       acl Safe_ports port 443         # https
+       acl CONNECT method CONNECT
+       http_access allow manager localhost
+       http_access deny manager
+       http_access deny !Safe_ports
+       http_access deny CONNECT !SSL_ports
+       http_access allow localnet
+       http_access allow localhost
+       http_access allow all
+       cache_dir aufs /data/cache 1024 16 256    //缓存目录位置，大小1024M，一级子目录16个，二级子目录256个
+       cache_mem 128 MB    // 启动内存作为缓存，加快速度（注意这启动的内存要比缓存要小）
+       coredump_dir /var/spool/squid
+       refresh_pattern ^ftp:           1440    20%     10080
+       refresh_pattern ^gopher:        1440    0%      1440
+       refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+       refresh_pattern \.(jpg|png|gif|mp3|xml) 1440    50%     2880    ignore-reload
+       refresh_pattern .               0       20%     4320
+       ### 到此结束
+       #+END_EXAMPLE
+     - mkdir /data/cache  #创建缓存目录
+     - chown -R squid:squid /data/cache  #更改权限
+     - squid -z  #初始化缓存目录，该步骤可以省略
+     - /etc/init.d/squid start #启动squid
+     - squid  -kcheck #可以检测配置文件是否有错
+
+       检测配置文件，报错：Could not determine this machines public hostname. Please configure one or set 'visible_hostname'.没有定义公共主机名，需要配置visible_hostname 可视化主机名；（squid出问题，会在浏览器显示squid的主机名）
+ 
+       在配置文件中加入：visible_hostname yonglinux 就不会报错；
+     - squid -k rec #可以重新加载配置
+     - service squid restart #重启squid服务, 默认监听端口3128
+     - 配置解析
+       #+BEGIN_QUOTE
+       cache_dir  ufs  /var/spool/squid  100 16 256       //缓存目录位置，大小100M，一级子目录16个，二级子目录256个
+
+       cache_mem 28 MB                         //启动内存作为缓存，加快速度（注意这启动的内存要比缓存要小）
+
+       refresh_pattern \.(jpg|png|gif|js|css|mp3|mp4) 1440 20% 2880 ignore-reload    //缓存的对象，忽略加载
+
+       visible_hostname cqmatch.com 配置visible_hostname    //代理时显示你的hostname，不设置该项，启动时会报错
+
+       acl  http proto HTTP
+
+       acl  good_domain dstdomain .lishiming.net .baidu.com .qq.com    //定义good_domian
+
+       http_access allow good_domain              //设置访问白名单
+
+       http_access deny good_domain              //设置黑名单
+       #+END_QUOTE
+     - 问题场景
+
+       - 限制某些域名不能通过代理访问，或者说只想代理某几个域名 =vim /etc/squid/squid.conf=
+
+	 #+BEGIN_EXAMPLE
+	 acl http proto HTTP 
+	 acl good_domain dstdomain .lishiming.net .aminglinux.com 
+	 http_access allow http good_domain 
+	 http_access deny http !good_domain 
+	 测 curl -xlocalhost:3128 www.百度.com  -I  #403
+         测 curl -xlocalhost:3128 www.aminglinux.com/bbs/forum.php  -I #200
+	 #+END_EXAMPLE
+
+**** 本机测试正向代理
+
+     测试：curl -xlocalhost:3128 www.qq.com
+
+     访问图片，测试缓存： curl -xlocalhost:3128 -I  http://image.songtaste.com/images/upload/multipic6/12709613521.jpg
+
+     以下是首次访问图片和第二次访问图片，注意看X_Cache有何不同。“MISS和HIT”
+
+     [[file:image/squid-access-first.org]]
+
+     [[file:image/squid-access-second.org]]
+
+**** 反向代理的步骤
+
+     改动上面的配置文件
+
+     =http_port 80 accel vhost vport=   #虚拟主机模式。80端口为要加速的请求端口，取消了缓存模式
+
+     #缓存就是 cache_peer ip   代理后端的ip和端口
+
+     cache_peer 123.125.119.147 parent 80 0 originserver name=a
+
+     #后端服务器IP、端口，name后面是要配置的域名，与cache_peer_domain 对应
+
+     cache_peer 61.135.169.125 parent 80 0 originserver name=b 
+
+     cache_peer_domain a www.qq.com 
+
+     cache_peer_domain b www.baidu.com 
+
+     之前增加的域名白/黑名单相关配置去掉
+
+     cache_peer 192.168.10.111 parent  80 0 originserver  #代理所有域名，cache_peer_domain  都可以省掉
+
+     测试：www.qq.com在配置文件中定义代理服务器，open.163.com没有定义
+
+     [[file:image/squid-reverse-proxy-1.png]]
+
+     [[file:image/squid-reverse-proxy-2.png]]
+
+**** 浏览器中代理的设置
+
+***** 测试正向代理
+
+      在浏览器internet属性 ----->局域网设置，使用代理服务器，IP填写你自己的代理服务器的IP和端口;
+
+      [[file:image/squid-test-proxy.png]]
+
+      在windows的浏览器上访问几个网页例如百度和qq，是否能够正常访问，然后查看/var/log/squid下的日志access.log  cache.log 可以看到访问记录和缓存记录;
+     
+      =squidclient -p 3128 mgr:info=  　＃查看缓存命中率
+
+      使用这个命令的前提是，你在你的squid.conf 中配置了相关的选项:
+      #+BEGIN_EXAMPLE
+      acl manager proto cache_object
+      http_access allow manager
+      #+END_EXAMPLE
+
+      [[file:image/squid-hit-rate-watch.org]]
+
+      通过谷歌浏览器查看head头:
+
+      方法如下，重复访问http://www.enterdesk.com/view/58/7688_0.html，然后用快捷键ctl +shift +c查看X_caxhe的HIT
+
+      [[file:image/squid-watch-head-by-chrome.png]]
+
+      [[file:image/squid-watch-hit-by-chrome.png]]
+
+***** 测试反向代理
+
+      到windows上修改C:\Windows\System32\drivers\etc/hosts
+      #+BEGIN_EXAMPLE
+      192.168.1.161 www.baidu.com www.qq.com  open.163.com www.xinli001.com
+      #+END_EXAMPLE
+      保存！！！
+
+      或者在浏览器internet属性 ----->局域网设置，使用代理服务器，IP填写你自己的代理服务器的IP和端口;
+
+      查看反向代理的状态和缓存服务，一样可以用正向代理的测试工具查看!!!
+
+      [[file:image/squid-reverse-proxy-test.png]]
+
+      浏览器访问www.qq.com
+
+      [[file:image/squid-access-qq.png]]
+
+      访问www.xinli001.com   出现错误这是因为这个网址没有在squid服务器上指定代理;
+
+      [[file:imagesquid-access-xinli001.png]]
+
+**** squid的配置文件详解
+
+     详解：[[http://wiki.ubuntu.org.cn/Squid]]
+
+     正向代理:
+     #+BEGIN_EXAMPLE
+     http_port 3128   			     #监听端口是3128，可修改
+     visible_hostname localhost     #新版本要求，Squid在错误页面中显示的服务器名称，没有这项，会警告
+     cache_access_log /var/squid/access.log   #用户访问日志，用于了解所有用户访问的详尽地址
+     
+     ####Squid缓存的文件系统、位置和缓存策略#############################
+     cache_dir aufs /data/cache 1024 16 256    #缓存位置、缓存最大为1024M；16和256代表一级和二级目录数。 
+     cache_mem 128 MB	     	#Squid占用的物理内存，一般不要大于内存的三分之一
+     cache_swap_low 90             #磁盘缓存空间使用低于90%时，新的数据将不覆盖旧的
+     cache_swap_high 95            #当缓存空间使用达到95%时，新的内容覆盖旧的而不直接添加到目录中
+
+     ####ACL访问控制列表划分访问类型（用户或行为）####################
+     ##基本格式： acl 列表名称 ACL类型 控制目标
+     访问控制元素
+     ACL元素是Squid的访问控制的基础。基本的ACL元素语法如下：
+     acl name type value1 value2 ...
+     
+     acl manager proto cache_object
+     acl localhost src 127.0.0.1/32 ::1
+     acl to_localhost dst 127.0.0.0/8 0.0.0.0/32 ::1
+     acl localnet src 10.0.0.0/8     # RFC1918 possible internal network
+     acl localnet src 172.16.0.0/12  # RFC1918 possible internal network
+     acl localnet src 192.168.0.0/16 # RFC1918 possible internal network
+     acl SSL_ports port 443
+     acl Safe_ports port 80 8080         # http
+     acl Safe_ports port 21          # ftp
+     acl Safe_ports port 443         # https
+     acl CONNECT method CONNECT
+     acl all src 0.0.0.0/0 
+     #基本的ACL类型http://blog.csdn.net/gengoo/article/details/5158238
+     
+     IP地址：src,dst,myip
+     域名：srcdomain,dstdomain,和cache_host_domain指令
+     HTTP请求方法:method,如:acl Uploads method PUT POST.
+     URI访问（或传输）协议:proto。有效值：http, https (same as HTTP/TLS), ftp 和cache_object
+     用户名：ident,proxy_auth
+     正则表达式：srcdom_regex, dstdom_regex, url_regex, .........
+     TCP端口号:port,myport
+ 
+    ####对上面的控制列表分别进行控制######################################
+     http_access allow manager localhost
+     http_access deny manager
+     http_access deny !Safe_ports
+     http_access deny CONNECT !SSL_ports
+     http_access allow localnet
+     http_access allow localhost
+     http_access allow all                   
+     #squid会按照先后顺序套用规则，一般是allow-deny-allow-deny-......，当所有规则都不匹配时，它会使用与最后一条规则相反的规则，基于安全原则，最后一条一定要allow all结尾，默认最后就是http_access deny all
+     
+     #####设置对象缓存类型和时间#################################
+     ##格式：refresh_pattern [-i] regexp min percent max [options]
+     ##详解refresh_pattern http://ask.apelearn.com/question/916
+     #-i是否区分大小写，regrexp支持正则表达式，min最小缓存时间，文件存活时间比例，
+     refresh_pattern ^ftp:           1440    20%     10080
+     refresh_pattern ^gopher:        1440    0%      1440
+     refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+     refresh_pattern \.(jpg|png|gif|mp3|xml) 1440    50%     2880    ignore-reload
+     refresh_pattern .               0       20%     4320
+ 
+     ####设置白名单################################################
+     acl http proto HTTP       				#指定使用协议
+     acl good_domain dstdomain .lishiming.net .aminglinux.com #白名单
+     http_access allow http good_domain     #允许白名单
+     http_access deny http !good_domain 	#禁止非白名单
+     ##########设置黑名单################################################
+     acl http proto HTTP 
+     acl bad_domain dstdomain .lishiming.net .aminglinux.com 
+     http_access allow http !bad_domain     #允许非黑名单
+     http_access deny http bad_domain 	#禁止黑名单
+     #+END_EXAMPLE
+     
