@@ -1,0 +1,25 @@
+1. yum install -y nfs-utils-*   #从库上执行
+
+2. vim /etc/exports 建立挂载目录在从库上 -----从库建立
+
+   /export/bak 10.47.48.0/24(rw)  #/export/bak 为备份挂载目录  10.45.64 为服务器网段 RW
+
+3. 从库上建立备份文件存放目录 
+
+   mkdir -p /export/bak  
+
+   chmod 777 /export/bak/
+
+4. 从库起服务 
+
+   /etc/init.d/rpcbind start
+
+   /etc/init.d/nfs start
+
+5. 主机 mount:
+
+   mount 10.47.48.118:/export/bak/ /mnt/   从库IP
+
+   验证： touch /mnt/1.txt
+
+   注意: 从机需要重启必须先umount /mnt/

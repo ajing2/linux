@@ -1,0 +1,70 @@
+** NFS简介
+
+   NFS全称是network file system
+
+   NFS允许一个系统在网络上与他人共享目录和文件。通过使用NFS用户和程序可以像访问本地文件一样访问远端系统上的文件。 
+
+   假如有三台机器A, B, C它们需要访问同一个目录目录中都是图片传统的做法是把这些图片分别放到A, B, C. 但是使用NFS只需要放到A上然后A共享给B和C即可。访问的时候B和C是通过网络的方式去访问A上的那个目录的。 
+
+** 安装、配置NFS服务
+
+   需要安装两个包(nfs-utils和rpcbind)
+
+   =yum install -y nfs-utils=  会同时安装上rpcbind
+
+   提供nfs服务的机器上 vim /etc/exports  //内容如下
+   #+BEGIN_EXAMPLE
+   /home/ 192.168.137.0/24(rw,sync,all_squash,anonuid=501,anongid=501)
+   #+END_EXAMPLE
+   共分为三部分:
+
+   第一部分就是本地要共享出去的目录;
+
+   第二部分为允许访问的主机可以是一个IP也可以是一个IP段;
+
+   第三部分就是小括号里面的为一些权限选项。它表示共享的目录为/home信任的主机为192.168.137.0/24这个网段权限为读写同步限定所有使用者并且限定的uid和gid都为501。
+
+   启动 /etc/init.d/rpcbind start; /etc/init.d/nfs start  
+
+** NFS配置的一些选项说明
+
+   #+BEGIN_EXAMPLE
+   rw 读写
+   ro 只读
+   sync 同步模式内存中数据时时写入磁盘
+   async 不同步把内存中数据定期写入磁盘中
+   no_root_squash 加上这个选项后root用户就会对共享的目录拥有至高的权限控制就像是对本机的目录操作一样。不安全不建议使用
+   root_squash和上面的选项对应root用户对共享目录的权限不高只有普通用户的权限即限制了root
+   all_squash不管使用NFS的用户是谁他的身份都会被限定成为一个指定的普通用户身份
+   anonuid/anongid 要和root_squash 以及all_squash一同使用用于指定使用NFS的用户限定后的uid和gid前提是本机的/etc/passwd中存在这个uid和gid。
+   #+END_EXAMPLE
+
+** 客户端上挂载NFS
+
+   客户端同样安装 =yum install -y nfs-utils=
+
+   查看服务器端都共享了哪些目录 =showmount -e 192.168.137.10=
+
+   在客户端上挂载服务端的nfs 
+   #+BEGIN_EXAMPLE
+   mount -t nfs  -onolock,nfsvers=3 192.168.137.10:/home/ /mnt/     //如果不加 -onolock,nfsvers=3 则在挂载目录下的文件属主和组都是nobody如果指定nfsvers=3则显示root
+   #+END_EXAMPLE
+   df -h  查看挂载的情况
+
+** exportfs 命令的使用
+
+   #+BEGIN_EXAMPLE
+   -a 全部挂载或者卸载
+   -r 重新挂载
+   -u 卸载某一个目录
+   -v 显示共享的目录
+   #+END_EXAMPLE
+   改变/etc/exports配置文件后不用重启nfs服务直接用这个exportfs即可 =exportfs -arv 使生效=
+
+   在使用nfs时常用一个选项就是 -o nolock
+
+   我们还可以把要挂载的nfs目录写到client上的/etc/fstab文件中 *192.168.137.10:/tmp/ /test nfs nolock 0 0* , 然后 =mount -a=;
+
+** [[ http://www.361way.com/nfs-mount-nobody/2616.html][nfs nobody的问题]]
+
+** [[file:NFS挂载热备复制.org][NFS挂载热备复制]]
