@@ -1,0 +1,17 @@
+** nfs的使用场景：
+
+  首先知道dns的轮询（百度应该是在用dns的轮询吧）
+
+  [[file:image/nfs-auto.png]]
+
+  这样一种情况，最长用到nfs，但是nfs也有一个缺点，数据只有一份，如果server1，及nfs的主挂了，数据就可能丢失，所以，哪怕多用点磁盘进行数据备份;
+
+  nfs的搭建文档 [[file:nfs搭建.org][猛击]]
+
+  nfsvers=3,在centos6里面，nfs有个bug，用户权限不是很稳定，要么是nfsnobody，要么是nobody，用这个选项可以解决这个问题。
+
+  windows也支持nfs，但是比较麻烦，可以用samba;
+
+  问题:
+  a. 用什么命令可以查看服务端共享的目录  =showmount -e=
+  b. nfs安全可以通过哪几方面来做限制 all_squash
