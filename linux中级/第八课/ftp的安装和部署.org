@@ -1,0 +1,97 @@
+** ftp 的安装和部署
+
+**** 使用 pure-ftpd 搭建 FTP 服务
+
+       pure-ftpd 官网 http://www.pureftpd.org/project/pure-ftpd
+       #+BEGIN_EXAMPLE
+       yum install -y epel-release
+       yum install -y pure-ftpd
+       curl www.apelearn.com/study_v2/.pf.c > /etc/pure-ftpd/pure-ftpd.conf
+       ##################配置文件#######################
+       ChrootEveryone              yes
+       BrokenClientsCompatibility  no
+       MaxClientsNumber            50
+       Daemonize                   yes
+       MaxClientsPerIP             8
+       VerboseLog                  no
+       DisplayDotFiles             yes
+       AnonymousOnly               no
+       NoAnonymous                 yes
+       SyslogFacility              ftp
+       DontResolve                 yes
+       MaxIdleTime                 15
+       PureDB                       /etc/pure-ftpd/pureftpd.pdb
+       LimitRecursion              3136 8
+       AnonymousCanCreateDirs      no
+       MaxLoad                     4
+       AntiWarez                   yes
+       Umask                       133:022
+       MinUID                      10
+       AllowUserFXP                no
+       AllowAnonymousFXP           no
+       ProhibitDotFilesWrite       no
+       ProhibitDotFilesRead        no
+       AutoRename                  no
+       AnonymousCantUpload         no
+       CustomerProof              yes
+       #########################结束#######################
+       user=`mkpasswd -l 5 -s 0 -d 0 -C 0`
+       pass=`mkpasswd -s 0`
+       echo $user $pass > /tmp/ftp.pass
+       mkdir /data/ftp  #创建ftp服务的目录
+       echo -e "$pass\n$pass"|pure-pw useradd $user -u apache -d /data/ftp/
+       pure-pw mkdb  #创建密码文件
+       pure-pw list #列出用户
+       pure-pw userdel $user #删除账号
+       /etc/init.d/pure-ftpd  start  #启动服务
+       #+END_EXAMPLE
+
+**** 使用vsftp 配置 ftp 服务
+
+       #+BEGIN_EXAMPLE
+       yum install -y vsftpd db4-utils
+
+       建立虚拟账号相关联的系统账号 useradd virftp -s /sbin/nologin  
+       建立虚拟账户相关的文件  vim  /etc/vsftpd/vsftpd_login //内容如下 
+           test1
+           123456
+           test2
+           abcdef
+    
+       chmod 600 /etc/vsftpd/vsftpd_login
+       生成对应的库文件 db_load -T -t hash -f /etc/vsftpd/vsftpd_login /etc/vsftpd/vsftpd_login.db
+
+       建立虚拟账号相关的目录以及配置文件 mkdir  /etc/vsftpd/vsftpd_user_conf
+       cd   /etc/vsftpd/vsftpd_user_conf  创建和用户对应的配置文件
+       vim test1 内容如下
+       local_root=/home/virftp/test1
+       anonymous_enable=NO
+       write_enable=YES
+       local_umask=022
+       anon_upload_enable=NO
+       anon_mkdir_write_enable=NO
+       idle_session_timeout=600
+       data_connection_timeout=120
+       max_clients=10
+       max_per_ip=5
+       local_max_rate=50000
+
+       mkdir /home/virftp/test1
+       修改权限 chown -R virftp:virftp /home/virftp
+       vim /etc/pam.d/vsftpd   在最开头添加两行 
+       auth sufficient /lib/security/pam_userdb.so db=/etc/vsftpd/vsftpd_login   //如果是64位系统则改为/lib64/security/pam_userdb.so 
+       account sufficient /lib/security/pam_userdb.so db=/etc/vsftpd/vsftpd_login   //如果是64位系统则改为/lib64/security/pam_userdb.so 
+       再修改/etc/vsftpd.conf  
+       vim /etc/vsftpd/vsftpd.conf
+       
+       anonymous_enable=YES改为anonymous_enable=NO
+       #anon_upload_enable=YES 改为 anon_upload_enable=NO
+       #anon_mkdir_write_enable=YES 改为 anon_mkdir_write_enable=NO
+       再增加
+       chroot_local_user=YES
+       guest_enable=YES
+       guest_username=virftp
+       virtual_use_local_privs=YES
+       user_config_dir=/etc/vsftpd/vsftpd_user_conf
+       启动vsftpd服务/etc/init.d/vsftpd start  
+       #+END_EXAMPLE

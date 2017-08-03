@@ -15,3 +15,23 @@
   问题:
   a. 用什么命令可以查看服务端共享的目录  =showmount -e=
   b. nfs安全可以通过哪几方面来做限制 all_squash
+
+** ftp 的使用
+
+   - ftp的使用背景:
+
+     FTP 是 File Transfer Protocol 文件传输协议的英文简称, 而中文简称为"文传协议"用于 Internet 上的控制文件的双向传输;
+
+     FTP 的主要作用就是让用户连接上一个远程计算机. 这些计算机上运行着 FTP 服务器程序查看远程计算机有哪些文件, 然后把文件从远程计算机上拷到本地计算机或把本地计算机的文件送到远程计算机去;
+
+     在 CentOS 或者 RedHat Linux 上有自带的 ftp 软件叫做 vsftpd;
+
+   - pureftp 可以使用 yum 安装, 可以使用第三方 yum 源;
+
+   - 大部分没法登陆, 是因为 iptables 和 selinux;
+
+   - -u 后面是定的系统用户依据是什么?(把虚拟用户映射到系统用户)
+
+   - vsftpd 服务启动以后可以直接用系统用户登录, 但是 root 用户不行, 可以用 ftp 用户,密码无;
+
+   - [[file:ftp的安装和部署.org][ftp 的安装和部署]]
