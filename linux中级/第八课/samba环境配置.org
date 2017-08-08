@@ -1,0 +1,152 @@
+** samba环境配置
+
+*** 什么是samba
+
+    Samba服务类似于windows上的共享功能，可以实现在Linux上共享文件，windows上访问，当然在Linux上也可以访问到。
+    是一种在局域网上共享文件和打印机的一种通信协议，它为局域网内的不同计算机之间提供文件及打印机等资源的共享服务;
+
+*** 安装配置samba
+
+    - =yum install -y samba samba-client=
+    - 配置文件解说
+
+      #+BEGIN_EXAMPLE
+      [global] 定义全局的配置，workgroup用来定义工作组，相信如果您安装过windows的系统，你会对这个workgroup不陌生。一般情况下，需要我们把这里的MYGROUP改成WORKGROUP（windows默认的工作组名字）。
+      security = user #这里指定samba的安全等级。关于安全等级有四种：
+      share：用户不需要账户及密码即可登录samba服务器
+      user：由提供服务的samba服务器负责检查账户及密码（默认）
+      server：检查账户及密码的工作由另一台windows或samba服务器负责
+      domain：指定windows域控制服务器来验证用户的账户及密码。
+      passdb backend = tdbsam # passdb backend（用户后台），samba有三种用户后台：smbpasswd, tdbsam和ldapsam.
+      #+END_EXAMPLE
+
+*** samba配置文件
+
+    关于smbpasswd 参考文章：http://blog.yam.com/gavint/article/27397099 http://www.cnblogs.com/linuxbo/p/4290996.html
+
+    smbpasswd：该方式是使用smb工具smbpasswd给系统用户（真实用户或者虚拟用户）设置一个Samba密码，客户端就用此密码访问Samba资源。smbpasswd在/etc/samba中，需要手工创建该文件;
+
+    cat /etc/passwd | mksmbpasswd.sh >/etc/samba/smbpasswd
+
+    tdbsam：使用数据库文件创建用户数据库。数据库文件叫passdb.tdb，在/etc/samba中。passdb.tdb用户数据库可使用
+
+    smbpasswd -a 
+
+    创建Samba用户，要创建的Samba用户必须先是系统用户。也可使用pdbedit创建Samba账户。（注意，使用smbpasswd -a username 这个同样也是tdbsam，并非上面的那种）
+
+    pdbedit参数很多，列出几个主要的：
+
+    pdbedit -a username：新建Samba账户。
+
+    pdbedit -x username：删除Samba账户。
+
+    pdbedit -L：列出Samba用户列表，读取passdb.tdb数据库文件。
+
+    pdbedit -Lv：列出Samba用户列表详细信息。
+
+    pdbedit -c “[D]” -u username：暂停该Samba用户账号。
+
+    pdbedit -c “[]” -u username：恢复该Samba用户账号。
+
+    ldapsam：基于LDAP账户管理方式验证用户。首先要建立LDAP服务，设置 “passdb backend = ldapsam:ldap://LDAP Server”;
+
+    load printers 和 cups options 两个参数用来设置打印机相关。
+
+    除了这些参数外，还有几个参数需要你了解：
+    
+    #+BEGIN_EXAMPLE
+    netbios name = MYSERVER # 设置出现在网上邻居中的主机名
+    hosts allow = 127. 192.168.12. 192.168.13. 172.16.# 用来设置允许的主机，如果在前面加 ”;” 则表示允许所有主机
+    log file = /var/log/samba/%m.log #定义samba的日志，这里的%m是上面的netbios name
+    max log size = 50 # 指定日志的最大容量，单位是K
+
+    [homes] 该部分内容共享用户自己的家目录，也就是说，当用户登录到samba服务器上时实际上是进入到了该用户的家目录，用户登陆后，共享名不是homes而是用户自己的标识符，对于单纯的文件共享的环境来说，这部分可以注视掉。
+    [printers] 该部分内容设置打印机共享
+    #+END_EXAMPLE
+
+*** samba实践一
+
+    要求共享一个目录，任何人都可以访问，即不用输入密码即可访问，要求只读;
+
+    [global]部分 MYGROUP 改为WORKGROUP 
+    
+    security = user 改为 security = share 
+
+    末尾处加入:
+    #+BEGIN_EXAMPLE
+    [share]
+    comment = share all
+    path = /tmp/samba
+    browseable = yes
+    public = yes
+    writable = no
+    #+END_EXAMPLE
+
+    mkdir /tmp/samba 
+
+    chmod 777 /tmp/samba 
+
+    touch /tmp/samba/sharefiles 
+
+    echo "111111" > /tmp/samba/sharefiles 
+
+    启动：/etc/init.d/smb start 
+
+    检查配置的smb.conf是否正确 testparm 
+
+    测试：win机器浏览器输入 file://192.168.0.22/share 
+
+    或者运行栏输入： \\192.168.0.22
+
+*** samba实践二
+
+    共享一个目录，使用用户名和密码登录后才可以访问，要求可以读写;
+
+    [global] 部分内容如下:
+    #+BEGIN_EXAMPLE
+    [global]
+    workgroup = WORKGROUP
+    server string = Samba Server Version %v
+    security = user
+    passdb backend = tdbsam
+    load printers = yes
+    cups options = raw
+    #+END_EXAMPLE
+
+    还需加入
+    #+BEGIN_EXAMPLE
+    [myshare]
+    comment = share for users
+    path = /samba
+    browseable = yes
+    writable = yes
+    public = no
+    #+END_EXAMPLE
+
+    创建目录：mkdir /samba
+
+    修改权限：chmod 777 /samba
+    
+    创建系统账号：
+
+    useradd user1
+
+    useradd user2
+
+    添加user1/user2为samba账户：
+
+    pdbedit -a user1
+
+    pdbedit -a user2 
+
+    列出samba所有账号: pdbedit –L
+
+    重启服务 service smb restart
+
+    测试：浏览器输入file://192.168.0.22/myshare
+*** Linux访问samba共享文件
+
+    - 安装客户端软件 yum install -y samba-client
+    - 命令格式：smbclient //IP/共享名 -U 用户名
+    - 如：smbclient //127.0.0.1/share 如果是匿名访问可以省略掉-U
+    - mount挂载samba目录：mount -t cifs //192.168.0.22/myshare /mnt -o username=user1,password=123456 
