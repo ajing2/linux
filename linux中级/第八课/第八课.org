@@ -35,3 +35,14 @@
    - vsftpd 服务启动以后可以直接用系统用户登录, 但是 root 用户不行, 可以用 ftp 用户,密码无;
 
    - [[file:ftp的安装和部署.org][ftp 的安装和部署]]
+
+   - [[file:ftp的主动和被动模式.org][ftp的主动和被动模式]]
+
+   - [[file:vsftpd配置文件详解.org][ftp的配置文件详解]]
+
+** samba的部署和优化
+
+   - samba服务的使用场景
+   - [[file:samba环境配置.org][samba环境部署]]
+   - [[file:samba配置文件详解.org][samba配置文件详解]]
+
