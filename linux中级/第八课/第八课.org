@@ -46,3 +46,30 @@
    - [[file:samba环境配置.org][samba环境部署]]
    - [[file:samba配置文件详解.org][samba配置文件详解]]
 
+   - 问题
+
+     1. 访问的时候，会有一个和用户名一样的目录，这是因为smb.conf中没有把[home]这一段配置注释掉;
+     2. session setup failed: SUCCESS - 0   把nat改成桥接;
+
+** squid服务的搭建
+
+   - [[file:squid专题.org][squid专题]]: squid可以缓存, 节省很大的缓存;
+   - [[file:squid,nginx,lighttpd反向代理的区别.org][squid,nginx,lighttpd反向代理的区别]]
+   - 提问
+     1. visble_hostname 的问题
+
+	新版本要求，Squid在错误页面中显示的服务器名称，没有这项，会警告
+
+     2. 为什么cache_mem的大小必须小于cache_dir的大小?
+
+	内存的东西肯定要比dir小，dir还有缓存，磁盘数据什么的;
+
+     3. =parent  80  0=  是什么意思？
+
+	icp端口用于连接相邻的ICP（Internet Cache Protocol）缓存服务器（通常为另一台Squid主机），如果没有，则使用0；--->反向代理到80端口！
+
+** TODO tomcat中JDK的安装
+
+   - [[file:部署tomcat.org][部署tomcat]] (tomcat 为什么要安装JDK)
+   - [[file:tomcat配置文件结构.org][tomcat配置文件结构]]
+   - [[file:tomcat配置文件详解.org][tomcat配置文件详解]]
