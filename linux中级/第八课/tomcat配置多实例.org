@@ -1,0 +1,58 @@
+** tomcat配置多实例
+
+   cp /export/server/tomcat7 /export/Domains/abc
+
+   cat /export/Domains/abc/conf/Catalina/localhost/ROOT.xml
+   #+BEGIN_EXAMPLE
+   <?xml version="1.0" encoding="UTF-8"?>
+   <Context path="/" docBase="/export/App/abc">
+   </Context>
+   #+END_EXAMPLE
+   mkdir /export/App/abc
+
+   cd /export/App/abc
+
+   上传项目程序, 写入8001文件, cat 8001
+   #+BEGIN_EXAMPLE
+   8001
+   8001
+   8001
+   #+END_EXAMPLE
+   修改/export/Domains/abc/conf/server.xml
+
+   修改端口：server和http端口
+   #+BEGIN_EXAMPLE
+   <Server port="9001" shutdown="SHUTDOWN">
+   <Connector port="8001" protocol="HTTP/1.1"
+   注释：
+   <!--<Connector port="8090" protocol="AJP/1.3" redirectPort="8443" /> -->
+   #+END_EXAMPLE
+   重启tomcat应用实例8001端口;
+
+   /export/Domains/abc/bin/startup.sh -config /export/Domains/abc/conf/server.xml
+
+   检查tomcat的端口
+   [[file:image/tomcat-check-port.png]]
+
+   测试
+   [[file:image/tomcat-test-conf.png]]
+
+   curl  -xlocalhost:8080 www.123.com/8080  
+   [[file:image/tomcat-test-result.png]]
+
+   8001:
+   [[file:image/tomcat-test-port-8001-result.png]]
+
+   [[file:image/tomcat-test-port-8001-result1.png]]
+
+   [[file:image/tomcat-test-port-8001-result2.png]]
+
+   [[file:image/tomcat-test-port-8001-result3.png]]
+
+   因为没有绑定host，所有不能直接通过浏览器访问，只能通过curl来访问，每次使用的start.sh这个脚本只能用项目实例本省的，ROOT.xml需要配置在自己tomcat实例的Catalina目录下:
+   [[file:image/tomacat-cat-rootxml.png]]
+
+   此处设置成ROOT.xml
+   [[file:image/tomcat-change-dir.png]]
+
+   这个地方需要改成项目目录

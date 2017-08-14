@@ -1,0 +1,39 @@
+** tomcat配置文件结构
+
+   cd /export/servers/tomcat7
+   - bin ——Tomcat执行脚本目录
+
+     - catalina.sh 用于启动和关闭tomcat服务器
+     - configtest.sh 用于检查配置文件
+     - startup.sh 启动Tomcat脚本
+     - shutdown.sh 关闭Tomcat脚本
+
+   - conf ——Tomcat配置文件
+
+     - server.xml Tomcat 的全局配置文件
+     - web.xml 为不同的Tomcat配置的web应用设置缺省值的文件
+     - tomcat-users.xml Tomcat用户认证的配置文件
+     - catalina.policy：Java相关的安全策略配置文件，在系统资源级别上提供访问控制的能力；
+     - catalina.properties：Tomcat内部package的定义及访问相关的控制，也包括对通过类装载器装载的内容的控制；Tomcat在启动时会事先读取此文件的相关设置；
+     - logging.properties: Tomcat通过自己内部实现的JAVA日志记录器来记录操作相关的日志，此文件即为日志记录器相关的配置信息，可以用来定义日志记录的组件级别以及日志文件的存在位置等；
+     - context.xml：所有host的默认配置信息；
+   - lib ——Tomcat运行需要的库文件（JARS）
+
+     包含被Tomcat使用的各种各样的jar文件。在Linux/UNIX上，任何这个目录中的文件将被附加到Tomcat的classpath中;
+
+   - logs ——Tomcat执行时的LOG文件
+
+     - localhost_access_log.2013-09-18.txt 访问日志
+     - localhost.2013-09-18.log 错误和其它日志
+     - manager.2013-09-18.log 管理日志
+     - catalina.2013-09-18.log Tomcat启动或关闭日志文件
+     - catalina.out 不断的在打日志
+
+   - temp ——Tomcat临时文件存放目录
+   - webapps ——Tomcat的主要Web发布目录（存放我们自己的JSP,SERVLET,类）
+
+     放web应用程序; 但是我们一般放在/export/App/下面，tomcat实例和程序分开;
+
+   - work ——Tomcat的工作目录，Tomcat将翻译JSP文件到的Java文件和class文件放在这里
+
+     由Tomcat自动生成，这是Tomcat放置它运行期间的中间(intermediate)文件(诸如编译的JSP文件)地方. 如果当Tomcat运行时，你删除了这个目录那么将不能够执行包含JSP的页面;
