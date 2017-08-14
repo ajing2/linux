@@ -3,7 +3,7 @@
   首先知道dns的轮询（百度应该是在用dns的轮询吧）
 
   [[file:image/nfs-auto.png]]
-
+  
   这样一种情况，最长用到nfs，但是nfs也有一个缺点，数据只有一份，如果server1，及nfs的主挂了，数据就可能丢失，所以，哪怕多用点磁盘进行数据备份;
 
   nfs的搭建文档 [[file:nfs搭建.org][猛击]]
@@ -73,3 +73,12 @@
    - [[file:部署tomcat.org][部署tomcat]] (tomcat 为什么要安装JDK)
    - [[file:tomcat配置文件结构.org][tomcat配置文件结构]]
    - [[file:tomcat配置文件详解.org][tomcat配置文件详解]]
+   - [[file:tomcat%E9%85%8D%E7%BD%AE%E5%A4%9A%E5%AE%9E%E4%BE%8B.org][tomcat配置多实例]]
+   - [[file:tomcat-server处理一个http请求的过程.org][tomcat server处理一个http请求的过程]]
+   - 问题: 404问题
+
+     真正的网站根目录是在 appbase下面的ROOT里面。如果把appbase设置为空，然后加一行:
+     #+BEGIN_EXAMPLE
+     <Context path="" docBase="/tmp/1212/ROOT" debug="0" reloadable="true" crossContext="true"/>
+     #+END_EXAMPLE
+     在docBase定义网站根目录也可以;
